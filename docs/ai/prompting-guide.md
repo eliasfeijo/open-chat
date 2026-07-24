@@ -53,7 +53,7 @@ Every feature belongs to a module and each module owns its own:
 - domain
 - application
 - infrastructure
-- api
+- presentation
 - validation
 
 Current primary modules are:
@@ -84,7 +84,7 @@ For every implementation task, follow this sequence:
 Questions to answer before writing code:
 
 - Which module owns this behavior?
-- Is this a domain rule, application use case, infrastructure concern, API concern, or UI concern?
+- Is this a domain rule, application use case, infrastructure concern, transport concern, or UI concern?
 - Does the change require an ADR?
 - Does the change introduce a new external input boundary that needs Zod validation?
 - Does the change alter durable data and therefore require a migration?
@@ -141,7 +141,7 @@ Not allowed:
 - ownership of business policy
 - framework-driven orchestration
 
-### API And WebSocket Entry Points
+### Presentation And Web Transport Entry Points
 
 Allowed:
 

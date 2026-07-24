@@ -56,7 +56,7 @@ The architecture is governed by the following invariants.
 2. PostgreSQL is the source of truth.
 3. Redis stores only ephemeral or derived state.
 4. Business logic must not depend on Next.js, React, WebSocket implementations, or Drizzle details.
-5. Every feature owns its domain, application, infrastructure, API, and validation logic.
+5. Every feature owns its domain, application, infrastructure, presentation, and validation logic.
 6. Cross-module dependencies are allowed only through explicit application-facing contracts.
 7. External input is never trusted and is always validated with Zod.
 8. Small files and small functions are preferred over large services.
@@ -86,7 +86,7 @@ OpenChat is a single deployable application composed of feature modules and shar
 flowchart TD
 		Browser[Browser]
 		UI[Next.js App Router UI]
-		API[Route Handlers and Server Actions]
+		TRANSPORT[Route Handlers and Server Actions]
 		WS[WebSocket Gateway]
 		APP[Application Services]
 		DOM[Domain Models and Policies]
@@ -95,8 +95,8 @@ flowchart TD
 
 		Browser --> UI
 		Browser --> WS
-		UI --> API
-		API --> APP
+		UI --> TRANSPORT
+		TRANSPORT --> APP
 		WS --> APP
 		APP --> DOM
 		APP --> DB
@@ -176,9 +176,17 @@ rooms/
 	domain/
 	application/
 	infrastructure/
-	api/
+	presentation/
+		server/
 	validation.ts
 ```
+
+The `presentation/` surface groups the web delivery code owned by a module.
+
+- React components and forms live directly under `presentation/`.
+- route handlers and server actions live under `presentation/server/`.
+
+Why: the folder name reflects what the code is doing instead of implying that JSX files are transport endpoints.
 
 Module ownership rules:
 
@@ -204,13 +212,13 @@ Every module follows the same layer model.
 ```mermaid
 flowchart TD
 		UI[UI Layer]
-		API[API and WebSocket Entry Points]
+		TRANSPORT[Transport Layer]
 		APP[Application Layer]
 		DOMAIN[Domain Layer]
 		INFRA[Infrastructure Layer]
 
-		UI --> API
-		API --> APP
+		UI --> TRANSPORT
+		TRANSPORT --> APP
 		APP --> DOMAIN
 		APP --> INFRA
 ```
@@ -220,8 +228,10 @@ Layer definitions:
 - Domain: business concepts, invariants, value objects, and domain-specific errors.
 - Application: use cases, orchestration, transactions, authorization checks, and coordination between domain and infrastructure.
 - Infrastructure: repositories, database mappings, Redis adapters, and external service adapters.
-- API: route handlers, request/response mapping, and transport-specific validation.
+- Transport: route handlers, server actions, request or event mapping, and transport-specific validation.
 - UI: rendering, user interaction, view composition, and client-side behavior.
+
+Folder rule: module-owned web code belongs under `presentation/`, with transport adapters under `presentation/server/`.
 
 Rule: dependencies flow inward. Outer layers may depend on inner layers. Inner layers must not depend on outer layers.
 
@@ -233,8 +243,8 @@ Dependency rules are strict because they are the main mechanism that prevents ar
 
 Allowed dependencies:
 
-- UI may call API endpoints, server actions, or query hooks.
-- API may depend on application services and validation schemas.
+- UI may call transport endpoints, server actions, or query hooks.
+- Transport may depend on application services and validation schemas.
 - Application may depend on domain logic, repository interfaces, and infrastructure implementations selected at composition boundaries.
 - Infrastructure may depend on database clients, Redis clients, and shared technical utilities.
 - Shared utilities may not contain business rules.
@@ -244,6 +254,7 @@ Disallowed dependencies:
 - Domain importing React, Next.js, Drizzle, or Redis packages.
 - Route handlers importing another module's repositories.
 - One module importing another module's infrastructure folder.
+- One module importing another module's validation or presentation internals.
 - UI importing database code.
 - WebSocket handlers calling repositories directly.
 
@@ -332,9 +343,9 @@ Future evolution: introduce read-optimized infrastructure only when search or me
 
 ---
 
-## API Layer
+## Transport Layer
 
-The API layer includes Next.js route handlers and server actions used as transport entry points.
+The transport layer includes Next.js route handlers, server actions, and WebSocket entry points.
 
 Why: transport code must stay thin so that HTTP concerns do not pollute business logic.
 
@@ -353,7 +364,28 @@ Forbidden behavior:
 - Inline authorization logic beyond basic authentication presence checks.
 - Business rule branches encoded in route handlers.
 
+Folder rule: module-owned transport adapters live under `presentation/server/` so they stay close to their UI while remaining visibly separate from application code.
+
 Future evolution: server actions are acceptable for tightly coupled UI mutations, but they must still call application services instead of embedding rules.
+
+---
+
+## Shared And Library Code
+
+`shared/` and `lib/` are intentionally narrow.
+
+Use `shared/` for technical cross-cutting code such as configuration that is not owned by a single feature module.
+
+Use `lib/` for framework and platform glue such as environment loading and external client setup.
+
+Forbidden growth patterns:
+
+- `shared/helpers`
+- `shared/common`
+- business rules in `shared/`
+- application orchestration in `lib/`
+
+When code belongs clearly to a feature, keep it in that feature even if a small amount of duplication results.
 
 ---
 

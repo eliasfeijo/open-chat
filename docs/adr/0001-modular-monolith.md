@@ -34,7 +34,7 @@ This means:
 
 - the system is deployed as one application
 - features are organized into explicit modules
-- each module owns its domain, application, infrastructure, API, and validation code
+- each module owns its domain, application, infrastructure, presentation, and validation code
 - module boundaries are enforced through dependency rules rather than separate processes
 - the database is shared, but access remains disciplined by module ownership
 

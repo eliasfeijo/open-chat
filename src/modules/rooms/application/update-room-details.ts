@@ -14,10 +14,10 @@ export function createUpdateRoomDetails(dependencies: {
 }) {
   return async function updateRoomDetails(input: {
     actorUserId: string | null;
-    description: string;
+    description: string | null;
     name: string;
     roomId: string;
-    topic: string;
+    topic: string | null;
   }) {
     if (!input.actorUserId) {
       throw new UnauthenticatedRoomEditorError();

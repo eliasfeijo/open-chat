@@ -124,7 +124,7 @@ Implications:
 
 ### Feature Ownership
 
-Every feature owns its domain, application, infrastructure, API, and validation surfaces.
+Every feature owns its domain, application, infrastructure, presentation, and validation surfaces.
 
 Implications:
 
@@ -181,8 +181,8 @@ Ownership boundaries are the main defense against monolith sprawl.
 
 Allowed dependency direction:
 
-- UI to API or application-facing client abstractions
-- API and WebSocket entry points to application services
+- UI to transport or application-facing client abstractions
+- transport and WebSocket entry points to application services
 - application to domain and infrastructure abstractions
 - infrastructure to external libraries and data stores
 

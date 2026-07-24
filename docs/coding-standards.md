@@ -65,7 +65,7 @@ Each feature module owns its own:
 - `domain`
 - `application`
 - `infrastructure`
-- `api`
+- `presentation`
 - `validation`
 
 Canonical example:
@@ -75,7 +75,8 @@ rooms/
 	domain/
 	application/
 	infrastructure/
-	api/
+	presentation/
+		server/
 	validation.ts
 ```
 
@@ -84,6 +85,7 @@ Rules:
 - place new behavior in the owning module
 - keep cross-module imports minimal and explicit
 - do not access another module's infrastructure implementation directly
+- do not reach into another module's `presentation` or `validation` internals
 - keep shared code technical rather than domain-specific
 
 Do not reorganize feature behavior into generic root-level folders such as `services`, `controllers`, or `repositories` as the primary project structure.
@@ -141,7 +143,13 @@ Rules:
 - infrastructure code may optimize access patterns but may not redefine business behavior
 - transaction boundaries should remain visible at the application level
 
-### API And WebSocket Entry Points
+### Presentation And Transport
+
+Use `presentation/` for module-owned web delivery code.
+
+Place React components, forms, and view composition under `presentation/`.
+
+Place route handlers and server actions under `presentation/server/`.
 
 Use transport layers for:
 
@@ -154,9 +162,12 @@ Use transport layers for:
 Rules:
 
 - route handlers remain thin
+- server actions remain thin
 - WebSocket handlers remain thin
 - neither layer owns business policy
 - neither layer accesses repositories directly when an application use case should own the flow
+
+If a file renders JSX and does not expose a transport contract, it is presentation UI, not API.
 
 ### UI Layer
 

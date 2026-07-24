@@ -54,11 +54,11 @@ Not implemented yet despite earlier roadmap expectations:
 
 Planning consequence:
 
-The repository already has a stronger Phase 1 foundation in auth, profiles, rooms, and durable messaging than the previous roadmap made explicit. The main remaining gap is not more foundational scaffolding. It is completing discovery, minimal realtime behavior, and end-to-end confidence so the existing slices form one coherent public chat product.
+The repository already has a stronger durable-chat foundation in auth, profiles, rooms, and persisted messaging than the previous roadmap made explicit. The remaining work splits cleanly into two milestones: finishing the durable discovery and messaging product, then introducing realtime message delivery as a separate execution model.
 
 ---
 
-## Phase 1: Core MVP
+## Phase 1A: Durable Core MVP
 
 Goal:
 
@@ -74,7 +74,6 @@ Scope:
 - tags and room-tag assignment
 - room browsing and room search
 - message creation and retrieval
-- minimal realtime room message delivery
 
 Current status:
 
@@ -96,23 +95,50 @@ Still required before Phase 1 is coherent:
 
 - tag workflows that move tags from schema-only support into real module behavior
 - room discovery beyond a flat list, including search over persisted room data
-- minimal realtime message delivery so room conversation does not require refresh
 - end-to-end coverage of the core signed-up user journey through profile, rooms, membership, and messaging
 
 Success criteria:
 
-- a new user can sign up, complete a basic public profile, create a room, discover rooms, join a room, send messages, and receive new room messages without manual refresh
+- a new user can sign up, complete a basic public profile, create a room, discover rooms, join a room, and send messages that persist correctly without manual data repair
 - room discovery is backed by implemented search and tag flows rather than only a static list or schema placeholders
 - the repository has stable, implemented module boundaries for auth, users, rooms, and messages, with tags and search added as real feature slices rather than only planned ownership areas
-- PostgreSQL remains the source of truth for durable room and message data, and any realtime coordination follows the existing ADR boundaries
+- PostgreSQL remains the source of truth for durable room and message data
 
 Out of scope in this phase:
 
+- realtime delivery
+- presence
+- typing indicators
 - private messaging
 - reactions
 - uploads
 - moderation systems
 - notifications
+
+---
+
+## Phase 1B: Realtime Message Delivery
+
+Goal:
+
+Introduce live room message delivery on top of the durable Phase 1A product without pulling broader ephemeral activity into the same milestone.
+
+Scope:
+
+- websocket gateway for room message subscriptions
+- durable-message fan-out after successful persistence
+- minimal reconnect and delivery behavior for room conversation
+- transport and application boundaries for realtime message publication
+
+Success criteria:
+
+- joined users receive newly posted room messages without manual refresh
+- realtime delivery follows successful durable persistence instead of bypassing PostgreSQL
+- the new websocket surface remains a transport adapter and does not become a second business layer
+
+Architectural note:
+
+Realtime is a distinct execution model, not just the end of the durable messaging slice. It should be planned, implemented, and reviewed as its own milestone.
 
 ---
 
@@ -143,7 +169,7 @@ Presence and typing remain ephemeral and do not change the rule that PostgreSQL 
 
 Planning note:
 
-Presence and typing move after the minimal Phase 1 realtime message slice. The current codebase has no websocket surface yet, so the smallest coherent step is durable-message fan-out first, then richer ephemeral room activity.
+Presence and typing move after the Phase 1B realtime message slice. The current codebase has no websocket surface yet, so the smallest coherent step is durable-message fan-out first, then richer ephemeral room activity.
 
 ---
 

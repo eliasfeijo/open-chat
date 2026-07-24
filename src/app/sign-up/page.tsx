@@ -43,7 +43,7 @@ export default async function SignUpPage({
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-(--color-border) bg-(--color-surface) p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)]">
+          <div className="rounded-4xl border border-(--color-border) bg-(--color-surface) p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)]">
             <div className="mb-6 space-y-2">
               <h2 className="text-2xl font-semibold tracking-[-0.03em]">
                 Create your account

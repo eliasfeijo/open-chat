@@ -25,10 +25,10 @@ export function createCreateRoom(dependencies: {
 }) {
   return async function createRoom(input: {
     actorUserId: string | null;
-    description: string;
+    description: string | null;
     name: string;
     slug: string;
-    topic: string;
+    topic: string | null;
   }) {
     if (!input.actorUserId) {
       throw new UnauthenticatedRoomCreatorError();

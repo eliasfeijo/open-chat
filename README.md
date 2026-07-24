@@ -124,7 +124,7 @@ src/
 	websocket/
 ```
 
-Modules own their own domain, application, infrastructure, API, and validation surfaces.
+Modules own their own domain, application, infrastructure, presentation, and validation surfaces.
 
 ---
 
@@ -135,6 +135,7 @@ Canonical documentation lives in:
 - docs/architecture.md
 - docs/project-principles.md
 - docs/coding-standards.md
+- docs/domain-model.md
 - docs/roadmap.md
 - docs/adr/0001-modular-monolith.md
 - docs/adr/0002-tech-stack.md

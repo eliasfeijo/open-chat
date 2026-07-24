@@ -51,10 +51,10 @@ function createRoomsServices() {
 
 export async function createRoom(input: {
   actorUserId: string | null;
-  description: string;
+  description: string | null;
   name: string;
   slug: string;
-  topic: string;
+  topic: string | null;
 }) {
   return createRoomsServices().createRoom(input);
 }
@@ -90,10 +90,10 @@ export async function leaveRoom(input: {
 
 export async function updateRoomDetails(input: {
   actorUserId: string | null;
-  description: string;
+  description: string | null;
   name: string;
   roomId: string;
-  topic: string;
+  topic: string | null;
 }) {
   return createRoomsServices().updateRoomDetails(input);
 }
