@@ -25,6 +25,14 @@ function createUniqueSuffix() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+function trackTestTags(testData: E2eTestDataTracker, tags: string) {
+  tags
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter((tag) => tag.startsWith("e2e-"))
+    .forEach((tag) => testData.tagSlugs.add(tag));
+}
+
 async function signOut(page: Page) {
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(
@@ -96,14 +104,25 @@ async function createRoom(
   await page.getByRole("button", { name: "Create room" }).click();
 
   testData.roomSlugs.add(input.slug);
-  input.tags
-    .split(",")
-    .map((tag) => tag.trim())
-    .filter((tag) => tag.startsWith("e2e-"))
-    .forEach((tag) => testData.tagSlugs.add(tag));
+  trackTestTags(testData, input.tags);
 
   await expect(page.getByText("Room created.")).toBeVisible();
   await expect(page.getByRole("heading", { name: input.name })).toBeVisible();
+}
+
+async function updateRoomTags(
+  page: Page,
+  testData: E2eTestDataTracker,
+  input: {
+    tags: string;
+  },
+) {
+  await page.getByLabel("Tags").fill(input.tags);
+  await page.getByRole("button", { name: "Save room details" }).click();
+
+  trackTestTags(testData, input.tags);
+
+  await expect(page.getByText("Room updated.")).toBeVisible();
 }
 
 async function goToRooms(page: Page) {
@@ -204,6 +223,60 @@ test("signed-up users can move through the durable Phase 1A room journey", async
   await expect(participantPage.getByText(messageBody)).toBeVisible();
 });
 
+test("room messages show the sign-up display name when username setup is skipped", async ({
+  browser,
+  testData,
+}) => {
+  const suffix = createUniqueSuffix();
+  const password = "OpenChatPass123!";
+  const participantDisplayName = `Display Fallback ${suffix}`;
+  const roomName = `Display Name Room ${suffix}`;
+  const roomSlug = `e2e-display-name-room-${suffix}`;
+
+  const ownerPage = await browser.newPage();
+
+  await signUp(ownerPage, testData, {
+    displayName: `Owner ${suffix}`,
+    email: `e2e-owner-display-name-${suffix}@example.com`,
+    password,
+  });
+
+  await updateProfile(ownerPage, {
+    bio: "Hosting a room to verify transcript identity fallback.",
+    username: `host_${suffix.replace(/-/g, "")}`.slice(0, 24),
+  });
+
+  await createRoom(ownerPage, testData, {
+    description: "A room used to verify transcript author display names.",
+    name: roomName,
+    slug: roomSlug,
+    tags: `e2e-display-${suffix.slice(-6)}`,
+    topic: "Display name fallback",
+  });
+
+  const participantPage = await browser.newPage();
+
+  await signUp(participantPage, testData, {
+    displayName: participantDisplayName,
+    email: `e2e-participant-display-name-${suffix}@example.com`,
+    password,
+  });
+
+  await participantPage.goto(`/rooms/${roomSlug}`);
+  await participantPage.getByRole("button", { name: "Join live room" }).click();
+  await expect(participantPage.getByText("You joined the room.")).toBeVisible();
+
+  const messageBody = `Display name fallback message ${suffix}`;
+
+  await participantPage.getByLabel("Message").fill(messageBody);
+  await participantPage.getByRole("button", { name: "Send to room" }).click();
+  await expect(participantPage.getByText("Message posted.")).toBeVisible();
+
+  await ownerPage.goto(`/rooms/${roomSlug}`);
+  await expect(ownerPage.getByText(participantDisplayName)).toBeVisible();
+  await expect(ownerPage.getByText(messageBody)).toBeVisible();
+});
+
 test("room edit highlights invalid tag input", async ({
   browser,
   testData,
@@ -241,6 +314,107 @@ test("room edit highlights invalid tag input", async ({
     page.getByText(
       "Tags can only contain lowercase letters, numbers, and single hyphens.",
     ),
+  ).toBeVisible();
+});
+
+test("owner tag editing flows into discovery and leave behavior stays explicit", async ({
+  browser,
+  testData,
+}) => {
+  const suffix = createUniqueSuffix();
+  const password = "OpenChatPass123!";
+  const roomName = `Lifecycle Room ${suffix}`;
+  const roomSlug = `e2e-room-lifecycle-${suffix}`;
+  const initialTag = `e2e-before-${suffix.slice(-6)}`;
+  const replacementTag = `e2e-after-${suffix.slice(-6)}`;
+  const secondaryReplacementTag = `e2e-leave-${suffix.slice(-6)}`;
+
+  const ownerPage = await browser.newPage();
+
+  await signUp(ownerPage, testData, {
+    displayName: `Owner ${suffix}`,
+    email: `e2e-owner-lifecycle-${suffix}@example.com`,
+    password,
+  });
+
+  await updateProfile(ownerPage, {
+    bio: "Managing room tags before other members arrive.",
+    username: `owner_${suffix.replace(/-/g, "")}`.slice(0, 24),
+  });
+
+  await createRoom(ownerPage, testData, {
+    description: "Room used to validate owner tag editing and leave behavior.",
+    name: roomName,
+    slug: roomSlug,
+    tags: initialTag,
+    topic: "Lifecycle coverage",
+  });
+
+  await ownerPage.goto(`/rooms/${roomSlug}`);
+
+  await expect(
+    ownerPage.getByText(/cannot leave until ownership transfer exists\./i),
+  ).toBeVisible();
+  await expect(
+    ownerPage.getByRole("button", { name: "Owner membership stays active" }),
+  ).toBeDisabled();
+
+  await updateRoomTags(ownerPage, testData, {
+    tags: `${replacementTag}, ${secondaryReplacementTag}`,
+  });
+
+  await expect(ownerPage.getByText(`#${replacementTag}`)).toBeVisible();
+  await expect(
+    ownerPage.getByText(`#${secondaryReplacementTag}`),
+  ).toBeVisible();
+  await expect(ownerPage.getByText(`#${initialTag}`)).toHaveCount(0);
+
+  await signOut(ownerPage);
+
+  const participantPage = await browser.newPage();
+
+  await signUp(participantPage, testData, {
+    displayName: `Participant ${suffix}`,
+    email: `e2e-participant-lifecycle-${suffix}@example.com`,
+    password,
+  });
+
+  await updateProfile(participantPage, {
+    bio: "Joining and leaving rooms as part of the lifecycle checks.",
+    username: `guest_${suffix.replace(/-/g, "")}`.slice(0, 24),
+  });
+
+  await goToRooms(participantPage);
+  await participantPage.getByLabel("Search rooms").fill(roomName);
+  await participantPage.getByLabel("Filter by tag").fill(replacementTag);
+  await participantPage.getByRole("button", { name: "Discover rooms" }).click();
+
+  await expect(
+    participantPage.getByRole("heading", { name: roomName }),
+  ).toBeVisible();
+
+  await participantPage.getByRole("link", { name: "Open room" }).click();
+  await participantPage.getByRole("button", { name: "Join live room" }).click();
+  await expect(participantPage.getByText("You joined the room.")).toBeVisible();
+
+  await participantPage.reload();
+  await expect(
+    participantPage.getByRole("heading", { name: "Compose into the room" }),
+  ).toBeVisible();
+
+  await participantPage
+    .getByRole("button", { name: "Step out of room" })
+    .click();
+  await expect(participantPage.getByText("You left the room.")).toBeVisible();
+
+  await participantPage.reload();
+  await expect(
+    participantPage.getByRole("heading", {
+      name: "Composer locked until you join",
+    }),
+  ).toBeVisible();
+  await expect(
+    participantPage.getByRole("button", { name: "Join live room" }),
   ).toBeVisible();
 });
 

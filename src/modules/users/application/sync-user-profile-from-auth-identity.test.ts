@@ -8,6 +8,7 @@ describe("createSyncUserProfileFromAuthIdentity", () => {
     const createdUserProfile = {
       bio: null,
       createdAt: new Date("2026-01-01T00:00:00.000Z"),
+      displayName: "OpenChat User",
       id: "auth-user-1",
       updatedAt: new Date("2026-01-01T00:00:00.000Z"),
       username: null,
@@ -43,6 +44,7 @@ describe("createSyncUserProfileFromAuthIdentity", () => {
     const existingUserProfile = {
       bio: null,
       createdAt: new Date("2026-01-01T00:00:00.000Z"),
+      displayName: "OpenChat User",
       id: "auth-user-1",
       updatedAt: new Date("2026-01-01T00:00:00.000Z"),
       username: "openchat_user",

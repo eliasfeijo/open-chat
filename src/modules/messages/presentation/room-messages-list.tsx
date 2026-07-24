@@ -23,6 +23,10 @@ function getParticipantName(input: {
     return `@${input.authorProfile.username}`;
   }
 
+  if (input.authorProfile?.displayName) {
+    return input.authorProfile.displayName;
+  }
+
   return "OpenChat user";
 }
 
@@ -30,7 +34,10 @@ function getParticipantInitials(input: {
   authorProfile: UserProfile | null | undefined;
   messageAuthorUserId: string;
 }): string {
-  const label = input.authorProfile?.username ?? input.messageAuthorUserId;
+  const label =
+    input.authorProfile?.username ??
+    input.authorProfile?.displayName ??
+    input.messageAuthorUserId;
   const alphaNumericLabel = label.replace(/[^a-zA-Z0-9]/g, "");
 
   return alphaNumericLabel.slice(0, 2).toUpperCase() || "OC";

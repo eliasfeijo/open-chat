@@ -1,13 +1,42 @@
 import { eq, inArray } from "drizzle-orm";
 
 import type { Database } from "@/db";
-import { users } from "@/db/schema";
+import { user as authUser, users } from "@/db/schema";
 import type { UserProfileRepository } from "@/modules/users/application/ports/user-profile-repository";
 import { UserProfileProvisioningError } from "@/modules/users/domain/user-profile";
 import { userProfileSchema } from "@/modules/users/validation";
 
-function mapUserProfile(row: typeof users.$inferSelect) {
+function mapUserProfile(row: {
+  bio: string | null;
+  createdAt: Date;
+  displayName: string;
+  id: string;
+  updatedAt: Date;
+  username: string | null;
+}) {
   return userProfileSchema.parse(row);
+}
+
+function createUserProfileSelection() {
+  return {
+    bio: users.bio,
+    createdAt: users.createdAt,
+    displayName: authUser.name,
+    id: users.id,
+    updatedAt: users.updatedAt,
+    username: users.username,
+  } as const;
+}
+
+async function findJoinedUserProfileById(database: Database, userId: string) {
+  const [userProfile] = await database
+    .select(createUserProfileSelection())
+    .from(users)
+    .innerJoin(authUser, eq(authUser.id, users.id))
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  return userProfile ? mapUserProfile(userProfile) : null;
 }
 
 export function createDrizzleUserProfileRepository(
@@ -24,15 +53,16 @@ export function createDrizzleUserProfileRepository(
           target: users.id,
         });
 
-      const createdUserProfile = await database.query.users.findFirst({
-        where: eq(users.id, authUserId),
-      });
+      const createdUserProfile = await findJoinedUserProfileById(
+        database,
+        authUserId,
+      );
 
       if (!createdUserProfile) {
         throw new UserProfileProvisioningError(authUserId);
       }
 
-      return mapUserProfile(createdUserProfile);
+      return createdUserProfile;
     },
 
     async deleteById(userId) {
@@ -40,11 +70,7 @@ export function createDrizzleUserProfileRepository(
     },
 
     async findById(userId) {
-      const userProfile = await database.query.users.findFirst({
-        where: eq(users.id, userId),
-      });
-
-      return userProfile ? mapUserProfile(userProfile) : null;
+      return findJoinedUserProfileById(database, userId);
     },
 
     async findByIds(userIds) {
@@ -52,9 +78,11 @@ export function createDrizzleUserProfileRepository(
         return [];
       }
 
-      const userProfiles = await database.query.users.findMany({
-        where: inArray(users.id, userIds),
-      });
+      const userProfiles = await database
+        .select(createUserProfileSelection())
+        .from(users)
+        .innerJoin(authUser, eq(authUser.id, users.id))
+        .where(inArray(users.id, userIds));
 
       return userProfiles.map(mapUserProfile);
     },
@@ -68,17 +96,25 @@ export function createDrizzleUserProfileRepository(
     },
 
     async updateById(input) {
-      const [updatedUserProfile] = await database
+      await database
         .update(users)
         .set({
           bio: input.bio,
           updatedAt: new Date(),
           username: input.username,
         })
-        .where(eq(users.id, input.userId))
-        .returning();
+        .where(eq(users.id, input.userId));
 
-      return mapUserProfile(updatedUserProfile);
+      const updatedUserProfile = await findJoinedUserProfileById(
+        database,
+        input.userId,
+      );
+
+      if (!updatedUserProfile) {
+        throw new UserProfileProvisioningError(input.userId);
+      }
+
+      return updatedUserProfile;
     },
   };
 }

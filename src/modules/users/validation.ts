@@ -11,8 +11,11 @@ export const usernameSchema = z
 
 export const userBioSchema = z.string().trim().max(160);
 
+export const userDisplayNameSchema = z.string().min(1);
+
 export const userProfileSchema = z.object({
   id: userIdSchema,
+  displayName: userDisplayNameSchema,
   username: usernameSchema.nullable(),
   bio: userBioSchema.nullable(),
   createdAt: z.date(),

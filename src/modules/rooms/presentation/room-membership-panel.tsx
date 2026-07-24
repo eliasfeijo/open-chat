@@ -47,8 +47,16 @@ export function RoomMembershipPanel({
           </p>
           <p className="text-sm leading-7 text-(--color-muted)">
             You opened this room, so your owner membership anchors the
-            conversation and stays attached in this slice.
+            conversation and cannot leave until ownership transfer exists.
           </p>
+          <button
+            aria-disabled="true"
+            className="inline-flex items-center justify-center rounded-full border border-(--color-border) bg-(--color-surface) px-5 py-2.5 text-sm font-semibold text-(--color-muted) opacity-80"
+            disabled
+            type="button"
+          >
+            Owner membership stays active
+          </button>
         </div>
       </section>
     );

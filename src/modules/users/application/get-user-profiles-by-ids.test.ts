@@ -9,6 +9,7 @@ describe("createGetUserProfilesByIds", () => {
       {
         bio: "Building public chat UX.",
         createdAt: new Date("2026-01-01T00:00:00.000Z"),
+        displayName: "OpenChat Builder",
         id: "user-1",
         updatedAt: new Date("2026-01-01T00:00:00.000Z"),
         username: "openchat_builder",
