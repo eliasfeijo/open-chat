@@ -26,30 +26,85 @@ OpenChat is intentionally optimized for incremental evolution. The roadmap shoul
 
 ---
 
+## Current Repository State
+
+This section reflects the current committed implementation, not the intended end state.
+
+Implemented and usable now:
+
+- authentication with Better Auth route handling and authenticated session lookup
+- basic profile onboarding and profile editing for username and bio
+- public room creation with owner membership created transactionally
+- room listing, room detail pages, explicit join and leave flows, and owner editing for name, description, and topic
+- durable room message posting and transcript retrieval backed by PostgreSQL
+- validation and unit tests across the implemented auth, users, rooms, and messages slices
+
+Implemented only in part:
+
+- room browsing exists as a simple list without search, filtering, or tag-based discovery
+- room editing exists for the current core metadata, but slug remains intentionally immutable while room routing is slug-based
+- messaging is durable and permission-checked, but new messages do not arrive in realtime
+- tags exist in the database schema, but there is no tags module or tag assignment workflow yet
+
+Not implemented yet despite earlier roadmap expectations:
+
+- search module behavior and room search UI
+- tag management and room-tag orchestration
+- WebSocket gateway, presence, typing indicators, and cross-instance ephemeral coordination
+
+Planning consequence:
+
+The repository already has a stronger Phase 1 foundation in auth, profiles, rooms, and durable messaging than the previous roadmap made explicit. The main remaining gap is not more foundational scaffolding. It is completing discovery, minimal realtime behavior, and end-to-end confidence so the existing slices form one coherent public chat product.
+
+---
+
 ## Phase 1: Core MVP
 
 Goal:
 
-Deliver a usable public chat product with room discovery, membership, messaging, and a stable architecture foundation.
+Complete the already-started public room product so discovery, membership, messaging, and the architecture foundation work together as one coherent MVP.
 
 Scope:
 
-- authentication
-- user profile basics
-- public room creation
-- room editing for owners
-- room topics and tags
-- room browsing
-- room search
-- join and leave room flows
+- authentication and session handling
+- user profile onboarding and editing basics
+- public room creation, listing, detail, and membership flows
+- owner room editing for core room metadata
+- room topics surfaced as real product data
+- tags and room-tag assignment
+- room browsing and room search
 - message creation and retrieval
-- realtime room message delivery
+- minimal realtime room message delivery
+
+Current status:
+
+Already implemented:
+
+- authentication and authenticated session resolution
+- basic profile sync and profile editing
+- room creation, listing, room detail, join, leave, and owner editing for name, description, and topic
+- durable message posting and transcript listing
+
+Partially implemented:
+
+- room browsing is present but limited to a simple list
+- room topics exist in room data and owner editing, but are not yet part of a broader discovery flow
+- room URLs remain slug-based, so slug changes are intentionally deferred until the routing implications are designed explicitly
+- the planned module boundary exists for tags only at the schema level
+
+Still required before Phase 1 is coherent:
+
+- tag workflows that move tags from schema-only support into real module behavior
+- room discovery beyond a flat list, including search over persisted room data
+- minimal realtime message delivery so room conversation does not require refresh
+- end-to-end coverage of the core signed-up user journey through profile, rooms, membership, and messaging
 
 Success criteria:
 
-- a new user can sign up, create a room, join a room, send messages, and discover rooms
-- the repository contains stable module boundaries for auth, users, rooms, messages, tags, and search
-- PostgreSQL and Redis responsibilities are enforced according to the architecture
+- a new user can sign up, complete a basic public profile, create a room, discover rooms, join a room, send messages, and receive new room messages without manual refresh
+- room discovery is backed by implemented search and tag flows rather than only a static list or schema placeholders
+- the repository has stable, implemented module boundaries for auth, users, rooms, and messages, with tags and search added as real feature slices rather than only planned ownership areas
+- PostgreSQL remains the source of truth for durable room and message data, and any realtime coordination follows the existing ADR boundaries
 
 Out of scope in this phase:
 
@@ -65,14 +120,14 @@ Out of scope in this phase:
 
 Goal:
 
-Improve room activity visibility and refine the product without widening the platform model.
+Build on the completed core room product with ephemeral room activity and usability improvements that do not change the product model.
 
 Scope:
 
 - online presence
 - typing indicators
 - richer profile editing
-- room settings refinement
+- room settings refinement beyond basic owner editing
 - room list and search relevance improvements
 - better realtime connection handling and recovery behavior
 
@@ -80,11 +135,15 @@ Success criteria:
 
 - users can reliably see who is active in a room
 - typing state behaves as short-lived ephemeral UI feedback
-- profile editing is complete enough for basic identity customization
+- profile editing is complete enough for basic identity customization beyond username and bio
 
 Architectural constraint:
 
 Presence and typing remain ephemeral and do not change the rule that PostgreSQL is the durable source of truth.
+
+Planning note:
+
+Presence and typing move after the minimal Phase 1 realtime message slice. The current codebase has no websocket surface yet, so the smallest coherent step is durable-message fan-out first, then richer ephemeral room activity.
 
 ---
 
@@ -161,6 +220,19 @@ Success criteria:
 Architectural warning:
 
 This phase should not influence implementation in earlier phases unless an ADR documents a concrete justified dependency.
+
+---
+
+## Immediate Next Implementation Plan
+
+1. Implement tags and search as real Phase 1 discovery slices so the product matches the public and discoverable positioning in the architecture documents.
+2. Add the minimal realtime message delivery path described by ADR 0003 without pulling presence or typing into the same change set.
+3. Extend end-to-end coverage so the core user journey is exercised across sign-up, profile completion, room creation, membership, and messaging.
+4. Revisit slug mutability only after there is an explicit routing-safe rename policy for room URLs and revalidation behavior.
+
+Why this ordering:
+
+The codebase already supports durable room conversation, room ownership editing, and membership. The biggest remaining Phase 1 risk is an incoherent MVP where rooms exist but are hard to discover, do not update live, and are not yet covered by broader end-to-end verification.
 
 ---
 
