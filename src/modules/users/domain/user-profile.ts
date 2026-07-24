@@ -7,6 +7,20 @@ export class UserProfileProvisioningError extends Error {
   }
 }
 
+export class UserProfileNotFoundError extends Error {
+  constructor(userId: string) {
+    super(`User profile ${userId} was not found.`);
+    this.name = "UserProfileNotFoundError";
+  }
+}
+
+export class UsernameAlreadyTakenError extends Error {
+  constructor(username: string) {
+    super(`Username ${username} is already taken.`);
+    this.name = "UsernameAlreadyTakenError";
+  }
+}
+
 export function canManageUserProfile(
   actorUserId: string,
   targetUserId: string,

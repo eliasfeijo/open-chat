@@ -46,5 +46,27 @@ export function createDrizzleUserProfileRepository(
 
       return userProfile ? mapUserProfile(userProfile) : null;
     },
+
+    async findByUsername(username) {
+      const userProfile = await database.query.users.findFirst({
+        where: eq(users.username, username),
+      });
+
+      return userProfile ? mapUserProfile(userProfile) : null;
+    },
+
+    async updateById(input) {
+      const [updatedUserProfile] = await database
+        .update(users)
+        .set({
+          bio: input.bio,
+          updatedAt: new Date(),
+          username: input.username,
+        })
+        .where(eq(users.id, input.userId))
+        .returning();
+
+      return mapUserProfile(updatedUserProfile);
+    },
   };
 }

@@ -1,5 +1,8 @@
+import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { getAuthenticatedUser } from "@/modules/auth";
+import { NavigationBar } from "@/modules/auth/api/navigation-bar";
 import { appConfig } from "@/shared/config/app-config";
 
 const firstCommitChecklist = [
@@ -10,16 +13,21 @@ const firstCommitChecklist = [
   "Drizzle migration generation configured",
 ];
 
-export default function Home(): ReactElement {
+export default async function Home(): Promise<ReactElement> {
+  const authenticatedUser = await getAuthenticatedUser();
+
   return (
-    <main className="relative isolate overflow-hidden">
+    <main className="relative isolate min-h-screen overflow-hidden bg-(--color-page)">
+      <NavigationBar />
       <div className="absolute inset-x-0 top-0 -z-10 h-128 bg-[radial-gradient(circle_at_top,rgba(217,119,6,0.18),transparent_48%),radial-gradient(circle_at_left,rgba(14,116,144,0.18),transparent_32%)]" />
 
-      <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-16 px-6 py-16 sm:px-10 lg:px-12">
+      <section className="mx-auto flex w-full max-w-6xl flex-col gap-16 px-6 py-16 sm:px-10 lg:px-12">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)] lg:items-end">
           <div className="space-y-8">
             <span className="inline-flex rounded-full border border-(--color-border) bg-(--color-surface) px-4 py-1 text-sm font-medium text-(--color-muted) shadow-sm">
-              Architecture-first public chat platform
+              {authenticatedUser
+                ? `Signed in as ${authenticatedUser.name}`
+                : "Architecture-first public chat platform"}
             </span>
 
             <div className="space-y-5">
@@ -33,18 +41,34 @@ export default function Home(): ReactElement {
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
+              <Link
+                className="inline-flex items-center justify-center rounded-full bg-(--color-accent) px-6 py-3 text-sm font-semibold text-(--color-accent-foreground) transition hover:brightness-110"
+                href={
+                  authenticatedUser
+                    ? "/profile"
+                    : "/sign-up?redirectTo=/profile"
+                }
+              >
+                {authenticatedUser
+                  ? "Continue to profile"
+                  : "Create your account"}
+              </Link>
               <a
                 className="inline-flex items-center justify-center rounded-full bg-(--color-accent) px-6 py-3 text-sm font-semibold text-(--color-accent-foreground) transition hover:brightness-110"
                 href="#foundation"
               >
                 Foundation areas
               </a>
-              <a
+              <Link
                 className="inline-flex items-center justify-center rounded-full border border-(--color-border) bg-(--color-surface) px-6 py-3 text-sm font-semibold text-(--color-foreground) transition hover:bg-(--color-surface-strong)"
-                href="#modules"
+                href={
+                  authenticatedUser
+                    ? "/profile"
+                    : "/sign-in?redirectTo=/profile"
+                }
               >
-                Initial modules
-              </a>
+                {authenticatedUser ? "Edit profile" : "Sign in"}
+              </Link>
             </div>
           </div>
 

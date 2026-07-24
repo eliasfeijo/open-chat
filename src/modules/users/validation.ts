@@ -23,7 +23,32 @@ export const syncUserProfileFromAuthIdentitySchema = z.object({
   authUserId: userIdSchema,
 });
 
+const editableUsernameSchema = z
+  .string()
+  .trim()
+  .max(32)
+  .regex(/^[a-z0-9_]*$/)
+  .transform((value) => (value === "" ? null : value))
+  .refine((value) => value === null || value.length >= 3, {
+    message: "Username must be at least 3 characters long.",
+  });
+
+const editableBioSchema = z
+  .string()
+  .trim()
+  .max(160)
+  .transform((value) => (value === "" ? null : value));
+
+export const updateOwnUserProfileSchema = z.object({
+  bio: editableBioSchema,
+  userId: userIdSchema,
+  username: editableUsernameSchema,
+});
+
 export type UserProfile = z.infer<typeof userProfileSchema>;
 export type SyncUserProfileFromAuthIdentityInput = z.infer<
   typeof syncUserProfileFromAuthIdentitySchema
+>;
+export type UpdateOwnUserProfileInput = z.infer<
+  typeof updateOwnUserProfileSchema
 >;
