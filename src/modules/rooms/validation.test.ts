@@ -7,6 +7,7 @@ import {
   joinRoomSchema,
   leaveRoomSchema,
   roomSchema,
+  updateRoomDetailsSchema,
 } from "@/modules/rooms/validation";
 
 describe("createRoomSchema", () => {
@@ -112,6 +113,28 @@ describe("room membership command schemas", () => {
     expect(query).toEqual({
       roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
       userId: "user-1",
+    });
+  });
+});
+
+describe("updateRoomDetailsSchema", () => {
+  it("normalizes owner room editing fields while leaving slug outside the contract", () => {
+    const command = updateRoomDetailsSchema.parse({
+      actorUserId: " user-1 ",
+      description:
+        "  Talk about architecture, product, and release sequencing.  ",
+      name: "  OpenChat Maintainers  ",
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+      slug: "different-slug",
+      topic: "  Phase 1 owner room management  ",
+    });
+
+    expect(command).toEqual({
+      actorUserId: "user-1",
+      description: "Talk about architecture, product, and release sequencing.",
+      name: "OpenChat Maintainers",
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+      topic: "Phase 1 owner room management",
     });
   });
 });

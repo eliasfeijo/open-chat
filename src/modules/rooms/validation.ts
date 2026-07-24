@@ -73,6 +73,14 @@ export const createRoomSchema = z.object({
   topic: roomTopicSchema,
 });
 
+export const updateRoomDetailsSchema = z.object({
+  actorUserId: roomOwnerUserIdSchema,
+  description: roomDescriptionSchema,
+  name: roomNameSchema,
+  roomId: roomIdSchema,
+  topic: roomTopicSchema,
+});
+
 export const getRoomBySlugSchema = z.object({
   slug: roomSlugSchema,
 });
@@ -105,3 +113,4 @@ export type ListRoomsInput = z.infer<typeof listRoomsSchema>;
 export type Room = z.infer<typeof roomSchema>;
 export type RoomMemberRole = z.infer<typeof roomMemberRoleSchema>;
 export type RoomMembership = z.infer<typeof roomMembershipSchema>;
+export type UpdateRoomDetailsInput = z.infer<typeof updateRoomDetailsSchema>;

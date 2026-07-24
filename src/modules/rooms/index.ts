@@ -5,6 +5,7 @@ import { createGetRoomMembership } from "@/modules/rooms/application/get-room-me
 import { createJoinRoom } from "@/modules/rooms/application/join-room";
 import { createLeaveRoom } from "@/modules/rooms/application/leave-room";
 import { createListRooms } from "@/modules/rooms/application/list-rooms";
+import { createUpdateRoomDetails } from "@/modules/rooms/application/update-room-details";
 import { createDrizzleRoomMembershipRepository } from "@/modules/rooms/infrastructure/drizzle-room-membership-repository";
 import { createDrizzleRoomRepository } from "@/modules/rooms/infrastructure/drizzle-room-repository";
 
@@ -40,6 +41,9 @@ function createRoomsServices() {
       roomMembershipRepository,
     }),
     listRooms: createListRooms({
+      roomRepository,
+    }),
+    updateRoomDetails: createUpdateRoomDetails({
       roomRepository,
     }),
   };
@@ -82,6 +86,16 @@ export async function leaveRoom(input: {
   roomId: string;
 }) {
   return createRoomsServices().leaveRoom(input);
+}
+
+export async function updateRoomDetails(input: {
+  actorUserId: string | null;
+  description: string;
+  name: string;
+  roomId: string;
+  topic: string;
+}) {
+  return createRoomsServices().updateRoomDetails(input);
 }
 
 export type { Room, RoomMembership } from "@/modules/rooms/validation";

@@ -4,8 +4,12 @@ import { rooms } from "@/db/schema";
 import type {
   CreateRoomRecordInput,
   RoomRepository,
+  UpdateRoomDetailsRecordInput,
 } from "@/modules/rooms/application/ports/room-repository";
-import { RoomSlugAlreadyExistsError } from "@/modules/rooms/domain/room";
+import {
+  RoomNotFoundError,
+  RoomSlugAlreadyExistsError,
+} from "@/modules/rooms/domain/room";
 import type { DrizzleRoomDatabase } from "@/modules/rooms/infrastructure/drizzle-room-database";
 import { roomSchema } from "@/modules/rooms/validation";
 
@@ -78,6 +82,24 @@ export function createDrizzleRoomRepository(
       });
 
       return roomList.map(mapRoom);
+    },
+
+    async updateDetailsById(input: UpdateRoomDetailsRecordInput) {
+      const [updatedRoom] = await database
+        .update(rooms)
+        .set({
+          description: input.description,
+          name: input.name,
+          topic: input.topic,
+        })
+        .where(eq(rooms.id, input.roomId))
+        .returning();
+
+      if (!updatedRoom) {
+        throw new RoomNotFoundError(input.roomId);
+      }
+
+      return mapRoom(updatedRoom);
     },
   };
 }

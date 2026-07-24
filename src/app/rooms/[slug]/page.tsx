@@ -7,6 +7,7 @@ import { NavigationBar } from "@/modules/auth/api/navigation-bar";
 import { PostRoomMessageForm } from "@/modules/messages/api/post-room-message-form";
 import { RoomMessagesList } from "@/modules/messages/api/room-messages-list";
 import { listRoomMessages } from "@/modules/messages";
+import { EditRoomDetailsForm } from "@/modules/rooms/api/edit-room-details-form";
 import { RoomDetails } from "@/modules/rooms/api/room-details";
 import { RoomMembershipPanel } from "@/modules/rooms/api/room-membership-panel";
 import { getRoomBySlug, getRoomMembership } from "@/modules/rooms";
@@ -126,6 +127,10 @@ export default async function RoomDetailPage({
               room={room}
             />
 
+            {room.ownerUserId === authenticatedUser.id ? (
+              <EditRoomDetailsForm room={room} />
+            ) : null}
+
             <RoomMembershipPanel
               currentMembershipRole={currentMembership?.role ?? null}
               roomId={room.id}
@@ -133,7 +138,7 @@ export default async function RoomDetailPage({
             />
           </aside>
 
-          <section className="overflow-hidden rounded-[2rem] border border-(--color-border) bg-linear-to-b from-(--color-surface) to-(--color-surface-strong) shadow-sm">
+          <section className="overflow-hidden rounded-4xl border border-(--color-border) bg-linear-to-b from-(--color-surface) to-(--color-surface-strong) shadow-sm">
             <div className="border-b border-(--color-border) px-6 py-5 sm:px-8">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="space-y-2">
@@ -152,7 +157,7 @@ export default async function RoomDetailPage({
             </div>
 
             <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-              <div className="max-h-[42rem] overflow-y-auto pr-1">
+              <div className="max-h-168 overflow-y-auto pr-1">
                 <RoomMessagesList
                   authorProfilesByUserId={participantProfilesByUserId}
                   currentUserId={authenticatedUser.id}

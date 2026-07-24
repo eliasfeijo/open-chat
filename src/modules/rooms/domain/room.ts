@@ -28,6 +28,20 @@ export class UnauthenticatedRoomMembershipActorError extends Error {
   }
 }
 
+export class UnauthenticatedRoomEditorError extends Error {
+  constructor() {
+    super("You need to sign in to update this room.");
+    this.name = "UnauthenticatedRoomEditorError";
+  }
+}
+
+export class RoomUpdateForbiddenError extends Error {
+  constructor(roomId: string, userId: string) {
+    super(`User ${userId} cannot update room ${roomId}.`);
+    this.name = "RoomUpdateForbiddenError";
+  }
+}
+
 export class RoomMembershipAlreadyExistsError extends Error {
   constructor(roomId: string, userId: string) {
     super(`User ${userId} is already a member of room ${roomId}.`);
