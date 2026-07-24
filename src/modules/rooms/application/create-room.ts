@@ -3,11 +3,11 @@ import type {
   CreateRoomRecordInput,
   RoomRepository,
 } from "@/modules/rooms/application/ports/room-repository";
+import { createOwnerRoomMembership } from "@/modules/rooms/domain/room";
 import {
-  createOwnerRoomMembership,
   RoomSlugAlreadyExistsError,
   UnauthenticatedRoomCreatorError,
-} from "@/modules/rooms/domain/room";
+} from "@/modules/rooms/domain/room-errors";
 import { createRoomSchema } from "@/modules/rooms/validation";
 
 type CreateRoomTransactionDependencies = {

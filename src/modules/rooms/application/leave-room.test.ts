@@ -6,7 +6,7 @@ import {
   RoomMembershipNotFoundError,
   RoomOwnerCannotLeaveError,
   UnauthenticatedRoomMembershipActorError,
-} from "@/modules/rooms/domain/room";
+} from "@/modules/rooms/domain/room-errors";
 
 describe("createLeaveRoom", () => {
   it("deletes a non-owner membership", async () => {

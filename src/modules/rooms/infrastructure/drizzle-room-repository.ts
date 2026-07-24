@@ -9,8 +9,8 @@ import type {
 import {
   RoomNotFoundError,
   RoomSlugAlreadyExistsError,
-} from "@/modules/rooms/domain/room";
-import type { DrizzleRoomDatabase } from "@/modules/rooms/infrastructure/drizzle-room-database";
+} from "@/modules/rooms/domain/room-errors";
+import type { DrizzleRoomPersistence } from "@/modules/rooms/infrastructure/drizzle-room-persistence";
 import { roomSchema } from "@/modules/rooms/validation";
 
 function mapRoom(row: typeof rooms.$inferSelect) {
@@ -33,7 +33,7 @@ function isUniqueConstraintViolation(
 }
 
 export function createDrizzleRoomRepository(
-  database: DrizzleRoomDatabase,
+  database: DrizzleRoomPersistence,
 ): RoomRepository {
   return {
     async create(input: CreateRoomRecordInput) {

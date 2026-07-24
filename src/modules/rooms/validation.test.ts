@@ -1,12 +1,15 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  createRoomFormSchema,
   createRoomSchema,
   getRoomBySlugSchema,
   getRoomMembershipSchema,
   joinRoomSchema,
   leaveRoomSchema,
+  roomMembershipFormSchema,
   roomSchema,
+  updateRoomDetailsFormSchema,
   updateRoomDetailsSchema,
 } from "@/modules/rooms/validation";
 
@@ -39,6 +42,22 @@ describe("createRoomSchema", () => {
         topic: "Architecture",
       }),
     ).toThrow();
+  });
+
+  it("reuses the same field rules for room creation form input", () => {
+    const formInput = createRoomFormSchema.parse({
+      description: "  Talk about architecture and product tradeoffs.  ",
+      name: "  OpenChat Builders  ",
+      slug: "  OpenChat-Builders  ",
+      topic: "  Shipping the first public room flows  ",
+    });
+
+    expect(formInput).toEqual({
+      description: "Talk about architecture and product tradeoffs.",
+      name: "OpenChat Builders",
+      slug: "openchat-builders",
+      topic: "Shipping the first public room flows",
+    });
   });
 });
 
@@ -115,6 +134,18 @@ describe("room membership command schemas", () => {
       userId: "user-1",
     });
   });
+
+  it("normalizes room membership form input for transport use", () => {
+    const formInput = roomMembershipFormSchema.parse({
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+      roomSlug: "  OpenChat-Builders  ",
+    });
+
+    expect(formInput).toEqual({
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+      roomSlug: "openchat-builders",
+    });
+  });
 });
 
 describe("updateRoomDetailsSchema", () => {
@@ -134,6 +165,25 @@ describe("updateRoomDetailsSchema", () => {
       description: "Talk about architecture, product, and release sequencing.",
       name: "OpenChat Maintainers",
       roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+      topic: "Phase 1 owner room management",
+    });
+  });
+
+  it("reuses the same field rules for room detail form input", () => {
+    const formInput = updateRoomDetailsFormSchema.parse({
+      description:
+        "  Talk about architecture, product, and release sequencing.  ",
+      name: "  OpenChat Maintainers  ",
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+      roomSlug: "  OpenChat-Builders  ",
+      topic: "  Phase 1 owner room management  ",
+    });
+
+    expect(formInput).toEqual({
+      description: "Talk about architecture, product, and release sequencing.",
+      name: "OpenChat Maintainers",
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+      roomSlug: "openchat-builders",
       topic: "Phase 1 owner room management",
     });
   });

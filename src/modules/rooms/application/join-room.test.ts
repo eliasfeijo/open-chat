@@ -7,7 +7,7 @@ import {
   RoomMembershipAlreadyExistsError,
   RoomNotFoundError,
   UnauthenticatedRoomMembershipActorError,
-} from "@/modules/rooms/domain/room";
+} from "@/modules/rooms/domain/room-errors";
 
 describe("createJoinRoom", () => {
   it("creates a member membership for a signed-in user", async () => {

@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { ZodError, z } from "zod";
+import { ZodError } from "zod";
 
 import { getAuthenticatedUser } from "@/modules/auth";
 import { updateOwnUserProfile } from "@/modules/users";
@@ -9,11 +9,7 @@ import {
   UserProfileNotFoundError,
   UsernameAlreadyTakenError,
 } from "@/modules/users/domain/user-profile";
-
-const updateOwnUserProfileFormSchema = z.object({
-  bio: z.string(),
-  username: z.string(),
-});
+import { updateOwnUserProfileFormSchema } from "@/modules/users/validation";
 
 export type UpdateOwnUserProfileActionState = {
   fieldErrors: {

@@ -11,7 +11,7 @@ import type { Room } from "@/modules/rooms";
 import {
   updateRoomDetailsAction,
   type UpdateRoomDetailsActionState,
-} from "@/modules/rooms/api/update-room-details-action";
+} from "@/modules/rooms/presentation/server/update-room-details-action";
 
 const initialUpdateRoomDetailsActionState: UpdateRoomDetailsActionState = {
   fieldErrors: {},

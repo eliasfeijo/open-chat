@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 
 import { roomMembers } from "@/db/schema";
 import type { RoomMembershipRepository } from "@/modules/rooms/application/ports/room-membership-repository";
-import type { DrizzleRoomDatabase } from "@/modules/rooms/infrastructure/drizzle-room-database";
+import type { DrizzleRoomPersistence } from "@/modules/rooms/infrastructure/drizzle-room-persistence";
 import { roomMembershipSchema } from "@/modules/rooms/validation";
 
 function mapRoomMembership(row: typeof roomMembers.$inferSelect) {
@@ -10,7 +10,7 @@ function mapRoomMembership(row: typeof roomMembers.$inferSelect) {
 }
 
 export function createDrizzleRoomMembershipRepository(
-  database: DrizzleRoomDatabase,
+  database: DrizzleRoomPersistence,
 ): RoomMembershipRepository {
   return {
     async create(input) {

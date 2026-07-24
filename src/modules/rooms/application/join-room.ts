@@ -1,11 +1,11 @@
 import type { RoomMembershipRepository } from "@/modules/rooms/application/ports/room-membership-repository";
 import type { RoomRepository } from "@/modules/rooms/application/ports/room-repository";
+import { createMemberRoomMembership } from "@/modules/rooms/domain/room";
 import {
-  createMemberRoomMembership,
   RoomMembershipAlreadyExistsError,
   RoomNotFoundError,
   UnauthenticatedRoomMembershipActorError,
-} from "@/modules/rooms/domain/room";
+} from "@/modules/rooms/domain/room-errors";
 import { joinRoomSchema } from "@/modules/rooms/validation";
 
 export function createJoinRoom(dependencies: {

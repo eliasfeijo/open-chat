@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { ZodError, z } from "zod";
+import { ZodError } from "zod";
 
 import { getAuthenticatedUser } from "@/modules/auth";
 import { postRoomMessage } from "@/modules/messages";
@@ -9,12 +9,7 @@ import {
   RoomMessageAuthorNotMemberError,
   UnauthenticatedMessageAuthorError,
 } from "@/modules/messages/domain/message";
-
-const postRoomMessageFormSchema = z.object({
-  body: z.string(),
-  roomId: z.string(),
-  roomSlug: z.string(),
-});
+import { postRoomMessageFormSchema } from "@/modules/messages/validation";
 
 export type PostRoomMessageActionState = {
   fieldErrors: {

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   listRoomMessagesSchema,
+  postRoomMessageFormSchema,
   postRoomMessageSchema,
 } from "@/modules/messages/validation";
 
@@ -28,6 +29,20 @@ describe("postRoomMessageSchema", () => {
         roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
       }),
     ).toThrow();
+  });
+
+  it("reuses the same field rules for room message form input", () => {
+    const formInput = postRoomMessageFormSchema.parse({
+      body: "  Shipping the first room message slice.  ",
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+      roomSlug: " openchat-builders ",
+    });
+
+    expect(formInput).toEqual({
+      body: "Shipping the first room message slice.",
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+      roomSlug: "openchat-builders",
+    });
   });
 });
 

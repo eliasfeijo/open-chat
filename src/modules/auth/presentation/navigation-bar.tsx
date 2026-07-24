@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { getAuthenticatedUser } from "@/modules/auth";
-import { SignOutButton } from "@/modules/auth/api/sign-out-button";
+import { SignOutButton } from "@/modules/auth/presentation/sign-out-button";
 
 export async function NavigationBar(): Promise<ReactElement> {
   const authenticatedUser = await getAuthenticatedUser();

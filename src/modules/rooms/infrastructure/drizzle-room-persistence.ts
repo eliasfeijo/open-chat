@@ -8,4 +8,4 @@ type DatabaseTransaction = DatabaseTransactionCallback extends (
   ? Transaction
   : never;
 
-export type DrizzleRoomDatabase = Database | DatabaseTransaction;
+export type DrizzleRoomPersistence = Database | DatabaseTransaction;

@@ -10,7 +10,7 @@ import {
 import {
   type UpdateOwnUserProfileActionState,
   updateOwnUserProfileAction,
-} from "@/modules/users/api/update-own-user-profile-action";
+} from "@/modules/users/presentation/server/update-own-user-profile-action";
 import type { UserProfile } from "@/modules/users";
 
 type ProfileFormProps = Readonly<{

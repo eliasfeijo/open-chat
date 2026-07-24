@@ -1,28 +1,21 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { ZodError, z } from "zod";
+import { ZodError } from "zod";
 
 import { getAuthenticatedUser } from "@/modules/auth";
-import { updateRoomDetails } from "@/modules/rooms";
+import { createRoom } from "@/modules/rooms";
 import {
-  RoomNotFoundError,
-  RoomUpdateForbiddenError,
-  UnauthenticatedRoomEditorError,
-} from "@/modules/rooms/domain/room";
+  RoomSlugAlreadyExistsError,
+  UnauthenticatedRoomCreatorError,
+} from "@/modules/rooms/domain/room-errors";
+import { createRoomFormSchema } from "@/modules/rooms/validation";
 
-const updateRoomDetailsFormSchema = z.object({
-  description: z.string(),
-  name: z.string(),
-  roomId: z.string(),
-  roomSlug: z.string(),
-  topic: z.string(),
-});
-
-export type UpdateRoomDetailsActionState = {
+export type CreateRoomActionState = {
   fieldErrors: {
     description?: string;
     name?: string;
+    slug?: string;
     topic?: string;
   };
   message: string | null;
@@ -31,48 +24,38 @@ export type UpdateRoomDetailsActionState = {
 
 function getFieldErrorMessage(
   error: ZodError,
-  fieldName: "description" | "name" | "topic",
+  fieldName: "description" | "name" | "slug" | "topic",
 ) {
   return error.issues.find((issue) => issue.path[0] === fieldName)?.message;
 }
 
-export async function updateRoomDetailsAction(
-  _previousState: UpdateRoomDetailsActionState,
+export async function createRoomAction(
+  _previousState: CreateRoomActionState,
   formData: FormData,
-): Promise<UpdateRoomDetailsActionState> {
+): Promise<CreateRoomActionState> {
   const authenticatedUser = await getAuthenticatedUser();
 
-  if (!authenticatedUser) {
-    return {
-      fieldErrors: {},
-      message: "You need to sign in to update this room.",
-      status: "error",
-    };
-  }
-
   try {
-    const rawInput = updateRoomDetailsFormSchema.parse({
+    const rawInput = createRoomFormSchema.parse({
       description: formData.get("description"),
       name: formData.get("name"),
-      roomId: formData.get("roomId"),
-      roomSlug: formData.get("roomSlug"),
+      slug: formData.get("slug"),
       topic: formData.get("topic"),
     });
 
-    await updateRoomDetails({
-      actorUserId: authenticatedUser.id,
+    await createRoom({
+      actorUserId: authenticatedUser?.id ?? null,
       description: rawInput.description,
       name: rawInput.name,
-      roomId: rawInput.roomId,
+      slug: rawInput.slug,
       topic: rawInput.topic,
     });
 
     revalidatePath("/rooms");
-    revalidatePath(`/rooms/${rawInput.roomSlug}`);
 
     return {
       fieldErrors: {},
-      message: "Room updated.",
+      message: "Room created.",
       status: "success",
     };
   } catch (error) {
@@ -81,6 +64,7 @@ export async function updateRoomDetailsAction(
         fieldErrors: {
           description: getFieldErrorMessage(error, "description"),
           name: getFieldErrorMessage(error, "name"),
+          slug: getFieldErrorMessage(error, "slug"),
           topic: getFieldErrorMessage(error, "topic"),
         },
         message: "Please correct the highlighted fields.",
@@ -88,11 +72,17 @@ export async function updateRoomDetailsAction(
       };
     }
 
-    if (
-      error instanceof RoomNotFoundError ||
-      error instanceof RoomUpdateForbiddenError ||
-      error instanceof UnauthenticatedRoomEditorError
-    ) {
+    if (error instanceof RoomSlugAlreadyExistsError) {
+      return {
+        fieldErrors: {
+          slug: error.message,
+        },
+        message: "Choose another room slug.",
+        status: "error",
+      };
+    }
+
+    if (error instanceof UnauthenticatedRoomCreatorError) {
       return {
         fieldErrors: {},
         message: error.message,

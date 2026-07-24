@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { getAuthenticatedUser } from "@/modules/auth";
-import { NavigationBar } from "@/modules/auth/api/navigation-bar";
+import { NavigationBar } from "@/modules/auth/presentation/navigation-bar";
 import { appConfig } from "@/shared/config/app-config";
 
 const firstCommitChecklist = [

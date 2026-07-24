@@ -2,8 +2,8 @@ import { redirect } from "next/navigation";
 import type { ReactElement } from "react";
 
 import { getAuthenticatedUser } from "@/modules/auth";
-import { NavigationBar } from "@/modules/auth/api/navigation-bar";
-import { SignUpForm } from "@/modules/auth/api/sign-up-form";
+import { NavigationBar } from "@/modules/auth/presentation/navigation-bar";
+import { SignUpForm } from "@/modules/auth/presentation/sign-up-form";
 
 type SignUpPageProps = Readonly<{
   searchParams: Promise<{

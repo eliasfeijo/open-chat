@@ -2,9 +2,9 @@ import { redirect } from "next/navigation";
 import type { ReactElement } from "react";
 
 import { getAuthenticatedUser } from "@/modules/auth";
-import { NavigationBar } from "@/modules/auth/api/navigation-bar";
-import { CreateRoomForm } from "@/modules/rooms/api/create-room-form";
-import { RoomsList } from "@/modules/rooms/api/rooms-list";
+import { NavigationBar } from "@/modules/auth/presentation/navigation-bar";
+import { CreateRoomForm } from "@/modules/rooms/presentation/create-room-form";
+import { RoomsList } from "@/modules/rooms/presentation/rooms-list";
 import { listRooms } from "@/modules/rooms";
 import { syncUserProfileFromAuthIdentity } from "@/modules/users";
 

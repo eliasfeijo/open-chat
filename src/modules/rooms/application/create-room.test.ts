@@ -6,7 +6,7 @@ import type { RoomRepository } from "@/modules/rooms/application/ports/room-repo
 import {
   RoomSlugAlreadyExistsError,
   UnauthenticatedRoomCreatorError,
-} from "@/modules/rooms/domain/room";
+} from "@/modules/rooms/domain/room-errors";
 
 describe("createCreateRoom", () => {
   it("creates a room and assigns the creator as the owner in one transaction", async () => {

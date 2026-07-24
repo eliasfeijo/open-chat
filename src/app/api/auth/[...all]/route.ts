@@ -1,1 +1,7 @@
-export { DELETE, GET, PATCH, POST, PUT } from "@/modules/auth/api/route";
+export {
+  DELETE,
+  GET,
+  PATCH,
+  POST,
+  PUT,
+} from "@/modules/auth/presentation/server/route";

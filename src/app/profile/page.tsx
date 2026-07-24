@@ -2,12 +2,12 @@ import { redirect } from "next/navigation";
 import type { ReactElement } from "react";
 
 import { getAuthenticatedUser } from "@/modules/auth";
-import { NavigationBar } from "@/modules/auth/api/navigation-bar";
+import { NavigationBar } from "@/modules/auth/presentation/navigation-bar";
 import {
   getUserProfileById,
   syncUserProfileFromAuthIdentity,
 } from "@/modules/users";
-import { ProfileForm } from "@/modules/users/api/profile-form";
+import { ProfileForm } from "@/modules/users/presentation/profile-form";
 
 export default async function ProfilePage(): Promise<ReactElement> {
   const authenticatedUser = await getAuthenticatedUser();

@@ -30,6 +30,14 @@ export const postRoomMessageSchema = z.object({
   roomId: messageRoomIdSchema,
 });
 
+export const postRoomMessageFormSchema = postRoomMessageSchema
+  .omit({
+    actorUserId: true,
+  })
+  .extend({
+    roomSlug: z.string().trim().min(1),
+  });
+
 export const listRoomMessagesSchema = z.object({
   limit: z.number().int().positive().max(100).default(50),
   roomId: messageRoomIdSchema,

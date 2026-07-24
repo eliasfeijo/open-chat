@@ -6,7 +6,7 @@ import {
   joinRoomAction,
   leaveRoomAction,
   type RoomMembershipActionState,
-} from "@/modules/rooms/api/room-membership-action";
+} from "@/modules/rooms/presentation/server/room-membership-action";
 import type { RoomMemberRole } from "@/modules/rooms/validation";
 
 type RoomMembershipPanelProps = Readonly<{

@@ -1,10 +1,10 @@
 import type { RoomMembershipRepository } from "@/modules/rooms/application/ports/room-membership-repository";
+import { canLeaveRoom } from "@/modules/rooms/domain/room";
 import {
-  canLeaveRoom,
   RoomMembershipNotFoundError,
   RoomOwnerCannotLeaveError,
   UnauthenticatedRoomMembershipActorError,
-} from "@/modules/rooms/domain/room";
+} from "@/modules/rooms/domain/room-errors";
 import { leaveRoomSchema } from "@/modules/rooms/validation";
 
 export function createLeaveRoom(dependencies: {

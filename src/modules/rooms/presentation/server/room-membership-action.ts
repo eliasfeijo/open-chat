@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { ZodError, z } from "zod";
+import { ZodError } from "zod";
 
 import { getAuthenticatedUser } from "@/modules/auth";
 import { joinRoom, leaveRoom } from "@/modules/rooms";
@@ -11,12 +11,8 @@ import {
   RoomNotFoundError,
   RoomOwnerCannotLeaveError,
   UnauthenticatedRoomMembershipActorError,
-} from "@/modules/rooms/domain/room";
-
-const roomMembershipFormSchema = z.object({
-  roomId: z.string(),
-  roomSlug: z.string(),
-});
+} from "@/modules/rooms/domain/room-errors";
+import { roomMembershipFormSchema } from "@/modules/rooms/validation";
 
 export type RoomMembershipActionState = {
   message: string | null;

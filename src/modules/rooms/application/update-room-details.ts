@@ -6,7 +6,7 @@ import {
   RoomNotFoundError,
   RoomUpdateForbiddenError,
   UnauthenticatedRoomEditorError,
-} from "@/modules/rooms/domain/room";
+} from "@/modules/rooms/domain/room-errors";
 import { updateRoomDetailsSchema } from "@/modules/rooms/validation";
 
 export function createUpdateRoomDetails(dependencies: {

@@ -3,13 +3,13 @@ import { notFound, redirect } from "next/navigation";
 import type { ReactElement } from "react";
 
 import { getAuthenticatedUser } from "@/modules/auth";
-import { NavigationBar } from "@/modules/auth/api/navigation-bar";
-import { PostRoomMessageForm } from "@/modules/messages/api/post-room-message-form";
-import { RoomMessagesList } from "@/modules/messages/api/room-messages-list";
+import { NavigationBar } from "@/modules/auth/presentation/navigation-bar";
+import { PostRoomMessageForm } from "@/modules/messages/presentation/post-room-message-form";
+import { RoomMessagesList } from "@/modules/messages/presentation/room-messages-list";
 import { listRoomMessages } from "@/modules/messages";
-import { EditRoomDetailsForm } from "@/modules/rooms/api/edit-room-details-form";
-import { RoomDetails } from "@/modules/rooms/api/room-details";
-import { RoomMembershipPanel } from "@/modules/rooms/api/room-membership-panel";
+import { EditRoomDetailsForm } from "@/modules/rooms/presentation/edit-room-details-form";
+import { RoomDetails } from "@/modules/rooms/presentation/room-details";
+import { RoomMembershipPanel } from "@/modules/rooms/presentation/room-membership-panel";
 import { getRoomBySlug, getRoomMembership } from "@/modules/rooms";
 import { getUserProfilesByIds } from "@/modules/users";
 

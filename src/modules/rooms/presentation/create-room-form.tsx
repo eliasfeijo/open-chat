@@ -10,7 +10,7 @@ import {
 import {
   createRoomAction,
   type CreateRoomActionState,
-} from "@/modules/rooms/api/create-room-action";
+} from "@/modules/rooms/presentation/server/create-room-action";
 
 const initialCreateRoomActionState: CreateRoomActionState = {
   fieldErrors: {},

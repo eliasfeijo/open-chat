@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { createUpdateRoomDetails } from "@/modules/rooms/application/update-room-details";
 import type { RoomRepository } from "@/modules/rooms/application/ports/room-repository";
+import { createUpdateRoomDetails } from "@/modules/rooms/application/update-room-details";
 import {
   RoomNotFoundError,
   RoomUpdateForbiddenError,
   UnauthenticatedRoomEditorError,
-} from "@/modules/rooms/domain/room";
+} from "@/modules/rooms/domain/room-errors";
 
 describe("createUpdateRoomDetails", () => {
   it("updates room details when the actor owns the room", async () => {

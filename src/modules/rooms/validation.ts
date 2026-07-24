@@ -73,6 +73,10 @@ export const createRoomSchema = z.object({
   topic: roomTopicSchema,
 });
 
+export const createRoomFormSchema = createRoomSchema.omit({
+  actorUserId: true,
+});
+
 export const updateRoomDetailsSchema = z.object({
   actorUserId: roomOwnerUserIdSchema,
   description: roomDescriptionSchema,
@@ -80,6 +84,14 @@ export const updateRoomDetailsSchema = z.object({
   roomId: roomIdSchema,
   topic: roomTopicSchema,
 });
+
+export const updateRoomDetailsFormSchema = updateRoomDetailsSchema
+  .omit({
+    actorUserId: true,
+  })
+  .extend({
+    roomSlug: roomSlugSchema,
+  });
 
 export const getRoomBySlugSchema = z.object({
   slug: roomSlugSchema,
@@ -94,6 +106,14 @@ export const joinRoomSchema = z.object({
   actorUserId: roomOwnerUserIdSchema,
   roomId: roomIdSchema,
 });
+
+export const roomMembershipFormSchema = joinRoomSchema
+  .omit({
+    actorUserId: true,
+  })
+  .extend({
+    roomSlug: roomSlugSchema,
+  });
 
 export const leaveRoomSchema = z.object({
   actorUserId: roomOwnerUserIdSchema,

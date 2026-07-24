@@ -5,7 +5,7 @@ import { useActionState, type ReactElement } from "react";
 import {
   postRoomMessageAction,
   type PostRoomMessageActionState,
-} from "@/modules/messages/api/post-room-message-action";
+} from "@/modules/messages/presentation/server/post-room-message-action";
 
 type PostRoomMessageFormProps = Readonly<{
   roomName: string;

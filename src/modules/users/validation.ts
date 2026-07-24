@@ -45,6 +45,10 @@ export const updateOwnUserProfileSchema = z.object({
   username: editableUsernameSchema,
 });
 
+export const updateOwnUserProfileFormSchema = updateOwnUserProfileSchema.omit({
+  userId: true,
+});
+
 export type UserProfile = z.infer<typeof userProfileSchema>;
 export type SyncUserProfileFromAuthIdentityInput = z.infer<
   typeof syncUserProfileFromAuthIdentitySchema
