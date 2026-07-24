@@ -27,6 +27,7 @@ describe("createUpdateOwnUserProfile", () => {
         updatedAt: new Date("2026-01-01T00:00:00.000Z"),
         username: "current_user",
       }),
+      findByIds: vi.fn().mockResolvedValue([]),
       findByUsername: vi.fn().mockResolvedValue(null),
       updateById: vi.fn().mockResolvedValue(updatedUserProfile),
     };
@@ -61,6 +62,7 @@ describe("createUpdateOwnUserProfile", () => {
         updatedAt: new Date("2026-01-01T00:00:00.000Z"),
         username: null,
       }),
+      findByIds: vi.fn().mockResolvedValue([]),
       findByUsername: vi.fn().mockResolvedValue({
         bio: null,
         createdAt: new Date("2026-01-01T00:00:00.000Z"),
@@ -91,6 +93,7 @@ describe("createUpdateOwnUserProfile", () => {
       createForAuthUser: vi.fn(),
       deleteById: vi.fn(),
       findById: vi.fn().mockResolvedValue(null),
+      findByIds: vi.fn().mockResolvedValue([]),
       findByUsername: vi.fn(),
       updateById: vi.fn(),
     };

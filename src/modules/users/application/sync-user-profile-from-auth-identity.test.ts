@@ -17,6 +17,7 @@ describe("createSyncUserProfileFromAuthIdentity", () => {
       createForAuthUser: vi.fn().mockResolvedValue(createdUserProfile),
       deleteById: vi.fn(),
       findById: vi.fn().mockResolvedValue(null),
+      findByIds: vi.fn().mockResolvedValue([]),
       findByUsername: vi.fn(),
       updateById: vi.fn(),
     };
@@ -51,6 +52,7 @@ describe("createSyncUserProfileFromAuthIdentity", () => {
       createForAuthUser: vi.fn(),
       deleteById: vi.fn(),
       findById: vi.fn().mockResolvedValue(existingUserProfile),
+      findByIds: vi.fn().mockResolvedValue([]),
       findByUsername: vi.fn(),
       updateById: vi.fn(),
     };

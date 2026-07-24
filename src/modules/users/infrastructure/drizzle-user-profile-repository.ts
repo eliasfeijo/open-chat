@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 
 import type { Database } from "@/db";
 import { users } from "@/db/schema";
@@ -45,6 +45,18 @@ export function createDrizzleUserProfileRepository(
       });
 
       return userProfile ? mapUserProfile(userProfile) : null;
+    },
+
+    async findByIds(userIds) {
+      if (userIds.length === 0) {
+        return [];
+      }
+
+      const userProfiles = await database.query.users.findMany({
+        where: inArray(users.id, userIds),
+      });
+
+      return userProfiles.map(mapUserProfile);
     },
 
     async findByUsername(username) {

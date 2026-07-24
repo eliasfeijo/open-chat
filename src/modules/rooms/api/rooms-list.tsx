@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactElement } from "react";
 
 import type { Room } from "@/modules/rooms";
@@ -30,7 +31,12 @@ export function RoomsList({
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-xl font-semibold tracking-[-0.03em] text-(--color-foreground)">
-                  {room.name}
+                  <Link
+                    className="transition hover:text-(--color-accent)"
+                    href={`/rooms/${room.slug}`}
+                  >
+                    {room.name}
+                  </Link>
                 </h2>
                 <span className="rounded-full border border-(--color-border) bg-(--color-page) px-3 py-1 text-xs font-medium text-(--color-muted)">
                   /{room.slug}
@@ -53,6 +59,15 @@ export function RoomsList({
                 ? "You own this room"
                 : "Public room"}
             </span>
+          </div>
+
+          <div className="mt-4">
+            <Link
+              className="inline-flex items-center text-sm font-medium text-(--color-accent) transition hover:brightness-110"
+              href={`/rooms/${room.slug}`}
+            >
+              Open room
+            </Link>
           </div>
         </article>
       ))}
