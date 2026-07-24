@@ -173,10 +173,55 @@ Install dependencies:
 pnpm install
 ```
 
+Create a local environment file by copying `.env.example` to `.env`.
+
+Use the equivalent command for your shell, for example `cp .env.example .env` or `copy .env.example .env`.
+
+Start local infrastructure:
+
+```bash
+pnpm local:services:up
+```
+
+Apply generated database migrations:
+
+```bash
+pnpm db:migrate
+```
+
+The repository now includes a local Docker Compose stack for:
+
+- PostgreSQL on `localhost:5432`
+- Redis on `localhost:6379`
+
+Current scope note:
+
+- PostgreSQL is required for the current database, auth, and users foundation.
+- Redis is included for future local parity, but the current foundation does not yet consume it at runtime.
+- The current environment contract still expects Upstash REST placeholders because no repository code reads Redis yet.
+
 Run the development server:
 
 ```bash
 pnpm dev
+```
+
+View local service logs:
+
+```bash
+pnpm local:services:logs
+```
+
+Stop local infrastructure:
+
+```bash
+pnpm local:services:down
+```
+
+Reset local infrastructure volumes:
+
+```bash
+pnpm local:services:reset
 ```
 
 Run the baseline validation checks:
@@ -199,6 +244,23 @@ Generate database migrations after schema changes:
 ```bash
 pnpm db:generate
 ```
+
+Apply generated migrations to the configured database:
+
+```bash
+pnpm db:migrate
+```
+
+Recommended local workflow for new backend slices:
+
+1. Start local services with `pnpm local:services:up`.
+2. Apply migrations with `pnpm db:migrate`.
+3. Run the app on the host with `pnpm dev`.
+4. Generate migrations after schema changes with `pnpm db:generate`.
+5. Re-apply migrations with `pnpm db:migrate`.
+6. Run `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm build` before closing a slice.
+
+This keeps frontend and server iteration fast while still making PostgreSQL and Redis reproducible across local environments.
 
 ---
 

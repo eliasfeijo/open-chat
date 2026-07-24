@@ -16,10 +16,16 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "check": "pnpm lint && pnpm typecheck && pnpm test",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "local:services:up": "docker compose up -d --wait",
+    "local:services:down": "docker compose down",
+    "local:services:reset": "docker compose down -v",
+    "local:services:logs": "docker compose logs -f postgres redis"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
+    "@next/env": "^16.2.11",
     "@tanstack/react-query": "^5.101.4",
     "@upstash/redis": "^1.38.0",
     "better-auth": "^1.6.24",
