@@ -10,6 +10,7 @@ export type CreateRoomRecordInput = {
 
 export interface RoomRepository {
   create(input: CreateRoomRecordInput): Promise<Room>;
+  findById(roomId: string): Promise<Room | null>;
   findBySlug(slug: string): Promise<Room | null>;
   list(input: ListRoomsInput): Promise<Room[]>;
 }

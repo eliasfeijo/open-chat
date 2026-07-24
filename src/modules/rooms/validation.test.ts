@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { createRoomSchema, roomSchema } from "@/modules/rooms/validation";
+import {
+  createRoomSchema,
+  getRoomBySlugSchema,
+  getRoomMembershipSchema,
+  joinRoomSchema,
+  leaveRoomSchema,
+  roomSchema,
+} from "@/modules/rooms/validation";
 
 describe("createRoomSchema", () => {
   it("normalizes the room creation payload", () => {
@@ -52,5 +59,59 @@ describe("roomSchema", () => {
     expect(room.name).toBe("Product Strategy");
     expect(room.slug).toBe("product-strategy");
     expect(room.ownerUserId).toBe("user-1");
+  });
+});
+
+describe("getRoomBySlugSchema", () => {
+  it("normalizes the room slug read input", () => {
+    const query = getRoomBySlugSchema.parse({
+      slug: "  OpenChat-Builders  ",
+    });
+
+    expect(query).toEqual({
+      slug: "openchat-builders",
+    });
+  });
+
+  it("rejects an invalid room slug read input", () => {
+    expect(() =>
+      getRoomBySlugSchema.parse({
+        slug: "invalid slug",
+      }),
+    ).toThrow();
+  });
+});
+
+describe("room membership command schemas", () => {
+  it("normalizes join and leave membership inputs", () => {
+    const joinCommand = joinRoomSchema.parse({
+      actorUserId: " user-1 ",
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+    });
+    const leaveCommand = leaveRoomSchema.parse({
+      actorUserId: " user-1 ",
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+    });
+
+    expect(joinCommand).toEqual({
+      actorUserId: "user-1",
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+    });
+    expect(leaveCommand).toEqual({
+      actorUserId: "user-1",
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+    });
+  });
+
+  it("normalizes room membership lookup input", () => {
+    const query = getRoomMembershipSchema.parse({
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+      userId: " user-1 ",
+    });
+
+    expect(query).toEqual({
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+      userId: "user-1",
+    });
   });
 });

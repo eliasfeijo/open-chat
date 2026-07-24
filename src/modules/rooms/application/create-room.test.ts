@@ -3,7 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 import { createCreateRoom } from "@/modules/rooms/application/create-room";
 import type { RoomMembershipRepository } from "@/modules/rooms/application/ports/room-membership-repository";
 import type { RoomRepository } from "@/modules/rooms/application/ports/room-repository";
-import { RoomSlugAlreadyExistsError } from "@/modules/rooms/domain/room";
+import {
+  RoomSlugAlreadyExistsError,
+  UnauthenticatedRoomCreatorError,
+} from "@/modules/rooms/domain/room";
 
 describe("createCreateRoom", () => {
   it("creates a room and assigns the creator as the owner in one transaction", async () => {
@@ -95,6 +98,31 @@ describe("createCreateRoom", () => {
       }),
     ).rejects.toBeInstanceOf(RoomSlugAlreadyExistsError);
 
+    expect(runInTransaction).not.toHaveBeenCalled();
+  });
+
+  it("rejects unauthenticated room creation before checking persistence", async () => {
+    const roomRepository = {
+      findBySlug: vi.fn(),
+    } satisfies Pick<RoomRepository, "findBySlug">;
+    const runInTransaction = vi.fn();
+
+    const createRoom = createCreateRoom({
+      roomRepository,
+      runInTransaction,
+    });
+
+    await expect(
+      createRoom({
+        actorUserId: null,
+        description: "Open discussion for the first rooms slice.",
+        name: "OpenChat Builders",
+        slug: "openchat-builders",
+        topic: "Architecture",
+      }),
+    ).rejects.toBeInstanceOf(UnauthenticatedRoomCreatorError);
+
+    expect(roomRepository.findBySlug).not.toHaveBeenCalled();
     expect(runInTransaction).not.toHaveBeenCalled();
   });
 });

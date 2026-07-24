@@ -1,3 +1,5 @@
+import { and, eq } from "drizzle-orm";
+
 import { roomMembers } from "@/db/schema";
 import type { RoomMembershipRepository } from "@/modules/rooms/application/ports/room-membership-repository";
 import type { DrizzleRoomDatabase } from "@/modules/rooms/infrastructure/drizzle-room-database";
@@ -23,6 +25,28 @@ export function createDrizzleRoomMembershipRepository(
         .returning();
 
       return mapRoomMembership(createdMembership);
+    },
+
+    async deleteByRoomIdAndUserId(input) {
+      await database
+        .delete(roomMembers)
+        .where(
+          and(
+            eq(roomMembers.roomId, input.roomId),
+            eq(roomMembers.userId, input.userId),
+          ),
+        );
+    },
+
+    async findByRoomIdAndUserId(input) {
+      const membership = await database.query.roomMembers.findFirst({
+        where: and(
+          eq(roomMembers.roomId, input.roomId),
+          eq(roomMembers.userId, input.userId),
+        ),
+      });
+
+      return membership ? mapRoomMembership(membership) : null;
     },
   };
 }

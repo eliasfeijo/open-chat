@@ -6,6 +6,7 @@ import type {
 import {
   createOwnerRoomMembership,
   RoomSlugAlreadyExistsError,
+  UnauthenticatedRoomCreatorError,
 } from "@/modules/rooms/domain/room";
 import { createRoomSchema } from "@/modules/rooms/validation";
 
@@ -23,12 +24,16 @@ export function createCreateRoom(dependencies: {
   ) => Promise<T>;
 }) {
   return async function createRoom(input: {
-    actorUserId: string;
+    actorUserId: string | null;
     description: string;
     name: string;
     slug: string;
     topic: string;
   }) {
+    if (!input.actorUserId) {
+      throw new UnauthenticatedRoomCreatorError();
+    }
+
     const command = createRoomSchema.parse(input);
     const existingRoom = await dependencies.roomRepository.findBySlug(
       command.slug,

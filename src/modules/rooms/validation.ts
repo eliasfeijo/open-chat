@@ -73,11 +73,34 @@ export const createRoomSchema = z.object({
   topic: roomTopicSchema,
 });
 
+export const getRoomBySlugSchema = z.object({
+  slug: roomSlugSchema,
+});
+
+export const getRoomMembershipSchema = z.object({
+  roomId: roomIdSchema,
+  userId: roomOwnerUserIdSchema,
+});
+
+export const joinRoomSchema = z.object({
+  actorUserId: roomOwnerUserIdSchema,
+  roomId: roomIdSchema,
+});
+
+export const leaveRoomSchema = z.object({
+  actorUserId: roomOwnerUserIdSchema,
+  roomId: roomIdSchema,
+});
+
 export const listRoomsSchema = z.object({
   limit: z.number().int().positive().max(50).default(20),
 });
 
 export type CreateRoomInput = z.infer<typeof createRoomSchema>;
+export type GetRoomBySlugInput = z.infer<typeof getRoomBySlugSchema>;
+export type GetRoomMembershipInput = z.infer<typeof getRoomMembershipSchema>;
+export type JoinRoomInput = z.infer<typeof joinRoomSchema>;
+export type LeaveRoomInput = z.infer<typeof leaveRoomSchema>;
 export type ListRoomsInput = z.infer<typeof listRoomsSchema>;
 export type Room = z.infer<typeof roomSchema>;
 export type RoomMemberRole = z.infer<typeof roomMemberRoleSchema>;

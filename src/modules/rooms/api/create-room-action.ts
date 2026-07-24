@@ -5,7 +5,10 @@ import { ZodError, z } from "zod";
 
 import { getAuthenticatedUser } from "@/modules/auth";
 import { createRoom } from "@/modules/rooms";
-import { RoomSlugAlreadyExistsError } from "@/modules/rooms/domain/room";
+import {
+  RoomSlugAlreadyExistsError,
+  UnauthenticatedRoomCreatorError,
+} from "@/modules/rooms/domain/room";
 import { syncUserProfileFromAuthIdentity } from "@/modules/users";
 
 const createRoomFormSchema = z.object({
@@ -39,14 +42,6 @@ export async function createRoomAction(
 ): Promise<CreateRoomActionState> {
   const authenticatedUser = await getAuthenticatedUser();
 
-  if (!authenticatedUser) {
-    return {
-      fieldErrors: {},
-      message: "You need to sign in to create a room.",
-      status: "error",
-    };
-  }
-
   try {
     const rawInput = createRoomFormSchema.parse({
       description: formData.get("description"),
@@ -55,12 +50,14 @@ export async function createRoomAction(
       topic: formData.get("topic"),
     });
 
-    await syncUserProfileFromAuthIdentity({
-      authUserId: authenticatedUser.id,
-    });
+    if (authenticatedUser) {
+      await syncUserProfileFromAuthIdentity({
+        authUserId: authenticatedUser.id,
+      });
+    }
 
     await createRoom({
-      actorUserId: authenticatedUser.id,
+      actorUserId: authenticatedUser?.id ?? null,
       description: rawInput.description,
       name: rawInput.name,
       slug: rawInput.slug,
@@ -94,6 +91,14 @@ export async function createRoomAction(
           slug: error.message,
         },
         message: "Choose another room slug.",
+        status: "error",
+      };
+    }
+
+    if (error instanceof UnauthenticatedRoomCreatorError) {
+      return {
+        fieldErrors: {},
+        message: error.message,
         status: "error",
       };
     }

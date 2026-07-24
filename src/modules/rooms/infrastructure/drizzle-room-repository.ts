@@ -55,6 +55,14 @@ export function createDrizzleRoomRepository(
       }
     },
 
+    async findById(roomId) {
+      const room = await database.query.rooms.findFirst({
+        where: eq(rooms.id, roomId),
+      });
+
+      return room ? mapRoom(room) : null;
+    },
+
     async findBySlug(slug) {
       const room = await database.query.rooms.findFirst({
         where: eq(rooms.slug, slug),
