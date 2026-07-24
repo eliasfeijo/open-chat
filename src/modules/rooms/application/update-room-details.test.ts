@@ -31,9 +31,19 @@ describe("createUpdateRoomDetails", () => {
       findById: vi.fn().mockResolvedValue(existingRoom),
       updateDetailsById: vi.fn().mockResolvedValue(updatedRoom),
     } satisfies Pick<RoomRepository, "findById" | "updateDetailsById">;
+    const replaceRoomTags = vi.fn().mockResolvedValue([]);
+    const runInTransaction = vi.fn(async (operation) =>
+      operation({
+        replaceRoomTags,
+        roomRepository: {
+          updateDetailsById: roomRepository.updateDetailsById,
+        },
+      }),
+    );
 
     const updateRoomDetails = createUpdateRoomDetails({
       roomRepository,
+      runInTransaction,
     });
 
     await expect(
@@ -43,6 +53,7 @@ describe("createUpdateRoomDetails", () => {
           "Talk about architecture, product, and release sequencing.",
         name: "OpenChat Maintainers",
         roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+        tagSlugs: ["architecture", "product"],
         topic: "Phase 1 owner room management",
       }),
     ).resolves.toEqual(updatedRoom);
@@ -53,6 +64,11 @@ describe("createUpdateRoomDetails", () => {
       roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
       topic: "Phase 1 owner room management",
     });
+    expect(replaceRoomTags).toHaveBeenCalledWith({
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+      tagSlugs: ["architecture", "product"],
+    });
+    expect(runInTransaction).toHaveBeenCalledOnce();
   });
 
   it("rejects updates for a missing room", async () => {
@@ -60,9 +76,11 @@ describe("createUpdateRoomDetails", () => {
       findById: vi.fn().mockResolvedValue(null),
       updateDetailsById: vi.fn(),
     } satisfies Pick<RoomRepository, "findById" | "updateDetailsById">;
+    const runInTransaction = vi.fn();
 
     const updateRoomDetails = createUpdateRoomDetails({
       roomRepository,
+      runInTransaction,
     });
 
     await expect(
@@ -71,11 +89,13 @@ describe("createUpdateRoomDetails", () => {
         description: "",
         name: "OpenChat Maintainers",
         roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+        tagSlugs: [],
         topic: "",
       }),
     ).rejects.toBeInstanceOf(RoomNotFoundError);
 
     expect(roomRepository.updateDetailsById).not.toHaveBeenCalled();
+    expect(runInTransaction).not.toHaveBeenCalled();
   });
 
   it("rejects updates from non-owners", async () => {
@@ -92,9 +112,11 @@ describe("createUpdateRoomDetails", () => {
       }),
       updateDetailsById: vi.fn(),
     } satisfies Pick<RoomRepository, "findById" | "updateDetailsById">;
+    const runInTransaction = vi.fn();
 
     const updateRoomDetails = createUpdateRoomDetails({
       roomRepository,
+      runInTransaction,
     });
 
     await expect(
@@ -103,21 +125,24 @@ describe("createUpdateRoomDetails", () => {
         description: "",
         name: "OpenChat Maintainers",
         roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+        tagSlugs: [],
         topic: "",
       }),
     ).rejects.toBeInstanceOf(RoomUpdateForbiddenError);
 
     expect(roomRepository.updateDetailsById).not.toHaveBeenCalled();
+    expect(runInTransaction).not.toHaveBeenCalled();
   });
 
   it("rejects unauthenticated room editing before persistence", async () => {
     const roomRepository = {
       findById: vi.fn(),
-      updateDetailsById: vi.fn(),
-    } satisfies Pick<RoomRepository, "findById" | "updateDetailsById">;
+    } satisfies Pick<RoomRepository, "findById">;
+    const runInTransaction = vi.fn();
 
     const updateRoomDetails = createUpdateRoomDetails({
       roomRepository,
+      runInTransaction,
     });
 
     await expect(
@@ -126,11 +151,12 @@ describe("createUpdateRoomDetails", () => {
         description: "Talk about architecture and product tradeoffs.",
         name: "OpenChat Maintainers",
         roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+        tagSlugs: [],
         topic: "Phase 1 owner room management",
       }),
     ).rejects.toBeInstanceOf(UnauthenticatedRoomEditorError);
 
     expect(roomRepository.findById).not.toHaveBeenCalled();
-    expect(roomRepository.updateDetailsById).not.toHaveBeenCalled();
+    expect(runInTransaction).not.toHaveBeenCalled();
   });
 });

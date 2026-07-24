@@ -16,6 +16,7 @@ export type UpdateRoomDetailsActionState = {
   fieldErrors: {
     description?: string;
     name?: string;
+    tags?: string;
     topic?: string;
   };
   message: string | null;
@@ -24,7 +25,7 @@ export type UpdateRoomDetailsActionState = {
 
 function getFieldErrorMessage(
   error: ZodError,
-  fieldName: "description" | "name" | "topic",
+  fieldName: "description" | "name" | "tags" | "topic",
 ) {
   return error.issues.find((issue) => issue.path[0] === fieldName)?.message;
 }
@@ -49,6 +50,7 @@ export async function updateRoomDetailsAction(
       name: formData.get("name"),
       roomId: formData.get("roomId"),
       roomSlug: formData.get("roomSlug"),
+      tags: formData.get("tags"),
       topic: formData.get("topic"),
     });
 
@@ -57,6 +59,7 @@ export async function updateRoomDetailsAction(
       description: rawInput.description,
       name: rawInput.name,
       roomId: rawInput.roomId,
+      tagSlugs: rawInput.tagSlugs,
       topic: rawInput.topic,
     });
 
@@ -74,6 +77,7 @@ export async function updateRoomDetailsAction(
         fieldErrors: {
           description: getFieldErrorMessage(error, "description"),
           name: getFieldErrorMessage(error, "name"),
+          tags: getFieldErrorMessage(error, "tags"),
           topic: getFieldErrorMessage(error, "topic"),
         },
         message: "Please correct the highlighted fields.",

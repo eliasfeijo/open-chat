@@ -9,9 +9,9 @@ export function createUpdateOwnUserProfile(dependencies: {
   userProfileRepository: UserProfileRepository;
 }) {
   return async function updateOwnUserProfile(input: {
-    bio: string;
+    bio: string | null;
     userId: string;
-    username: string;
+    username: string | null;
   }) {
     const command = updateOwnUserProfileSchema.parse(input);
     const existingUserProfile =

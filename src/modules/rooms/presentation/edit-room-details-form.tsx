@@ -8,6 +8,7 @@ import {
 } from "react";
 
 import type { Room } from "@/modules/rooms";
+import type { Tag } from "@/modules/tags";
 import {
   updateRoomDetailsAction,
   type UpdateRoomDetailsActionState,
@@ -21,10 +22,12 @@ const initialUpdateRoomDetailsActionState: UpdateRoomDetailsActionState = {
 
 type EditRoomDetailsFormProps = Readonly<{
   room: Room;
+  tags: Tag[];
 }>;
 
 export function EditRoomDetailsForm({
   room,
+  tags,
 }: EditRoomDetailsFormProps): ReactElement {
   const [actionState, formAction, isPending] = useActionState(
     updateRoomDetailsAction,
@@ -33,6 +36,7 @@ export function EditRoomDetailsForm({
   const [formValues, setFormValues] = useState({
     description: room.description ?? "",
     name: room.name,
+    tags: tags.map((tag) => tag.slug).join(", "),
     topic: room.topic ?? "",
   });
   const fieldErrors = actionState?.fieldErrors ?? {};
@@ -40,7 +44,7 @@ export function EditRoomDetailsForm({
   const status = actionState?.status ?? "idle";
 
   function updateField(
-    fieldName: "description" | "name" | "topic",
+    fieldName: "description" | "name" | "tags" | "topic",
     value: string,
   ): void {
     setFormValues((currentValues) => ({
@@ -110,6 +114,30 @@ export function EditRoomDetailsForm({
         {fieldErrors.topic ? (
           <p className="text-sm text-red-700 dark:text-red-300">
             {fieldErrors.topic}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium" htmlFor="edit-room-tags">
+          Tags
+        </label>
+        <input
+          className="w-full rounded-2xl border border-(--color-border) bg-(--color-page) px-4 py-3 text-base outline-none transition focus:border-(--color-accent)"
+          id="edit-room-tags"
+          name="tags"
+          onChange={(event: ChangeEvent<HTMLInputElement>) =>
+            updateField("tags", event.target.value)
+          }
+          type="text"
+          value={formValues.tags}
+        />
+        <p className="text-xs text-(--color-muted)">
+          Update up to 5 lowercase tags separated by commas.
+        </p>
+        {fieldErrors.tags ? (
+          <p className="text-sm text-red-700 dark:text-red-300">
+            {fieldErrors.tags}
           </p>
         ) : null}
       </div>

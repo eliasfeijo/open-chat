@@ -34,22 +34,20 @@ Implemented and usable now:
 
 - authentication with Better Auth route handling and authenticated session lookup
 - basic profile onboarding and profile editing for username and bio
-- public room creation with owner membership created transactionally
-- room listing, room detail pages, explicit join and leave flows, and owner editing for name, description, and topic
+- public room creation with owner membership and initial tag assignment created transactionally
+- room listing, room detail pages, explicit join and leave flows, and owner editing for name, description, topic, and tags
+- room discovery with text search and tag filtering over persisted room data
 - durable room message posting and transcript retrieval backed by PostgreSQL
 - validation and unit tests across the implemented auth, users, rooms, and messages slices
 
 Implemented only in part:
 
-- room browsing exists as a simple list without search, filtering, or tag-based discovery
 - room editing exists for the current core metadata, but slug remains intentionally immutable while room routing is slug-based
 - messaging is durable and permission-checked, but new messages do not arrive in realtime
-- tags exist in the database schema, but there is no tags module or tag assignment workflow yet
+- tag vocabulary remains implicit and room owners can manage room tags, but there is no broader tag curation flow yet
 
 Not implemented yet despite earlier roadmap expectations:
 
-- search module behavior and room search UI
-- tag management and room-tag orchestration
 - WebSocket gateway, presence, typing indicators, and cross-instance ephemeral coordination
 
 Planning consequence:
@@ -81,20 +79,19 @@ Already implemented:
 
 - authentication and authenticated session resolution
 - basic profile sync and profile editing
-- room creation, listing, room detail, join, leave, and owner editing for name, description, and topic
+- room creation, listing, room detail, join, leave, and owner editing for name, description, topic, and tags
+- room tag assignment and owner-managed tag editing plus durable room discovery by text and tag
 - durable message posting and transcript listing
 
 Partially implemented:
 
-- room browsing is present but limited to a simple list
 - room topics exist in room data and owner editing, but are not yet part of a broader discovery flow
 - room URLs remain slug-based, so slug changes are intentionally deferred until the routing implications are designed explicitly
-- the planned module boundary exists for tags only at the schema level
+- room tags exist in real module behavior, but broader tag curation flows are still missing
 
 Still required before Phase 1 is coherent:
 
-- tag workflows that move tags from schema-only support into real module behavior
-- room discovery beyond a flat list, including search over persisted room data
+- tag curation workflows beyond per-room owner management
 - end-to-end coverage of the core signed-up user journey through profile, rooms, membership, and messaging
 
 Success criteria:

@@ -48,9 +48,9 @@ export async function getUserProfilesByIds(userIds: string[]) {
 }
 
 export async function updateOwnUserProfile(input: {
-  bio: string;
+  bio: string | null;
   userId: string;
-  username: string;
+  username: string | null;
 }) {
   return createUsersServices().updateOwnUserProfile(input);
 }

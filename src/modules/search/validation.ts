@@ -1,0 +1,42 @@
+import { z } from "zod";
+
+import { tagSchema, tagSlugSchema } from "@/modules/tags/validation";
+
+const roomSearchTextSchema = z
+  .string()
+  .trim()
+  .max(80, {
+    message: "Search text must be at most 80 characters long.",
+  })
+  .transform((value) => (value === "" ? null : value));
+
+const optionalTagSlugSchema = z
+  .union([tagSlugSchema, z.literal(""), z.null(), z.undefined()])
+  .transform((value) => {
+    if (!value) {
+      return null;
+    }
+
+    return value;
+  });
+
+export const roomSearchResultSchema = z.object({
+  createdAt: z.date(),
+  description: z.string().nullable(),
+  id: z.uuid(),
+  name: z.string(),
+  ownerUserId: z.string().trim().min(1),
+  slug: z.string(),
+  tags: z.array(tagSchema),
+  topic: z.string().nullable(),
+  updatedAt: z.date(),
+});
+
+export const searchRoomsSchema = z.object({
+  limit: z.coerce.number().int().positive().max(50).default(20),
+  query: roomSearchTextSchema.optional().default(null),
+  tagSlug: optionalTagSlugSchema.default(null),
+});
+
+export type RoomSearchResult = z.infer<typeof roomSearchResultSchema>;
+export type SearchRoomsInput = z.infer<typeof searchRoomsSchema>;

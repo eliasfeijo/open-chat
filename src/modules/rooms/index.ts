@@ -8,6 +8,7 @@ import { createListRooms } from "@/modules/rooms/application/list-rooms";
 import { createUpdateRoomDetails } from "@/modules/rooms/application/update-room-details";
 import { createDrizzleRoomMembershipRepository } from "@/modules/rooms/infrastructure/drizzle-room-membership-repository";
 import { createDrizzleRoomRepository } from "@/modules/rooms/infrastructure/drizzle-room-repository";
+import { createTagsServices } from "@/modules/tags";
 
 function createRoomsServices() {
   const database = getDatabase();
@@ -21,6 +22,7 @@ function createRoomsServices() {
       runInTransaction: async (operation) =>
         database.transaction(async (transaction) =>
           operation({
+            assignTagsToRoom: createTagsServices(transaction).assignTagsToRoom,
             roomMembershipRepository:
               createDrizzleRoomMembershipRepository(transaction),
             roomRepository: createDrizzleRoomRepository(transaction),
@@ -45,6 +47,13 @@ function createRoomsServices() {
     }),
     updateRoomDetails: createUpdateRoomDetails({
       roomRepository,
+      runInTransaction: async (operation) =>
+        database.transaction(async (transaction) =>
+          operation({
+            replaceRoomTags: createTagsServices(transaction).replaceRoomTags,
+            roomRepository: createDrizzleRoomRepository(transaction),
+          }),
+        ),
     }),
   };
 }
@@ -54,6 +63,7 @@ export async function createRoom(input: {
   description: string | null;
   name: string;
   slug: string;
+  tagSlugs: string[];
   topic: string | null;
 }) {
   return createRoomsServices().createRoom(input);
@@ -93,6 +103,7 @@ export async function updateRoomDetails(input: {
   description: string | null;
   name: string;
   roomId: string;
+  tagSlugs: string[];
   topic: string | null;
 }) {
   return createRoomsServices().updateRoomDetails(input);

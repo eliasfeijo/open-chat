@@ -5,10 +5,20 @@ import { getAuthenticatedUser } from "@/modules/auth";
 import { NavigationBar } from "@/modules/auth/presentation/navigation-bar";
 import { CreateRoomForm } from "@/modules/rooms/presentation/create-room-form";
 import { RoomsList } from "@/modules/rooms/presentation/rooms-list";
-import { listRooms } from "@/modules/rooms";
+import { RoomDiscoveryFilters } from "@/modules/search/presentation/room-discovery-filters";
+import { searchRooms } from "@/modules/search";
 import { syncUserProfileFromAuthIdentity } from "@/modules/users";
 
-export default async function RoomsPage(): Promise<ReactElement> {
+type RoomsPageProps = Readonly<{
+  searchParams: Promise<{
+    q?: string;
+    tag?: string;
+  }>;
+}>;
+
+export default async function RoomsPage({
+  searchParams,
+}: RoomsPageProps): Promise<ReactElement> {
   const authenticatedUser = await getAuthenticatedUser();
 
   if (!authenticatedUser) {
@@ -19,7 +29,15 @@ export default async function RoomsPage(): Promise<ReactElement> {
     authUserId: authenticatedUser.id,
   });
 
-  const rooms = await listRooms({ limit: 20 });
+  const resolvedSearchParams = await searchParams;
+  const activeQuery = resolvedSearchParams.q ?? "";
+  const activeTagSlug = resolvedSearchParams.tag ?? "";
+  const rooms = await searchRooms({
+    limit: 20,
+    query: activeQuery,
+    tagSlug: activeTagSlug,
+  });
+  const hasDiscoveryFilters = activeQuery !== "" || activeTagSlug !== "";
 
   return (
     <main className="min-h-screen bg-(--color-page)">
@@ -33,18 +51,19 @@ export default async function RoomsPage(): Promise<ReactElement> {
 
             <div className="space-y-4">
               <h1 className="text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">
-                Create public rooms and browse what already exists.
+                Create public rooms and discover the conversations already
+                taking shape.
               </h1>
               <p className="max-w-2xl text-lg leading-8 text-(--color-muted)">
-                This slice adds the first real room workflow. Creating a room
-                also records your initial membership and ownership so the next
-                iterations can build on explicit room state.
+                Room creation now carries durable tags, and discovery can filter
+                by text or tag without leaving the PostgreSQL-backed room model.
               </p>
             </div>
 
             <div className="rounded-[1.75rem] border border-(--color-border) bg-(--color-surface) p-5 text-sm leading-7 text-(--color-muted)">
-              Start with a clear name, a stable slug, and a short description.
-              The creator is stored as the room owner immediately.
+              Start with a clear name, a stable slug, a focused topic, and a few
+              discovery tags. The creator is still stored as the room owner
+              immediately.
             </div>
           </div>
 
@@ -54,14 +73,31 @@ export default async function RoomsPage(): Promise<ReactElement> {
         <section className="space-y-4">
           <div className="space-y-2">
             <h2 className="text-2xl font-semibold tracking-[-0.03em] text-(--color-foreground)">
-              Current rooms
+              Discover rooms
             </h2>
             <p className="text-base leading-7 text-(--color-muted)">
-              Minimal room browsing for the first product slice.
+              Search the current public rooms by name, topic, description, or
+              tag.
             </p>
           </div>
 
-          <RoomsList currentUserId={authenticatedUser.id} rooms={rooms} />
+          <RoomDiscoveryFilters
+            activeQuery={activeQuery}
+            activeTagSlug={activeTagSlug}
+          />
+
+          {hasDiscoveryFilters ? (
+            <p className="text-sm text-(--color-muted)">
+              Showing {rooms.length} room{rooms.length === 1 ? "" : "s"} for the
+              current discovery filters.
+            </p>
+          ) : null}
+
+          <RoomsList
+            activeTagSlug={activeTagSlug || null}
+            currentUserId={authenticatedUser.id}
+            rooms={rooms}
+          />
         </section>
       </section>
     </main>

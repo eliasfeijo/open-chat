@@ -30,8 +30,10 @@ describe("createCreateRoom", () => {
     const roomMembershipRepository = {
       create: vi.fn().mockImplementation(async (membership) => membership),
     } satisfies Pick<RoomMembershipRepository, "create">;
+    const assignTagsToRoom = vi.fn().mockResolvedValue([]);
     const runInTransaction = vi.fn(async (operation) =>
       operation({
+        assignTagsToRoom,
         roomMembershipRepository,
         roomRepository: transactionRoomRepository,
       }),
@@ -48,9 +50,15 @@ describe("createCreateRoom", () => {
         description: "Talk about architecture and product tradeoffs.",
         name: "OpenChat Builders",
         slug: "openchat-builders",
+        tagSlugs: ["architecture", "product"],
         topic: "Shipping the first public room flows",
       }),
     ).resolves.toEqual(createdRoom);
+
+    expect(assignTagsToRoom).toHaveBeenCalledWith({
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+      tagSlugs: ["architecture", "product"],
+    });
 
     expect(transactionRoomRepository.create).toHaveBeenCalledWith({
       description: "Talk about architecture and product tradeoffs.",
@@ -94,6 +102,7 @@ describe("createCreateRoom", () => {
         description: "",
         name: "OpenChat Builders",
         slug: "openchat-builders",
+        tagSlugs: [],
         topic: "",
       }),
     ).rejects.toBeInstanceOf(RoomSlugAlreadyExistsError);
@@ -118,6 +127,7 @@ describe("createCreateRoom", () => {
         description: "Open discussion for the first rooms slice.",
         name: "OpenChat Builders",
         slug: "openchat-builders",
+        tagSlugs: [],
         topic: "Architecture",
       }),
     ).rejects.toBeInstanceOf(UnauthenticatedRoomCreatorError);

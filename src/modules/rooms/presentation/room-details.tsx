@@ -1,18 +1,21 @@
 import type { ReactElement } from "react";
 
 import type { Room } from "@/modules/rooms";
+import type { Tag } from "@/modules/tags";
 import type { UserProfile } from "@/modules/users";
 
 type RoomDetailsProps = Readonly<{
   currentUserId: string;
   ownerProfile: UserProfile | null;
   room: Room;
+  tags: Tag[];
 }>;
 
 export function RoomDetails({
   currentUserId,
   ownerProfile,
   room,
+  tags,
 }: RoomDetailsProps): ReactElement {
   return (
     <section className="space-y-6 rounded-4xl border border-(--color-border) bg-(--color-surface) p-6 shadow-sm sm:p-8">
@@ -44,6 +47,24 @@ export function RoomDetails({
       </div>
 
       <div className="grid gap-6">
+        {tags.length > 0 ? (
+          <div className="space-y-3">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-(--color-muted)">
+              Tags
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <span
+                  key={tag.id}
+                  className="rounded-full border border-(--color-border) bg-(--color-page) px-3 py-1 text-xs font-medium text-(--color-muted)"
+                >
+                  #{tag.slug}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
         <div className="space-y-3">
           <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-(--color-muted)">
             Description

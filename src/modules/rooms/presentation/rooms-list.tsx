@@ -1,14 +1,16 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 
-import type { Room } from "@/modules/rooms";
+import type { RoomSearchResult } from "@/modules/search";
 
 type RoomsListProps = Readonly<{
+  activeTagSlug: string | null;
   currentUserId: string;
-  rooms: Room[];
+  rooms: RoomSearchResult[];
 }>;
 
 export function RoomsList({
+  activeTagSlug,
   currentUserId,
   rooms,
 }: RoomsListProps): ReactElement {
@@ -52,6 +54,28 @@ export function RoomsList({
               <p className="text-sm leading-7 text-(--color-muted)">
                 {room.description ?? "No description yet."}
               </p>
+
+              {room.tags.length > 0 ? (
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {room.tags.map((tag) => {
+                    const isActiveTag = activeTagSlug === tag.slug;
+
+                    return (
+                      <Link
+                        key={tag.id}
+                        className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+                          isActiveTag
+                            ? "bg-(--color-accent) text-(--color-accent-foreground)"
+                            : "border border-(--color-border) bg-(--color-page) text-(--color-muted) hover:text-(--color-accent)"
+                        }`}
+                        href={`/rooms?tag=${tag.slug}`}
+                      >
+                        #{tag.slug}
+                      </Link>
+                    );
+                  })}
+                </div>
+              ) : null}
             </div>
 
             <span className="rounded-full bg-(--color-page) px-3 py-1 text-xs font-medium text-(--color-muted)">

@@ -13,6 +13,7 @@ It is intentionally narrower than the architecture document. Its job is to descr
 - actor: the principal attempting an action in the system. The current implementation passes authenticated user identifiers in most use cases, but the term remains broader than "user" so future system actors do not force a conceptual rewrite.
 - user profile: the public identity attached to an authenticated account.
 - room: the primary public conversation container.
+- tag: a normalized public discovery label attached to a room.
 - room membership: a user's participation relationship to a room.
 - message: a durable room post authored by a joined participant.
 
@@ -35,6 +36,10 @@ Current invariants:
 - room name must be 3 to 80 characters
 - room description must be at most 280 characters when present
 - room topic must be at most 120 characters when present
+- room creation may assign zero to five tags transactionally with the room
+- only the owner may replace the room's tag set in the current model
+- room tags are normalized to lowercase slug values
+- duplicate room tags collapse to one assigned tag
 
 Design note:
 

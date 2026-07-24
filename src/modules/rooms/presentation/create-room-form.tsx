@@ -27,6 +27,7 @@ export function CreateRoomForm(): ReactElement {
     description: "",
     name: "",
     slug: "",
+    tags: "",
     topic: "",
   });
   const fieldErrors = actionState?.fieldErrors ?? {};
@@ -34,7 +35,7 @@ export function CreateRoomForm(): ReactElement {
   const status = actionState?.status ?? "idle";
 
   function updateField(
-    fieldName: "description" | "name" | "slug" | "topic",
+    fieldName: "description" | "name" | "slug" | "tags" | "topic",
     value: string,
   ): void {
     setFormValues((currentValues) => ({
@@ -113,6 +114,31 @@ export function CreateRoomForm(): ReactElement {
         {fieldErrors.topic ? (
           <p className="text-sm text-red-700 dark:text-red-300">
             {fieldErrors.topic}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium" htmlFor="room-tags">
+          Tags
+        </label>
+        <input
+          className="w-full rounded-2xl border border-(--color-border) bg-(--color-page) px-4 py-3 text-base outline-none transition focus:border-(--color-accent)"
+          id="room-tags"
+          name="tags"
+          onChange={(event: ChangeEvent<HTMLInputElement>) =>
+            updateField("tags", event.target.value)
+          }
+          placeholder="typescript, architecture, search"
+          type="text"
+          value={formValues.tags}
+        />
+        <p className="text-xs text-(--color-muted)">
+          Up to 5 tags. Use lowercase words separated by commas.
+        </p>
+        {fieldErrors.tags ? (
+          <p className="text-sm text-red-700 dark:text-red-300">
+            {fieldErrors.tags}
           </p>
         ) : null}
       </div>

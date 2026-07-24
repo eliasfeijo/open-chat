@@ -20,6 +20,7 @@ describe("createRoomSchema", () => {
       description: "  Talk about architecture and product tradeoffs.  ",
       name: "  OpenChat Builders  ",
       slug: "  OpenChat-Builders  ",
+      tagSlugs: ["  TypeScript  ", " search ", "TypeScript"],
       topic: "  Shipping the first public room flows  ",
     });
 
@@ -28,6 +29,7 @@ describe("createRoomSchema", () => {
       description: "Talk about architecture and product tradeoffs.",
       name: "OpenChat Builders",
       slug: "openchat-builders",
+      tagSlugs: ["typescript", "search"],
       topic: "Shipping the first public room flows",
     });
   });
@@ -39,6 +41,7 @@ describe("createRoomSchema", () => {
         description: "Open discussion for the first rooms slice.",
         name: "Builders",
         slug: "invalid slug",
+        tagSlugs: [],
         topic: "Architecture",
       }),
     ).toThrow();
@@ -49,6 +52,7 @@ describe("createRoomSchema", () => {
       description: "  Talk about architecture and product tradeoffs.  ",
       name: "  OpenChat Builders  ",
       slug: "  OpenChat-Builders  ",
+      tags: "  TypeScript, search, TypeScript  ",
       topic: "  Shipping the first public room flows  ",
     });
 
@@ -56,6 +60,7 @@ describe("createRoomSchema", () => {
       description: "Talk about architecture and product tradeoffs.",
       name: "OpenChat Builders",
       slug: "openchat-builders",
+      tagSlugs: ["typescript", "search"],
       topic: "Shipping the first public room flows",
     });
   });
@@ -156,6 +161,7 @@ describe("updateRoomDetailsSchema", () => {
         "  Talk about architecture, product, and release sequencing.  ",
       name: "  OpenChat Maintainers  ",
       roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+      tagSlugs: ["  TypeScript  ", " search ", "TypeScript"],
       slug: "different-slug",
       topic: "  Phase 1 owner room management  ",
     });
@@ -165,6 +171,7 @@ describe("updateRoomDetailsSchema", () => {
       description: "Talk about architecture, product, and release sequencing.",
       name: "OpenChat Maintainers",
       roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+      tagSlugs: ["typescript", "search"],
       topic: "Phase 1 owner room management",
     });
   });
@@ -176,6 +183,7 @@ describe("updateRoomDetailsSchema", () => {
       name: "  OpenChat Maintainers  ",
       roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
       roomSlug: "  OpenChat-Builders  ",
+      tags: "  TypeScript, search, TypeScript  ",
       topic: "  Phase 1 owner room management  ",
     });
 
@@ -184,7 +192,32 @@ describe("updateRoomDetailsSchema", () => {
       name: "OpenChat Maintainers",
       roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
       roomSlug: "openchat-builders",
+      tagSlugs: ["typescript", "search"],
       topic: "Phase 1 owner room management",
+    });
+  });
+
+  it("preserves the tags field path for invalid tag text", () => {
+    const result = updateRoomDetailsFormSchema.safeParse({
+      description:
+        "  Talk about architecture, product, and release sequencing.  ",
+      name: "  OpenChat Maintainers  ",
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+      roomSlug: "  OpenChat-Builders  ",
+      tags: "test, let's chat",
+      topic: "  Phase 1 owner room management  ",
+    });
+
+    expect(result.success).toBe(false);
+
+    if (result.success) {
+      return;
+    }
+
+    expect(result.error.issues[0]).toMatchObject({
+      message:
+        "Tags can only contain lowercase letters, numbers, and single hyphens.",
+      path: ["tags", 1],
     });
   });
 });

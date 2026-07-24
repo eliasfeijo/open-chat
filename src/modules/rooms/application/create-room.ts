@@ -11,6 +11,10 @@ import {
 import { createRoomSchema } from "@/modules/rooms/validation";
 
 type CreateRoomTransactionDependencies = {
+  assignTagsToRoom: (input: {
+    roomId: string;
+    tagSlugs: string[];
+  }) => Promise<unknown>;
   roomMembershipRepository: Pick<RoomMembershipRepository, "create">;
   roomRepository: Pick<RoomRepository, "create">;
 };
@@ -28,6 +32,7 @@ export function createCreateRoom(dependencies: {
     description: string | null;
     name: string;
     slug: string;
+    tagSlugs: string[];
     topic: string | null;
   }) {
     if (!input.actorUserId) {
@@ -52,8 +57,17 @@ export function createCreateRoom(dependencies: {
     };
 
     return dependencies.runInTransaction(
-      async ({ roomMembershipRepository, roomRepository }) => {
+      async ({
+        assignTagsToRoom,
+        roomMembershipRepository,
+        roomRepository,
+      }) => {
         const createdRoom = await roomRepository.create(roomToCreate);
+
+        await assignTagsToRoom({
+          roomId: createdRoom.id,
+          tagSlugs: command.tagSlugs,
+        });
 
         await roomMembershipRepository.create(
           createOwnerRoomMembership({

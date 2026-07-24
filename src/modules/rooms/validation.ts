@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { tagSlugListFromTextSchema, tagSlugListSchema } from "@/modules/tags";
+
 export const roomIdSchema = z.uuid();
 
 export const roomOwnerUserIdSchema = z.string().trim().min(1);
@@ -70,28 +72,52 @@ export const createRoomSchema = z.object({
   description: roomDescriptionSchema,
   name: roomNameSchema,
   slug: roomSlugSchema,
+  tagSlugs: tagSlugListSchema,
   topic: roomTopicSchema,
 });
 
-export const createRoomFormSchema = createRoomSchema.omit({
-  actorUserId: true,
-});
+export const createRoomFormSchema = z
+  .object({
+    description: roomDescriptionSchema,
+    name: roomNameSchema,
+    slug: roomSlugSchema,
+    tags: tagSlugListFromTextSchema,
+    topic: roomTopicSchema,
+  })
+  .transform((input) => ({
+    description: input.description,
+    name: input.name,
+    slug: input.slug,
+    tagSlugs: input.tags,
+    topic: input.topic,
+  }));
 
 export const updateRoomDetailsSchema = z.object({
   actorUserId: roomOwnerUserIdSchema,
   description: roomDescriptionSchema,
   name: roomNameSchema,
   roomId: roomIdSchema,
+  tagSlugs: tagSlugListSchema,
   topic: roomTopicSchema,
 });
 
-export const updateRoomDetailsFormSchema = updateRoomDetailsSchema
-  .omit({
-    actorUserId: true,
-  })
-  .extend({
+export const updateRoomDetailsFormSchema = z
+  .object({
+    description: roomDescriptionSchema,
+    name: roomNameSchema,
+    roomId: roomIdSchema,
     roomSlug: roomSlugSchema,
-  });
+    tags: tagSlugListFromTextSchema,
+    topic: roomTopicSchema,
+  })
+  .transform((input) => ({
+    description: input.description,
+    name: input.name,
+    roomId: input.roomId,
+    roomSlug: input.roomSlug,
+    tagSlugs: input.tags,
+    topic: input.topic,
+  }));
 
 export const getRoomBySlugSchema = z.object({
   slug: roomSlugSchema,

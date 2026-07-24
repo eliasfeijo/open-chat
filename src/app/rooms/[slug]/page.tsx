@@ -11,6 +11,7 @@ import { EditRoomDetailsForm } from "@/modules/rooms/presentation/edit-room-deta
 import { RoomDetails } from "@/modules/rooms/presentation/room-details";
 import { RoomMembershipPanel } from "@/modules/rooms/presentation/room-membership-panel";
 import { getRoomBySlug, getRoomMembership } from "@/modules/rooms";
+import { listRoomTags } from "@/modules/tags";
 import { getUserProfilesByIds } from "@/modules/users";
 
 type RoomDetailPageProps = Readonly<{
@@ -37,7 +38,7 @@ export default async function RoomDetailPage({
     notFound();
   }
 
-  const [currentMembership, messages] = await Promise.all([
+  const [currentMembership, messages, roomTags] = await Promise.all([
     getRoomMembership({
       roomId: room.id,
       userId: authenticatedUser.id,
@@ -45,6 +46,7 @@ export default async function RoomDetailPage({
     listRoomMessages({
       roomId: room.id,
     }),
+    listRoomTags(room.id),
   ]);
 
   const participantUserIds = Array.from(
@@ -125,10 +127,11 @@ export default async function RoomDetailPage({
               currentUserId={authenticatedUser.id}
               ownerProfile={ownerProfile}
               room={room}
+              tags={roomTags}
             />
 
             {room.ownerUserId === authenticatedUser.id ? (
-              <EditRoomDetailsForm room={room} />
+              <EditRoomDetailsForm room={room} tags={roomTags} />
             ) : null}
 
             <RoomMembershipPanel

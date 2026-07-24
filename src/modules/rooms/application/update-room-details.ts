@@ -10,13 +10,23 @@ import {
 import { updateRoomDetailsSchema } from "@/modules/rooms/validation";
 
 export function createUpdateRoomDetails(dependencies: {
-  roomRepository: Pick<RoomRepository, "findById" | "updateDetailsById">;
+  roomRepository: Pick<RoomRepository, "findById">;
+  runInTransaction: <T>(
+    operation: (transactionDependencies: {
+      replaceRoomTags: (input: {
+        roomId: string;
+        tagSlugs: string[];
+      }) => Promise<unknown>;
+      roomRepository: Pick<RoomRepository, "updateDetailsById">;
+    }) => Promise<T>,
+  ) => Promise<T>;
 }) {
   return async function updateRoomDetails(input: {
     actorUserId: string | null;
     description: string | null;
     name: string;
     roomId: string;
+    tagSlugs: string[];
     topic: string | null;
   }) {
     if (!input.actorUserId) {
@@ -43,6 +53,18 @@ export function createUpdateRoomDetails(dependencies: {
       topic: command.topic,
     };
 
-    return dependencies.roomRepository.updateDetailsById(roomDetailsToUpdate);
+    return dependencies.runInTransaction(
+      async ({ replaceRoomTags, roomRepository }) => {
+        const updatedRoom =
+          await roomRepository.updateDetailsById(roomDetailsToUpdate);
+
+        await replaceRoomTags({
+          roomId: command.roomId,
+          tagSlugs: command.tagSlugs,
+        });
+
+        return updatedRoom;
+      },
+    );
   };
 }
