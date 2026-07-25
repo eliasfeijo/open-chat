@@ -56,21 +56,11 @@ jobs:
       - name: Prepare standalone deployment payload
         run: |
           rm -rf deploy
+          pnpm --filter . deploy --prod --legacy deploy
+          rm -rf deploy/.github deploy/docs deploy/tests deploy/src deploy/drizzle
+          rm -f deploy/AGENTS.md deploy/CONTRIBUTING.md deploy/docker-compose.yml deploy/drizzle.config.ts deploy/eslint.config.mjs deploy/playwright.config.ts deploy/pnpm-workspace.yaml deploy/postcss.config.mjs deploy/README.md deploy/tsconfig.json deploy/vitest.config.ts deploy/.env.example
           mkdir -p deploy/.next
-          cp -RL .next/standalone/. deploy/
-          cp -R .next/static deploy/.next/static
-          if [ -d public ]; then
-            cp -R public deploy/public
-          fi
-          cat > deploy/package.json <<'EOF'
-          {
-            "name": "open-chat-runtime",
-            "private": true,
-            "scripts": {
-              "start": "node server.js"
-            }
-          }
-          EOF
+          tar -C .next --exclude=cache -cf - . | tar -C deploy/.next -xf -
 
       - name: Archive deployment payload
         run: |
