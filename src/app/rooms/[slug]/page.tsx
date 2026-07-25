@@ -4,9 +4,8 @@ import type { ReactElement } from "react";
 
 import { getAuthenticatedUser } from "@/modules/auth";
 import { NavigationBar } from "@/modules/auth/presentation/navigation-bar";
-import { PostRoomMessageForm } from "@/modules/messages/presentation/post-room-message-form";
-import { RoomMessagesList } from "@/modules/messages/presentation/room-messages-list";
 import { listRoomMessages } from "@/modules/messages";
+import { RoomConversation } from "@/modules/messages/presentation/room-conversation";
 import { EditRoomDetailsForm } from "@/modules/rooms/presentation/edit-room-details-form";
 import { RoomDetails } from "@/modules/rooms/presentation/room-details";
 import { RoomMembershipPanel } from "@/modules/rooms/presentation/room-membership-panel";
@@ -58,6 +57,16 @@ export default async function RoomDetailPage({
   const participantProfiles = await getUserProfilesByIds(participantUserIds);
   const participantProfilesByUserId = Object.fromEntries(
     participantProfiles.map((profile) => [profile.id, profile]),
+  );
+  const messageAuthorProfilesByUserId = Object.fromEntries(
+    participantProfiles.map((profile) => [
+      profile.id,
+      {
+        bio: profile.bio,
+        displayName: profile.displayName,
+        username: profile.username,
+      },
+    ]),
   );
   const ownerProfile = participantProfilesByUserId[room.ownerUserId] ?? null;
   const latestMessage = messages.at(-1) ?? null;
@@ -159,37 +168,16 @@ export default async function RoomDetailPage({
               </div>
             </div>
 
-            <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-              <div className="max-h-168 overflow-y-auto pr-1">
-                <RoomMessagesList
-                  authorProfilesByUserId={participantProfilesByUserId}
-                  currentUserId={authenticatedUser.id}
-                  messages={messages}
-                  ownerUserId={room.ownerUserId}
-                />
-              </div>
-
-              <div className="rounded-4xl border border-(--color-border) bg-(--color-surface) p-5 sm:p-6">
-                {currentMembership ? (
-                  <PostRoomMessageForm
-                    roomId={room.id}
-                    roomName={room.name}
-                    roomSlug={room.slug}
-                  />
-                ) : (
-                  <section className="space-y-3 text-sm leading-7 text-(--color-muted)">
-                    <h3 className="text-lg font-semibold tracking-[-0.03em] text-(--color-foreground)">
-                      Composer locked until you join
-                    </h3>
-                    <p>
-                      Public browsing stays open so the room feels active from
-                      the outside, but posting is held behind an explicit
-                      membership step.
-                    </p>
-                  </section>
-                )}
-              </div>
-            </div>
+            <RoomConversation
+              canPost={currentMembership !== null}
+              currentUserId={authenticatedUser.id}
+              initialAuthorProfilesByUserId={messageAuthorProfilesByUserId}
+              initialMessages={messages}
+              ownerUserId={room.ownerUserId}
+              roomId={room.id}
+              roomName={room.name}
+              roomSlug={room.slug}
+            />
           </section>
         </div>
       </section>

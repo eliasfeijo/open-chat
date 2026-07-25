@@ -1,17 +1,30 @@
+"use client";
+
 import type { ReactElement } from "react";
 
-import type { Message } from "@/modules/messages";
-import type { UserProfile } from "@/modules/users";
+export type RoomMessagesListAuthorProfile = {
+  bio: string | null;
+  displayName: string | null;
+  username: string | null;
+};
+
+export type RoomMessagesListMessage = {
+  authorUserId: string;
+  body: string;
+  createdAt: Date | string;
+  id: string;
+  roomId: string;
+};
 
 type RoomMessagesListProps = Readonly<{
-  authorProfilesByUserId: Record<string, UserProfile | null>;
+  authorProfilesByUserId: Record<string, RoomMessagesListAuthorProfile | null>;
   currentUserId: string;
-  messages: Message[];
+  messages: RoomMessagesListMessage[];
   ownerUserId: string;
 }>;
 
 function getParticipantName(input: {
-  authorProfile: UserProfile | null | undefined;
+  authorProfile: RoomMessagesListAuthorProfile | null | undefined;
   currentUserId: string;
   messageAuthorUserId: string;
 }): string {
@@ -31,7 +44,7 @@ function getParticipantName(input: {
 }
 
 function getParticipantInitials(input: {
-  authorProfile: UserProfile | null | undefined;
+  authorProfile: RoomMessagesListAuthorProfile | null | undefined;
   messageAuthorUserId: string;
 }): string {
   const label =
@@ -116,7 +129,7 @@ export function RoomMessagesList({
                     </span>
                   ) : null}
                   <span className="text-(--color-muted)">
-                    {message.createdAt.toLocaleString("en-US", {
+                    {new Date(message.createdAt).toLocaleString("en-US", {
                       day: "numeric",
                       hour: "numeric",
                       minute: "2-digit",

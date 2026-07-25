@@ -18,6 +18,12 @@ export async function getAuthenticatedSessionContext() {
   return getAuthenticatedSessionContextUseCase(await headers());
 }
 
+export async function getAuthenticatedSessionContextFromHeaders(
+  requestHeaders: Headers,
+) {
+  return getAuthenticatedSessionContextUseCase(requestHeaders);
+}
+
 export async function getAuthenticatedUser() {
   return getAuthenticatedUserUseCase(await headers());
 }

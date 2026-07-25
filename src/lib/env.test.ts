@@ -8,11 +8,14 @@ describe("parseServerEnv", () => {
       DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/open_chat",
       BETTER_AUTH_SECRET: "development-secret",
       BETTER_AUTH_URL: "http://localhost:3000",
+      NEXT_PUBLIC_REALTIME_WS_URL: "ws://localhost:3001/ws",
+      REALTIME_GATEWAY_PORT: "3001",
       UPSTASH_REDIS_REST_URL: "https://example.upstash.io",
       UPSTASH_REDIS_REST_TOKEN: "token",
     });
 
     expect(env.BETTER_AUTH_URL).toBe("http://localhost:3000");
     expect(env.DATABASE_URL).toContain("open_chat");
+    expect(env.REALTIME_GATEWAY_PORT).toBe(3001);
   });
 });

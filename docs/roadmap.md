@@ -44,6 +44,7 @@ Implemented only in part:
 
 - room editing exists for the current core metadata, but slug remains intentionally immutable while room routing is slug-based
 - messaging is durable and permission-checked, but new messages do not arrive in realtime
+- realtime room messaging now has a first single-instance slice with an explicit WebSocket gateway, room subscriptions, and persist-then-broadcast fan-out, but presence, typing, reconnect recovery, and cross-instance coordination are still not implemented
 - tag vocabulary remains implicit and room owners can manage room tags, but there is no broader tag curation flow yet
 
 Not implemented yet despite earlier roadmap expectations:
@@ -132,6 +133,11 @@ Success criteria:
 - joined users receive newly posted room messages without manual refresh
 - realtime delivery follows successful durable persistence instead of bypassing PostgreSQL
 - the new websocket surface remains a transport adapter and does not become a second business layer
+
+Current status:
+
+- started with a minimal single-instance gateway and explicit room subscription protocol
+- still missing presence, typing, reconnect recovery policy, and cross-instance fan-out
 
 Architectural note:
 

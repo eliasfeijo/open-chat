@@ -1,5 +1,7 @@
+import type { MessageAuthorProfileReader } from "@/modules/messages/application/ports/message-author-profile-reader";
 import type { MessageRepository } from "@/modules/messages/application/ports/message-repository";
 import type { RoomMembershipReader } from "@/modules/messages/application/ports/room-membership-reader";
+import type { RoomMessageRealtimePublisher } from "@/modules/messages/application/ports/room-message-realtime-publisher";
 import {
   RoomMessageAuthorNotMemberError,
   UnauthenticatedMessageAuthorError,
@@ -7,7 +9,9 @@ import {
 import { postRoomMessageSchema } from "@/modules/messages/validation";
 
 export function createPostRoomMessage(dependencies: {
+  messageAuthorProfileReader?: MessageAuthorProfileReader;
   messageRepository: Pick<MessageRepository, "create">;
+  roomMessageRealtimePublisher?: RoomMessageRealtimePublisher;
   roomMembershipReader: RoomMembershipReader;
 }) {
   return async function postRoomMessage(input: {
@@ -33,10 +37,25 @@ export function createPostRoomMessage(dependencies: {
       );
     }
 
-    return dependencies.messageRepository.create({
+    const createdMessage = await dependencies.messageRepository.create({
       authorUserId: command.actorUserId,
       body: command.body,
       roomId: command.roomId,
     });
+
+    if (dependencies.roomMessageRealtimePublisher) {
+      const author = dependencies.messageAuthorProfileReader
+        ? await dependencies.messageAuthorProfileReader.getMessageAuthorProfileByUserId(
+            createdMessage.authorUserId,
+          )
+        : null;
+
+      await dependencies.roomMessageRealtimePublisher.publishRoomMessagePosted({
+        author,
+        message: createdMessage,
+      });
+    }
+
+    return createdMessage;
   };
 }

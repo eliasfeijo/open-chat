@@ -38,6 +38,11 @@ export const postRoomMessageFormSchema = postRoomMessageSchema
     roomSlug: z.string().trim().min(1),
   });
 
+export const authorizeRoomMessageSubscriptionSchema = z.object({
+  actorUserId: messageAuthorUserIdSchema,
+  roomId: messageRoomIdSchema,
+});
+
 export const listRoomMessagesSchema = z.object({
   limit: z.number().int().positive().max(100).default(50),
   roomId: messageRoomIdSchema,
