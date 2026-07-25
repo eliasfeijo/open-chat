@@ -26,7 +26,7 @@ export function createRedisRoomTypingIndicatorStore(
       const indicators = await redis.zrange<[string, number][]>(
         key,
         minimumActiveScore,
-        Number.POSITIVE_INFINITY,
+        "+inf",
         {
           byScore: true,
           withScores: true,
