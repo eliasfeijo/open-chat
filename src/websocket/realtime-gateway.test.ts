@@ -34,6 +34,13 @@ async function readMessage(socket: WebSocket) {
   });
 }
 
+async function waitForClose(socket: WebSocket) {
+  return new Promise<{ code: number; reason: Buffer }>((resolve, reject) => {
+    socket.once("close", (code, reason) => resolve({ code, reason }));
+    socket.once("error", (error) => reject(error));
+  });
+}
+
 async function expectNoMessage(socket: WebSocket) {
   await expect(
     Promise.race([
@@ -132,5 +139,75 @@ describe("createRealtimeGateway", () => {
 
     subscribedRoomSocket.close();
     otherRoomSocket.close();
+  });
+
+  it("subscribes successfully when the client sends immediately after open", async () => {
+    const roomSubscriptionHub = createLocalRoomSubscriptionHub();
+    const gateway = await createRealtimeGateway({
+      authenticateConnection: vi.fn().mockImplementation(
+        () =>
+          new Promise<{ userId: string }>((resolve) => {
+            setTimeout(() => resolve({ userId: "user-1" }), 100);
+          }),
+      ),
+      authorizeRoomSubscription: vi.fn().mockResolvedValue(undefined),
+      host: "127.0.0.1",
+      port: 0,
+      roomSubscriptionHub,
+    });
+
+    gateways.push(gateway);
+
+    const socket = await connectClient(gateway.port);
+
+    socket.send(
+      JSON.stringify({
+        roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+        type: "subscribe-room",
+      }),
+    );
+
+    await expect(readMessage(socket)).resolves.toMatchObject({
+      roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+      type: "subscribed-room",
+    });
+
+    socket.close();
+  });
+
+  it("rejects unauthenticated sockets even if they send immediately after open", async () => {
+    const roomSubscriptionHub = createLocalRoomSubscriptionHub();
+    const gateway = await createRealtimeGateway({
+      authenticateConnection: vi.fn().mockImplementation(
+        () =>
+          new Promise<null>((resolve) => {
+            setTimeout(() => resolve(null), 100);
+          }),
+      ),
+      authorizeRoomSubscription: vi.fn(),
+      host: "127.0.0.1",
+      port: 0,
+      roomSubscriptionHub,
+    });
+
+    gateways.push(gateway);
+
+    const socket = await connectClient(gateway.port);
+
+    socket.send(
+      JSON.stringify({
+        roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+        type: "subscribe-room",
+      }),
+    );
+
+    await expect(readMessage(socket)).resolves.toMatchObject({
+      message: "Authentication required for realtime room subscriptions.",
+      type: "error",
+    });
+
+    await expect(waitForClose(socket)).resolves.toMatchObject({
+      code: 4401,
+    });
   });
 });

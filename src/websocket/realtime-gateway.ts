@@ -86,24 +86,13 @@ export async function createRealtimeGateway(
   });
 
   websocketServer.on("connection", async (socket, request) => {
-    const authenticatedConnection = await dependencies.authenticateConnection(
+    const authenticatedConnectionPromise = dependencies.authenticateConnection(
       createHeadersFromIncomingHeaders(request.headers),
     );
 
-    if (!authenticatedConnection) {
-      socket.send(
-        JSON.stringify({
-          message: "Authentication required for realtime room subscriptions.",
-          type: "error",
-        }),
-      );
-      socket.close(4401, "Authentication required.");
-
-      return;
-    }
-
     const sendJson = createSendJson(socket);
     const connectionId = randomUUID();
+    let hasAuthenticatedConnection = false;
 
     socket.on("close", () => {
       dependencies.roomSubscriptionHub.disconnectConnection(connectionId);
@@ -111,6 +100,20 @@ export async function createRealtimeGateway(
 
     socket.on("message", async (rawMessage) => {
       try {
+        const authenticatedConnection = await authenticatedConnectionPromise;
+
+        if (!authenticatedConnection) {
+          sendJson({
+            message: "Authentication required for realtime room subscriptions.",
+            type: "error",
+          });
+          socket.close(4401, "Authentication required.");
+
+          return;
+        }
+
+        hasAuthenticatedConnection = true;
+
         const message = websocketClientMessageSchema.parse(
           parseRawSocketMessage(rawMessage),
         );
@@ -149,6 +152,18 @@ export async function createRealtimeGateway(
         });
       }
     });
+
+    const authenticatedConnection = await authenticatedConnectionPromise;
+
+    if (!authenticatedConnection && !hasAuthenticatedConnection) {
+      socket.send(
+        JSON.stringify({
+          message: "Authentication required for realtime room subscriptions.",
+          type: "error",
+        }),
+      );
+      socket.close(4401, "Authentication required.");
+    }
   });
 
   const address = websocketServer.address();
