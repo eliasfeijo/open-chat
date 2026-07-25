@@ -1,0 +1,101 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy To Oracle VM
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      NEXT_TELEMETRY_DISABLED: "1"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Enable pnpm via Corepack
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.17.0 --activate
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        run: pnpm build
+
+      - name: Create release metadata
+        run: |
+          release_id="${GITHUB_SHA::12}"
+          echo "RELEASE_ID=$release_id" >> "$GITHUB_ENV"
+          echo "ARCHIVE_NAME=open-chat-$release_id.tgz" >> "$GITHUB_ENV"
+
+      - name: Archive deployment payload
+        run: |
+          tar -czf "$ARCHIVE_NAME" \
+            .next \
+            public \
+            package.json \
+            pnpm-lock.yaml \
+            next.config.ts
+
+      - name: Configure SSH
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Upload release archive
+        run: |
+          scp -i ~/.ssh/id_ed25519 "$ARCHIVE_NAME" "$DEPLOY_USER@$DEPLOY_HOST:/tmp/$ARCHIVE_NAME"
+
+      - name: Activate release on VM
+        run: |
+          ssh -i ~/.ssh/id_ed25519 "$DEPLOY_USER@$DEPLOY_HOST" <<EOF
+          set -euo pipefail
+          release_dir="/srv/open-chat/releases/$RELEASE_ID"
+          mkdir -p "$release_dir"
+          tar -xzf "/tmp/$ARCHIVE_NAME" -C "$release_dir"
+          cd "$release_dir"
+          corepack enable
+          corepack prepare pnpm@11.17.0 --activate
+          pnpm install --prod --frozen-lockfile
+          ln -sfn "$release_dir" /srv/open-chat/current
+          rm -f "/tmp/$ARCHIVE_NAME"
+          sudo -n systemctl restart open-chat
+          sudo -n systemctl is-active --quiet open-chat
+          EOF
+
+      - name: Verify public URL
+        run: |
+          curl \
+            --fail \
+            --show-error \
+            --silent \
+            --location \
+            --retry 5 \
+            --retry-delay 5 \
+            "https://chat.eliasfeijo.dev"
