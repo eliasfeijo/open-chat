@@ -23,6 +23,7 @@ jobs:
       DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
       DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
       NEXT_TELEMETRY_DISABLED: "1"
+      NEXT_PUBLIC_REALTIME_WS_URL: "wss://chat.eliasfeijo.dev/ws"
 
     steps:
       - name: Check out repository
