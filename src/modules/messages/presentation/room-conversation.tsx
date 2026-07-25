@@ -32,6 +32,67 @@ type TypingParticipant = {
   userId: string;
 };
 
+type ConversationMessage = RoomMessagesListMessage & {
+  clientMessageId?: string;
+};
+
+const AUTO_SCROLL_BOTTOM_THRESHOLD_PX = 96;
+const VISIBLE_ACTIVE_PARTICIPANT_LIMIT = 5;
+
+function isNearBottom(element: HTMLDivElement): boolean {
+  return (
+    element.scrollHeight - element.scrollTop - element.clientHeight <=
+    AUTO_SCROLL_BOTTOM_THRESHOLD_PX
+  );
+}
+
+function getParticipantLabel(input: {
+  authorProfile: RoomMessagesListAuthorProfile | null | undefined;
+  userId: string;
+}): string {
+  if (input.authorProfile?.displayName) {
+    return input.authorProfile.displayName;
+  }
+
+  if (input.authorProfile?.username) {
+    return `@${input.authorProfile.username}`;
+  }
+
+  return `OpenChat user (${input.userId.slice(0, 6)})`;
+}
+
+function getParticipantInitials(input: {
+  authorProfile: RoomMessagesListAuthorProfile | null | undefined;
+  userId: string;
+}): string {
+  const sourceLabel =
+    input.authorProfile?.displayName ??
+    input.authorProfile?.username ??
+    input.userId;
+  const alphaNumericLabel = sourceLabel.replace(/[^a-zA-Z0-9]/g, "");
+
+  return alphaNumericLabel.slice(0, 2).toUpperCase() || "OC";
+}
+
+function getHoverCardPositionClass(input: {
+  index: number;
+  total: number;
+}): string {
+  if (input.total <= 1) {
+    return "left-0 translate-x-0";
+  }
+
+  if (input.index === 0) {
+    return "left-0 translate-x-0";
+  }
+
+  if (input.index === input.total - 1) {
+    return "right-0 translate-x-0";
+  }
+
+  return "left-1/2 -translate-x-1/2";
+}
+
 function getRealtimeGatewayUrl() {
   if (typeof window === "undefined") {
     return null;
@@ -62,7 +123,8 @@ export function RoomConversation({
   roomName,
   roomSlug,
 }: RoomConversationProps): ReactElement {
-  const [messages, setMessages] = useState(initialMessages);
+  const [messages, setMessages] =
+    useState<ConversationMessage[]>(initialMessages);
   const [authorProfilesByUserId, setAuthorProfilesByUserId] = useState(
     initialAuthorProfilesByUserId,
   );
@@ -71,11 +133,28 @@ export function RoomConversation({
   );
   const [realtimeError, setRealtimeError] = useState<string | null>(null);
   const [activeUserCount, setActiveUserCount] = useState<number | null>(null);
+  const [activeUserIds, setActiveUserIds] = useState<string[]>([]);
   const [typingParticipants, setTypingParticipants] = useState<
     TypingParticipant[]
   >([]);
   const isCurrentUserTypingRef = useRef(false);
   const socketRef = useRef<WebSocket | null>(null);
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
+  const shouldAutoScrollRef = useRef(true);
+  const previousMessageCountRef = useRef(initialMessages.length);
+
+  function scrollMessagesToBottom(behavior: ScrollBehavior) {
+    const container = messagesContainerRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    container.scrollTo({
+      behavior,
+      top: container.scrollHeight,
+    });
+  }
 
   function sendTypingState(isTyping: boolean) {
     const socket = socketRef.current;
@@ -92,6 +171,67 @@ export function RoomConversation({
         type: "set-room-typing",
       }),
     );
+  }
+
+  function addOptimisticMessage(input: {
+    body: string;
+    optimisticMessageId: string;
+  }) {
+    setMessages((currentMessages) => [
+      ...currentMessages,
+      {
+        authorUserId: currentUserId,
+        body: input.body,
+        clientMessageId: input.optimisticMessageId,
+        createdAt: new Date().toISOString(),
+        deliveryStatus: "sending",
+        id: input.optimisticMessageId,
+        roomId,
+      },
+    ]);
+  }
+
+  function markOptimisticMessageAsFailed(input: {
+    optimisticMessageId: string;
+  }) {
+    setMessages((currentMessages) =>
+      currentMessages.map((message) =>
+        message.clientMessageId === input.optimisticMessageId
+          ? {
+              ...message,
+              deliveryStatus: "failed",
+            }
+          : message,
+      ),
+    );
+  }
+
+  function confirmOptimisticMessage(input: {
+    message: RoomMessagesListMessage;
+    optimisticMessageId: string;
+  }) {
+    setMessages((currentMessages) => {
+      const reconciledMessages = currentMessages.map((message) =>
+        message.clientMessageId === input.optimisticMessageId
+          ? {
+              ...input.message,
+            }
+          : message,
+      );
+      const deduplicatedMessages: ConversationMessage[] = [];
+      const seenMessageIds = new Set<string>();
+
+      for (const message of reconciledMessages) {
+        if (seenMessageIds.has(message.id)) {
+          continue;
+        }
+
+        seenMessageIds.add(message.id);
+        deduplicatedMessages.push(message);
+      }
+
+      return deduplicatedMessages;
+    });
   }
 
   useEffect(() => {
@@ -139,6 +279,7 @@ export function RoomConversation({
 
         if (payload.type === "room-presence-updated") {
           setActiveUserCount(payload.activeUserCount);
+          setActiveUserIds(payload.activeUserIds ?? []);
 
           return;
         }
@@ -154,6 +295,23 @@ export function RoomConversation({
             currentMessages.some((message) => message.id === payload.message.id)
           ) {
             return currentMessages;
+          }
+
+          if (payload.message.authorUserId === currentUserId) {
+            const optimisticMessageIndex = currentMessages.findIndex(
+              (message) =>
+                message.authorUserId === currentUserId &&
+                message.deliveryStatus === "sending" &&
+                message.body === payload.message.body,
+            );
+
+            if (optimisticMessageIndex !== -1) {
+              const reconciledMessages = [...currentMessages];
+
+              reconciledMessages[optimisticMessageIndex] = payload.message;
+
+              return reconciledMessages;
+            }
           }
 
           return [...currentMessages, payload.message];
@@ -196,6 +354,42 @@ export function RoomConversation({
       socketRef.current = null;
     };
   }, [canPost, roomId]);
+
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    const messagesContainer = container;
+
+    scrollMessagesToBottom("auto");
+    shouldAutoScrollRef.current = true;
+
+    function handleMessagesScroll() {
+      shouldAutoScrollRef.current = isNearBottom(messagesContainer);
+    }
+
+    messagesContainer.addEventListener("scroll", handleMessagesScroll);
+
+    return () => {
+      messagesContainer.removeEventListener("scroll", handleMessagesScroll);
+    };
+  }, []);
+
+  useEffect(() => {
+    const previousMessageCount = previousMessageCountRef.current;
+    const hasNewMessage = messages.length > previousMessageCount;
+
+    previousMessageCountRef.current = messages.length;
+
+    if (!hasNewMessage || !shouldAutoScrollRef.current) {
+      return;
+    }
+
+    scrollMessagesToBottom("smooth");
+  }, [messages.length]);
 
   useEffect(() => {
     if (typingParticipants.length === 0) {
@@ -249,12 +443,28 @@ export function RoomConversation({
             "Someone"
           } is typing...`
         : `${visibleTypingParticipants.length} people are typing...`;
+  const resolvedActiveUserIds =
+    activeUserIds.length > 0
+      ? activeUserIds
+      : canPost && (activeUserCount ?? 0) > 0
+        ? [currentUserId]
+        : [];
+  const effectiveActiveUserCount =
+    activeUserIds.length > 0 ? activeUserIds.length : (activeUserCount ?? 0);
+  const visibleActiveUserIds = resolvedActiveUserIds.slice(
+    0,
+    VISIBLE_ACTIVE_PARTICIPANT_LIMIT,
+  );
+  const hasOverflowActiveParticipants =
+    effectiveActiveUserCount > VISIBLE_ACTIVE_PARTICIPANT_LIMIT;
+  const visibleActiveParticipantCount = visibleActiveUserIds.length;
+  const visibleTypingParticipantCount = visibleTypingParticipants.length;
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
-          <div className="rounded-full border border-(--color-border) bg-(--color-page) px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-(--color-muted)">
+          <div className="flex h-10 items-center rounded-full border border-(--color-border) bg-(--color-page) px-4 text-xs font-semibold uppercase tracking-[0.16em] text-(--color-muted)">
             {realtimeStatus === "connected"
               ? "Live updates connected"
               : realtimeStatus === "connecting"
@@ -262,14 +472,67 @@ export function RoomConversation({
                 : "Live updates offline"}
           </div>
 
-          <div className="rounded-full border border-(--color-border) bg-(--color-page) px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-(--color-muted)">
-            {canPost
-              ? activeUserCount === null
-                ? "Presence syncing"
-                : activeUserCount === 1
-                  ? "1 active participant"
-                  : `${activeUserCount} active participants`
-              : "Join to appear online"}
+          <div className="flex h-10 items-center gap-3 rounded-full border border-(--color-border) bg-(--color-page) px-3 text-xs font-semibold uppercase tracking-[0.16em] text-(--color-muted)">
+            <span>
+              {canPost
+                ? activeUserCount === null
+                  ? "Presence syncing"
+                  : activeUserCount === 1
+                    ? "1 active participant"
+                    : `${activeUserCount} active participants`
+                : "Join to appear online"}
+            </span>
+
+            {canPost && effectiveActiveUserCount > 0 ? (
+              <div className="flex shrink-0 items-center gap-1.5">
+                {visibleActiveUserIds.map((activeUserId, index) => {
+                  const authorProfile = authorProfilesByUserId[activeUserId];
+                  const participantLabel = getParticipantLabel({
+                    authorProfile,
+                    userId: activeUserId,
+                  });
+                  const participantBio = authorProfile?.bio;
+                  const hoverCardPositionClass = getHoverCardPositionClass({
+                    index,
+                    total: visibleActiveParticipantCount,
+                  });
+
+                  return (
+                    <div className="group relative" key={activeUserId}>
+                      <div className="flex size-7 items-center justify-center rounded-full border border-(--color-border) bg-(--color-surface) text-[11px] font-semibold text-(--color-foreground) shadow-xs">
+                        {getParticipantInitials({
+                          authorProfile,
+                          userId: activeUserId,
+                        })}
+                      </div>
+                      <div
+                        className={`pointer-events-none absolute bottom-full z-10 mb-2 hidden w-56 max-w-[calc(100vw-2rem)] rounded-2xl border border-(--color-border) bg-(--color-surface) p-3 text-left normal-case tracking-normal text-(--color-foreground) shadow-lg group-hover:block ${hoverCardPositionClass}`}
+                      >
+                        <p className="text-sm font-semibold">
+                          {participantLabel}
+                        </p>
+                        <p className="mt-1 text-xs text-(--color-muted)">
+                          {participantBio && participantBio.trim().length > 0
+                            ? participantBio
+                            : "No profile bio yet."}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {hasOverflowActiveParticipants ? (
+                  <div
+                    className="flex size-7 items-center justify-center rounded-full border border-(--color-border) bg-(--color-surface) text-[11px] font-semibold text-(--color-muted)"
+                    title={`+${effectiveActiveUserCount - VISIBLE_ACTIVE_PARTICIPANT_LIMIT} more active participants`}
+                  >
+                    +
+                    {effectiveActiveUserCount -
+                      VISIBLE_ACTIVE_PARTICIPANT_LIMIT}
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -280,7 +543,10 @@ export function RoomConversation({
         ) : null}
       </div>
 
-      <div className="max-h-168 overflow-y-auto pr-1">
+      <div
+        ref={messagesContainerRef}
+        className="max-h-168 overflow-y-auto pr-1"
+      >
         <RoomMessagesList
           authorProfilesByUserId={authorProfilesByUserId}
           currentUserId={currentUserId}
@@ -290,7 +556,43 @@ export function RoomConversation({
       </div>
 
       {typingSummary ? (
-        <p className="min-h-6 text-sm text-(--color-muted)">{typingSummary}</p>
+        <div className="flex min-h-6 items-center gap-2 text-sm text-(--color-muted)">
+          <div className="flex shrink-0 items-center gap-1.5">
+            {visibleTypingParticipants.map((participant, index) => {
+              const participantLabel = getParticipantLabel({
+                authorProfile: participant.author,
+                userId: participant.userId,
+              });
+              const participantBio = participant.author?.bio;
+              const hoverCardPositionClass = getHoverCardPositionClass({
+                index,
+                total: visibleTypingParticipantCount,
+              });
+
+              return (
+                <div className="group relative" key={participant.userId}>
+                  <div className="flex size-7 items-center justify-center rounded-full border border-(--color-border) bg-(--color-surface) text-[11px] font-semibold text-(--color-foreground) shadow-xs">
+                    {getParticipantInitials({
+                      authorProfile: participant.author,
+                      userId: participant.userId,
+                    })}
+                  </div>
+                  <div
+                    className={`pointer-events-none absolute bottom-full z-10 mb-2 hidden w-56 max-w-[calc(100vw-2rem)] rounded-2xl border border-(--color-border) bg-(--color-surface) p-3 text-left normal-case tracking-normal text-(--color-foreground) shadow-lg group-hover:block ${hoverCardPositionClass}`}
+                  >
+                    <p className="text-sm font-semibold">{participantLabel}</p>
+                    <p className="mt-1 text-xs text-(--color-muted)">
+                      {participantBio && participantBio.trim().length > 0
+                        ? participantBio
+                        : "No profile bio yet."}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <p>{typingSummary}</p>
+        </div>
       ) : (
         <div className="min-h-6" />
       )}
@@ -298,6 +600,26 @@ export function RoomConversation({
       <div className="rounded-4xl border border-(--color-border) bg-(--color-surface) p-5 sm:p-6">
         {canPost ? (
           <PostRoomMessageForm
+            onOptimisticMessageFailed={({ optimisticMessageId }) => {
+              markOptimisticMessageAsFailed({
+                optimisticMessageId,
+              });
+            }}
+            onOptimisticMessagePosted={({ body, optimisticMessageId }) => {
+              addOptimisticMessage({
+                body,
+                optimisticMessageId,
+              });
+            }}
+            onOptimisticMessageSucceeded={({
+              message,
+              optimisticMessageId,
+            }) => {
+              confirmOptimisticMessage({
+                message,
+                optimisticMessageId,
+              });
+            }}
             onTypingStateChange={sendTypingState}
             roomId={roomId}
             roomName={roomName}

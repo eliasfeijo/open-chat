@@ -9,9 +9,11 @@ import {
   RoomMessageAuthorNotMemberError,
   UnauthenticatedMessageAuthorError,
 } from "@/modules/messages/domain/message";
+import type { Message } from "@/modules/messages/validation";
 import { postRoomMessageFormSchema } from "@/modules/messages/validation";
 
 export type PostRoomMessageActionState = {
+  createdMessage?: Message;
   fieldErrors: {
     body?: string;
   };
@@ -19,12 +21,20 @@ export type PostRoomMessageActionState = {
   status: "idle" | "error" | "success";
 };
 
+export type PostRoomMessageActionResult = {
+  createdMessage?: Message;
+  fieldErrors: {
+    body?: string;
+  };
+  message: string | null;
+  status: "error" | "success";
+};
+
 const initialFieldErrors = {};
 
 export async function postRoomMessageAction(
-  _previousState: PostRoomMessageActionState,
   formData: FormData,
-): Promise<PostRoomMessageActionState> {
+): Promise<PostRoomMessageActionResult> {
   const authenticatedUser = await getAuthenticatedUser();
 
   try {
@@ -34,7 +44,7 @@ export async function postRoomMessageAction(
       roomSlug: formData.get("roomSlug"),
     });
 
-    await postRoomMessage({
+    const createdMessage = await postRoomMessage({
       actorUserId: authenticatedUser?.id ?? null,
       body: rawInput.body,
       roomId: rawInput.roomId,
@@ -43,6 +53,7 @@ export async function postRoomMessageAction(
     revalidatePath(`/rooms/${rawInput.roomSlug}`);
 
     return {
+      createdMessage,
       fieldErrors: initialFieldErrors,
       message: "Message posted.",
       status: "success",

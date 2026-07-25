@@ -12,6 +12,7 @@ export type RoomMessagesListMessage = {
   authorUserId: string;
   body: string;
   createdAt: Date | string;
+  deliveryStatus?: "failed" | "sending";
   id: string;
   roomId: string;
 };
@@ -136,6 +137,16 @@ export function RoomMessagesList({
                       month: "short",
                     })}
                   </span>
+                  {message.deliveryStatus === "sending" ? (
+                    <span className="rounded-full border border-(--color-border) bg-(--color-page) px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-(--color-muted)">
+                      Sending...
+                    </span>
+                  ) : null}
+                  {message.deliveryStatus === "failed" ? (
+                    <span className="rounded-full border border-red-300/50 bg-red-100/60 px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-red-800 dark:border-red-400/30 dark:bg-red-950/40 dark:text-red-200">
+                      Failed to send
+                    </span>
+                  ) : null}
                 </div>
 
                 {authorProfilesByUserId[message.authorUserId]?.bio ? (

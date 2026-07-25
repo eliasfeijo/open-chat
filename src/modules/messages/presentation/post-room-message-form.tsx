@@ -1,16 +1,30 @@
 "use client";
 
-import { useActionState, useEffect, useRef, type ReactElement } from "react";
+import { useEffect, useRef, useState, type ReactElement } from "react";
 
 import {
   postRoomMessageAction,
+  type PostRoomMessageActionResult,
   type PostRoomMessageActionState,
 } from "@/modules/messages/presentation/server/post-room-message-action";
+import type { RoomMessagesListMessage } from "@/modules/messages/presentation/room-messages-list";
 
 type PostRoomMessageFormProps = Readonly<{
+  onOptimisticMessageFailed?: (input: {
+    message: string;
+    optimisticMessageId: string;
+  }) => void;
+  onOptimisticMessagePosted?: (input: {
+    body: string;
+    optimisticMessageId: string;
+  }) => void;
+  onOptimisticMessageSucceeded?: (input: {
+    message: RoomMessagesListMessage;
+    optimisticMessageId: string;
+  }) => void;
   onTypingStateChange?: (isTyping: boolean) => void;
-  roomName: string;
   roomId: string;
+  roomName: string;
   roomSlug: string;
 }>;
 
@@ -21,6 +35,9 @@ const initialPostRoomMessageActionState: PostRoomMessageActionState = {
 };
 
 export function PostRoomMessageForm({
+  onOptimisticMessageFailed,
+  onOptimisticMessagePosted,
+  onOptimisticMessageSucceeded,
   onTypingStateChange,
   roomName,
   roomId,
@@ -28,12 +45,33 @@ export function PostRoomMessageForm({
 }: PostRoomMessageFormProps): ReactElement {
   const formRef = useRef<HTMLFormElement | null>(null);
   const onTypingStateChangeRef = useRef(onTypingStateChange);
-  const [actionState, formAction, isPending] = useActionState(
-    postRoomMessageAction,
+  const [actionState, setActionState] = useState<PostRoomMessageActionState>(
     initialPostRoomMessageActionState,
   );
+  const [isPending, setIsPending] = useState(false);
   const isTypingRef = useRef(false);
   const lastTypingHeartbeatAtRef = useRef(0);
+
+  function createOptimisticMessageId(): string {
+    if (
+      typeof crypto !== "undefined" &&
+      typeof crypto.randomUUID === "function"
+    ) {
+      return `optimistic-${crypto.randomUUID()}`;
+    }
+
+    return `optimistic-${Date.now()}`;
+  }
+
+  function toActionState(
+    result: PostRoomMessageActionResult,
+  ): PostRoomMessageActionState {
+    return {
+      fieldErrors: result.fieldErrors,
+      message: result.message,
+      status: result.status,
+    };
+  }
 
   useEffect(() => {
     onTypingStateChangeRef.current = onTypingStateChange;
@@ -73,16 +111,6 @@ export function PostRoomMessageForm({
   }
 
   useEffect(() => {
-    if (actionState.status !== "success") {
-      return;
-    }
-
-    formRef.current?.reset();
-    isTypingRef.current = false;
-    onTypingStateChangeRef.current?.(false);
-  }, [actionState.status]);
-
-  useEffect(() => {
     return () => {
       if (isTypingRef.current) {
         onTypingStateChangeRef.current?.(false);
@@ -90,8 +118,67 @@ export function PostRoomMessageForm({
     };
   }, []);
 
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (isPending) {
+      return;
+    }
+
+    const formElement = event.currentTarget;
+    const formData = new FormData(formElement);
+    const body = String(formData.get("body") ?? "").trim();
+
+    if (body.length === 0) {
+      setActionState({
+        fieldErrors: {
+          body: "Message is required.",
+        },
+        message: "Please correct the highlighted fields.",
+        status: "error",
+      });
+
+      return;
+    }
+
+    const optimisticMessageId = createOptimisticMessageId();
+
+    onOptimisticMessagePosted?.({
+      body,
+      optimisticMessageId,
+    });
+
+    formElement.reset();
+    isTypingRef.current = false;
+    onTypingStateChangeRef.current?.(false);
+    setIsPending(true);
+    setActionState(initialPostRoomMessageActionState);
+
+    try {
+      const result = await postRoomMessageAction(formData);
+
+      setActionState(toActionState(result));
+
+      if (result.status === "success" && result.createdMessage) {
+        onOptimisticMessageSucceeded?.({
+          message: result.createdMessage,
+          optimisticMessageId,
+        });
+
+        return;
+      }
+
+      onOptimisticMessageFailed?.({
+        message: result.message ?? "Message could not be posted.",
+        optimisticMessageId,
+      });
+    } finally {
+      setIsPending(false);
+    }
+  }
+
   return (
-    <form action={formAction} className="space-y-4" ref={formRef}>
+    <form className="space-y-4" onSubmit={handleSubmit} ref={formRef}>
       <div className="space-y-2">
         <h2 className="text-lg font-semibold tracking-[-0.03em] text-(--color-foreground)">
           Compose into the room
