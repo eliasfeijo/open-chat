@@ -14,6 +14,9 @@ importers:
       '@next/env':
         specifier: ^16.2.11
         version: 16.2.11
+      '@swc/helpers':
+        specifier: ^0.5.15
+        version: 0.5.15
       '@tanstack/react-query':
         specifier: ^5.101.4
         version: 5.101.4(react@19.2.4)
