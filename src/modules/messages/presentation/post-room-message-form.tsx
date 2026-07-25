@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useActionState,
-  useEffect,
-  useRef,
-  useState,
-  type ReactElement,
-} from "react";
+import { useActionState, useEffect, useRef, type ReactElement } from "react";
 
 import {
   postRoomMessageAction,
@@ -32,11 +26,11 @@ export function PostRoomMessageForm({
   roomId,
   roomSlug,
 }: PostRoomMessageFormProps): ReactElement {
+  const formRef = useRef<HTMLFormElement | null>(null);
   const [actionState, formAction, isPending] = useActionState(
     postRoomMessageAction,
     initialPostRoomMessageActionState,
   );
-  const [body, setBody] = useState("");
   const isTypingRef = useRef(false);
   const lastTypingHeartbeatAtRef = useRef(0);
 
@@ -78,9 +72,10 @@ export function PostRoomMessageForm({
       return;
     }
 
-    setBody("");
-    updateTypingState(false);
-  }, [actionState.status]);
+    formRef.current?.reset();
+    isTypingRef.current = false;
+    onTypingStateChange?.(false);
+  }, [actionState.status, onTypingStateChange]);
 
   useEffect(() => {
     return () => {
@@ -91,7 +86,7 @@ export function PostRoomMessageForm({
   }, [onTypingStateChange]);
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} className="space-y-4" ref={formRef}>
       <div className="space-y-2">
         <h2 className="text-lg font-semibold tracking-[-0.03em] text-(--color-foreground)">
           Compose into the room
@@ -116,11 +111,9 @@ export function PostRoomMessageForm({
           onChange={(event) => {
             const nextBody = event.currentTarget.value;
 
-            setBody(nextBody);
             publishTypingHeartbeat(nextBody);
           }}
           placeholder={`Say something that gets ${roomName} moving.`}
-          value={body}
         />
         {actionState.fieldErrors.body ? (
           <p className="text-sm text-red-700 dark:text-red-300">
