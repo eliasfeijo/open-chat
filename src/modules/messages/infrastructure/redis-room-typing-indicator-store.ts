@@ -23,7 +23,7 @@ export function createRedisRoomTypingIndicatorStore(
 
       await redis.zremrangebyscore(key, 0, minimumActiveScore - 1);
 
-      const indicators = await redis.zrange<[string, number][]>(
+      const indicators = await redis.zrange<Array<string | number>>(
         key,
         minimumActiveScore,
         "+inf",
@@ -33,10 +33,23 @@ export function createRedisRoomTypingIndicatorStore(
         },
       );
 
-      return indicators.map(([userId, expiresAt]) => ({
-        expiresAt: new Date(expiresAt),
-        userId,
-      })) as ActiveRoomTypingIndicator[];
+      const activeIndicators: ActiveRoomTypingIndicator[] = [];
+
+      for (let index = 0; index < indicators.length; index += 2) {
+        const userId = indicators[index];
+        const expiresAt = indicators[index + 1];
+
+        if (typeof userId !== "string" || typeof expiresAt !== "number") {
+          continue;
+        }
+
+        activeIndicators.push({
+          expiresAt: new Date(expiresAt),
+          userId,
+        });
+      }
+
+      return activeIndicators;
     },
 
     async setTypingIndicator({ expiresAt, roomId, userId }) {
