@@ -76,7 +76,7 @@ jobs:
 
       - name: Activate release on VM
         run: |
-          ssh -i ~/.ssh/id_ed25519 "$DEPLOY_USER@$DEPLOY_HOST" <<EOF
+          ssh -i ~/.ssh/id_ed25519 "$DEPLOY_USER@$DEPLOY_HOST" "RELEASE_ID='$RELEASE_ID' ARCHIVE_NAME='$ARCHIVE_NAME' bash -se" <<'EOF'
           set -euo pipefail
           release_dir="/srv/open-chat/releases/$RELEASE_ID"
           mkdir -p "$release_dir"
