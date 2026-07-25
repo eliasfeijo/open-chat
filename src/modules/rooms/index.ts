@@ -6,6 +6,7 @@ import { createGetRoomMembership } from "@/modules/rooms/application/get-room-me
 import { createJoinRoom } from "@/modules/rooms/application/join-room";
 import { createLeaveRoom } from "@/modules/rooms/application/leave-room";
 import { createListRooms } from "@/modules/rooms/application/list-rooms";
+import { createListUserRoomMemberships } from "@/modules/rooms/application/list-user-room-memberships";
 import { createUpdateRoomDetails } from "@/modules/rooms/application/update-room-details";
 import { createDrizzleRoomMembershipRepository } from "@/modules/rooms/infrastructure/drizzle-room-membership-repository";
 import { createDrizzleRoomRepository } from "@/modules/rooms/infrastructure/drizzle-room-repository";
@@ -48,6 +49,9 @@ function createRoomsServices() {
     }),
     listRooms: createListRooms({
       roomRepository,
+    }),
+    listUserRoomMemberships: createListUserRoomMemberships({
+      roomMembershipRepository,
     }),
     updateRoomDetails: createUpdateRoomDetails({
       roomRepository,
@@ -93,6 +97,10 @@ export async function getRoomMembership(input: {
   userId: string;
 }) {
   return createRoomsServices().getRoomMembership(input);
+}
+
+export async function listUserRoomMemberships(input: { userId: string }) {
+  return createRoomsServices().listUserRoomMemberships(input);
 }
 
 export async function joinRoom(input: {

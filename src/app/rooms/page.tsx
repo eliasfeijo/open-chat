@@ -5,6 +5,7 @@ import { getAuthenticatedUser } from "@/modules/auth";
 import { NavigationBar } from "@/modules/auth/presentation/navigation-bar";
 import { CreateRoomForm } from "@/modules/rooms/presentation/create-room-form";
 import { RoomsList } from "@/modules/rooms/presentation/rooms-list";
+import { listUserRoomMemberships } from "@/modules/rooms";
 import { RoomDiscoveryFilters } from "@/modules/search/presentation/room-discovery-filters";
 import { searchRooms } from "@/modules/search";
 import { syncUserProfileFromAuthIdentity } from "@/modules/users";
@@ -32,11 +33,17 @@ export default async function RoomsPage({
   const resolvedSearchParams = await searchParams;
   const activeQuery = resolvedSearchParams.q ?? "";
   const activeTagSlug = resolvedSearchParams.tag ?? "";
-  const rooms = await searchRooms({
-    limit: 20,
-    query: activeQuery,
-    tagSlug: activeTagSlug,
-  });
+  const [rooms, memberships] = await Promise.all([
+    searchRooms({
+      limit: 20,
+      query: activeQuery,
+      tagSlug: activeTagSlug,
+    }),
+    listUserRoomMemberships({
+      userId: authenticatedUser.id,
+    }),
+  ]);
+  const membershipRoomIds = memberships.map((membership) => membership.roomId);
   const hasDiscoveryFilters = activeQuery !== "" || activeTagSlug !== "";
 
   return (
@@ -94,6 +101,7 @@ export default async function RoomsPage({
           <RoomsList
             activeTagSlug={activeTagSlug || null}
             currentUserId={authenticatedUser.id}
+            membershipRoomIds={membershipRoomIds}
             rooms={rooms}
           />
         </section>

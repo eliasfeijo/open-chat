@@ -10,4 +10,5 @@ export interface RoomMembershipRepository {
     roomId: string;
     userId: string;
   }): Promise<RoomMembership | null>;
+  listByUserId(userId: string): Promise<RoomMembership[]>;
 }

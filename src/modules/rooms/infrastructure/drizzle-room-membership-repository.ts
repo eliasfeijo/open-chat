@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 
 import { roomMembers } from "@/db/schema";
 import type { RoomMembershipRepository } from "@/modules/rooms/application/ports/room-membership-repository";
@@ -47,6 +47,15 @@ export function createDrizzleRoomMembershipRepository(
       });
 
       return membership ? mapRoomMembership(membership) : null;
+    },
+
+    async listByUserId(userId) {
+      const memberships = await database.query.roomMembers.findMany({
+        orderBy: [desc(roomMembers.joinedAt)],
+        where: eq(roomMembers.userId, userId),
+      });
+
+      return memberships.map(mapRoomMembership);
     },
   };
 }
