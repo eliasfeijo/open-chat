@@ -27,6 +27,7 @@ export function PostRoomMessageForm({
   roomSlug,
 }: PostRoomMessageFormProps): ReactElement {
   const formRef = useRef<HTMLFormElement | null>(null);
+  const onTypingStateChangeRef = useRef(onTypingStateChange);
   const [actionState, formAction, isPending] = useActionState(
     postRoomMessageAction,
     initialPostRoomMessageActionState,
@@ -34,8 +35,12 @@ export function PostRoomMessageForm({
   const isTypingRef = useRef(false);
   const lastTypingHeartbeatAtRef = useRef(0);
 
+  useEffect(() => {
+    onTypingStateChangeRef.current = onTypingStateChange;
+  }, [onTypingStateChange]);
+
   function updateTypingState(isTyping: boolean) {
-    if (!onTypingStateChange) {
+    if (!onTypingStateChangeRef.current) {
       return;
     }
 
@@ -44,7 +49,7 @@ export function PostRoomMessageForm({
     }
 
     isTypingRef.current = isTyping;
-    onTypingStateChange(isTyping);
+    onTypingStateChangeRef.current(isTyping);
   }
 
   function publishTypingHeartbeat(nextBody: string) {
@@ -74,16 +79,16 @@ export function PostRoomMessageForm({
 
     formRef.current?.reset();
     isTypingRef.current = false;
-    onTypingStateChange?.(false);
-  }, [actionState.status, onTypingStateChange]);
+    onTypingStateChangeRef.current?.(false);
+  }, [actionState.status]);
 
   useEffect(() => {
     return () => {
       if (isTypingRef.current) {
-        onTypingStateChange?.(false);
+        onTypingStateChangeRef.current?.(false);
       }
     };
-  }, [onTypingStateChange]);
+  }, []);
 
   return (
     <form action={formAction} className="space-y-4" ref={formRef}>
