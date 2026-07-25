@@ -135,6 +135,10 @@ async function goToRooms(page: Page) {
   ).toBeVisible();
 }
 
+async function expectRealtimeReady(page: Page) {
+  await expect(page.getByText("Live updates connected")).toBeVisible();
+}
+
 test("signed-up users can move through the durable Phase 1A room journey", async ({
   browser,
   testData,
@@ -275,6 +279,71 @@ test("room messages show the sign-up display name when username setup is skipped
   await ownerPage.goto(`/rooms/${roomSlug}`);
   await expect(ownerPage.getByText(participantDisplayName)).toBeVisible();
   await expect(ownerPage.getByText(messageBody)).toBeVisible();
+});
+
+test("joined participants receive new room messages without reloading", async ({
+  browser,
+  testData,
+}) => {
+  const suffix = createUniqueSuffix();
+  const password = "OpenChatPass123!";
+  const roomName = `Realtime Room ${suffix}`;
+  const roomSlug = `e2e-realtime-room-${suffix}`;
+
+  const ownerPage = await browser.newPage();
+
+  await signUp(ownerPage, testData, {
+    displayName: `Owner ${suffix}`,
+    email: `e2e-owner-realtime-${suffix}@example.com`,
+    password,
+  });
+
+  await updateProfile(ownerPage, {
+    bio: "Testing realtime room delivery.",
+    username: `owner_${suffix.replace(/-/g, "")}`.slice(0, 24),
+  });
+
+  await createRoom(ownerPage, testData, {
+    description: "A room used to verify realtime delivery between sessions.",
+    name: roomName,
+    slug: roomSlug,
+    tags: `e2e-realtime-${suffix.slice(-6)}`,
+    topic: "Realtime delivery",
+  });
+
+  await ownerPage.goto(`/rooms/${roomSlug}`);
+  await expectRealtimeReady(ownerPage);
+
+  const participantPage = await browser.newPage();
+
+  await signUp(participantPage, testData, {
+    displayName: `Participant ${suffix}`,
+    email: `e2e-participant-realtime-${suffix}@example.com`,
+    password,
+  });
+
+  await updateProfile(participantPage, {
+    bio: "Watching messages arrive live.",
+    username: `guest_${suffix.replace(/-/g, "")}`.slice(0, 24),
+  });
+
+  await participantPage.goto(`/rooms/${roomSlug}`);
+  await participantPage.getByRole("button", { name: "Join live room" }).click();
+  await expect(participantPage.getByText("You joined the room.")).toBeVisible();
+
+  await participantPage.reload();
+  await expect(
+    participantPage.getByRole("heading", { name: "Compose into the room" }),
+  ).toBeVisible();
+  await expectRealtimeReady(participantPage);
+
+  const messageBody = `Realtime delivery message ${suffix}`;
+
+  await ownerPage.getByLabel("Message").fill(messageBody);
+  await ownerPage.getByRole("button", { name: "Send to room" }).click();
+
+  await expect(ownerPage.getByText("Message posted.")).toBeVisible();
+  await expect(participantPage.getByText(messageBody)).toBeVisible();
 });
 
 test("room edit highlights invalid tag input", async ({
