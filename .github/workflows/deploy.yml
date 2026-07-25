@@ -53,14 +53,22 @@ jobs:
           echo "RELEASE_ID=$release_id" >> "$GITHUB_ENV"
           echo "ARCHIVE_NAME=open-chat-$release_id.tgz" >> "$GITHUB_ENV"
 
-      - name: Prepare standalone deployment payload
+      - name: Prepare deployment payload
         run: |
           rm -rf deploy
-          pnpm --filter . deploy --prod --legacy deploy
-          rm -rf deploy/.github deploy/docs deploy/tests deploy/src deploy/drizzle
-          rm -f deploy/AGENTS.md deploy/CONTRIBUTING.md deploy/docker-compose.yml deploy/drizzle.config.ts deploy/eslint.config.mjs deploy/playwright.config.ts deploy/pnpm-workspace.yaml deploy/postcss.config.mjs deploy/README.md deploy/tsconfig.json deploy/vitest.config.ts deploy/.env.example
+          mkdir -p deploy
+          cp package.json deploy/package.json
+          cp pnpm-lock.yaml deploy/pnpm-lock.yaml
           mkdir -p deploy/.next
           tar -C .next --exclude=cache -cf - . | tar -C deploy/.next -xf -
+          if [ -d public ]; then
+            cp -R public deploy/public
+          fi
+
+      - name: Install production dependencies in deployment payload
+        run: |
+          cd deploy
+          pnpm install --prod --frozen-lockfile
 
       - name: Archive deployment payload
         run: |
@@ -88,8 +96,6 @@ jobs:
           release_dir="/srv/open-chat/releases/$RELEASE_ID"
           mkdir -p "$release_dir"
           tar -xzf "/tmp/$ARCHIVE_NAME" -C "$release_dir"
-          cd "$release_dir"
-          CI=true pnpm install --prod --no-frozen-lockfile --config.confirmModulesPurge=false
           ln -sfn "$release_dir" /srv/open-chat/current
           rm -f "/tmp/$ARCHIVE_NAME"
           sudo -n systemctl restart open-chat
