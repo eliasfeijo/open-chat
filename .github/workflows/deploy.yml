@@ -58,17 +58,13 @@ jobs:
           rm -rf deploy
           mkdir -p deploy
           cp package.json deploy/package.json
-          cp pnpm-lock.yaml deploy/pnpm-lock.yaml
+          cp next.config.ts deploy/next.config.ts
           mkdir -p deploy/.next
+          cp -RL node_modules deploy/node_modules
           tar -C .next --exclude=cache -cf - . | tar -C deploy/.next -xf -
           if [ -d public ]; then
             cp -R public deploy/public
           fi
-
-      - name: Install production dependencies in deployment payload
-        run: |
-          cd deploy
-          pnpm install --prod --frozen-lockfile
 
       - name: Archive deployment payload
         run: |
