@@ -19,11 +19,13 @@ describe("user profile domain", () => {
       createEmptyUserProfile({
         authUserId: "auth-user-1",
         createdAt,
+        displayName: "OpenChat User",
         updatedAt,
       }),
     ).toEqual({
       bio: null,
       createdAt,
+      displayName: "OpenChat User",
       id: "auth-user-1",
       updatedAt,
       username: null,

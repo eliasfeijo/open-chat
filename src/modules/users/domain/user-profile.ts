@@ -31,9 +31,11 @@ export function canManageUserProfile(
 export function createEmptyUserProfile(input: {
   authUserId: string;
   createdAt: Date;
+  displayName: string;
   updatedAt: Date;
 }): UserProfile {
   return {
+    displayName: input.displayName,
     id: input.authUserId,
     username: null,
     bio: null,

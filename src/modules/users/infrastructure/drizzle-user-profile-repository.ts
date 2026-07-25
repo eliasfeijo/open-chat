@@ -88,9 +88,12 @@ export function createDrizzleUserProfileRepository(
     },
 
     async findByUsername(username) {
-      const userProfile = await database.query.users.findFirst({
-        where: eq(users.username, username),
-      });
+      const [userProfile] = await database
+        .select(createUserProfileSelection())
+        .from(users)
+        .innerJoin(authUser, eq(authUser.id, users.id))
+        .where(eq(users.username, username))
+        .limit(1);
 
       return userProfile ? mapUserProfile(userProfile) : null;
     },
