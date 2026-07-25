@@ -57,7 +57,7 @@ jobs:
         run: |
           rm -rf deploy
           mkdir -p deploy/.next
-          cp -R .next/standalone/. deploy/
+          cp -RL .next/standalone/. deploy/
           cp -R .next/static deploy/.next/static
           if [ -d public ]; then
             cp -R public deploy/public
@@ -74,7 +74,7 @@ jobs:
 
       - name: Archive deployment payload
         run: |
-          tar -czf "$ARCHIVE_NAME" \
+          tar --dereference -czf "$ARCHIVE_NAME" \
             -C deploy \
             .
 
