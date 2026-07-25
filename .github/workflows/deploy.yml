@@ -88,6 +88,8 @@ jobs:
           release_dir="/srv/open-chat/releases/$RELEASE_ID"
           mkdir -p "$release_dir"
           tar -xzf "/tmp/$ARCHIVE_NAME" -C "$release_dir"
+          cd "$release_dir"
+          CI=true pnpm install --prod --frozen-lockfile --config.confirmModulesPurge=false
           ln -sfn "$release_dir" /srv/open-chat/current
           rm -f "/tmp/$ARCHIVE_NAME"
           sudo -n systemctl restart open-chat
