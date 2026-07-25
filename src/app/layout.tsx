@@ -20,6 +20,16 @@ export const metadata: Metadata = {
     template: `%s | ${appConfig.name}`,
   },
   description: appConfig.description,
+  openGraph: {
+    description: appConfig.description,
+    title: appConfig.name,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    description: appConfig.description,
+    title: appConfig.name,
+  },
 };
 
 export default function RootLayout({
