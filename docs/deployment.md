@@ -148,24 +148,63 @@ CD should deploy only validated revisions to the VM and restart the application 
 
 Preferred direction:
 
-1. build a deployment artifact in CI
-2. copy that artifact to the VM
-3. unpack into a versioned release directory
-4. update a stable symlink such as `current`
-5. restart the application service
-6. verify health before completing the deploy
+1. build the Next.js production output in CI
+2. assemble a complete runtime artifact in CI, including runtime `node_modules`
+3. copy that artifact to the VM
+4. unpack into a versioned release directory
+5. update a stable symlink such as `current`
+6. restart the application service
+7. verify local and public health before completing the deploy
+8. prune old releases after success
 
-Fallback direction for the earliest phase:
+Operational rule:
 
-1. SSH into the VM from CI
-2. fetch the target commit
-3. install dependencies with a frozen lockfile
-4. run `pnpm build`
-5. restart the service
+Do not perform dependency installation or application builds on the tiny VM as part of the normal deployment path. The Oracle Cloud micro instance should primarily extract the ready-to-run artifact, switch the `current` symlink, restart the service, and answer health checks.
 
 Trade-off:
 
-The fallback path is simpler to set up, but it spends scarce CPU and memory on the VM. The preferred path is more operationally disciplined for a very small machine.
+The CI-built artifact is larger than a source-only deploy, but it avoids repeated dependency resolution and build work on a very small machine, which is the more important constraint for the current production setup.
+
+### Service Runtime
+
+The working production service path is:
+
+- `systemd` supervises the application
+- `WorkingDirectory` points at `/srv/open-chat/current`
+- the service starts the app with `next start`
+
+Recommended service command:
+
+```ini
+ExecStart=/usr/bin/env sh -lc 'exec ./node_modules/.bin/next start -p "${PORT:-3000}"'
+```
+
+Why:
+
+- it runs the packaged production runtime directly
+- it avoids `pnpm start` runtime checks during service boot
+- it keeps the deploy path compatible with runner-built artifacts
+
+### Health Verification
+
+Deployment verification should happen in two stages:
+
+1. on the VM, confirm the service is active and responds on `http://127.0.0.1:3000`
+2. from CI, confirm the public HTTPS origin responds successfully
+
+Why:
+
+- the first check isolates application boot from proxy behavior
+- the second check confirms the full public path through Caddy
+
+### Release Retention
+
+Keep only a small number of recent releases on the VM, for example the last five.
+
+Why:
+
+- preserves limited disk space on the VM
+- still allows fast rollback to a recent working release
 
 ---
 
@@ -178,6 +217,7 @@ For a small Oracle Cloud VM such as `VM.Standard.E2.1.Micro`:
 - do not add Dokku, CapRover, or similar platform layers by default
 - add swap conservatively if the machine is memory constrained
 - keep the Node.js process and reverse proxy as the only long-running app services when possible
+- prefer runner-built release artifacts over VM-side dependency installation
 
 Why:
 
@@ -224,9 +264,10 @@ Before calling the deployment setup complete, verify:
 2. the reverse proxy forwards `/ws` to the realtime gateway
 3. `BETTER_AUTH_URL` matches the public HTTPS origin
 4. `NEXT_PUBLIC_REALTIME_WS_URL` points to the public websocket endpoint
-5. the application starts cleanly under `systemd`
-6. the realtime gateway starts with the application process
-7. a signed-in room member can receive a newly posted room message without refresh
+5. the application starts cleanly under `systemd` via `./node_modules/.bin/next start`
+6. `http://127.0.0.1:3000` responds locally on the VM after restart
+7. the realtime gateway starts with the application process
+8. a signed-in room member can receive a newly posted room message without refresh
 
 ---
 

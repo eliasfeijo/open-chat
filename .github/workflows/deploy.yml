@@ -94,8 +94,25 @@ jobs:
           tar -xzf "/tmp/$ARCHIVE_NAME" -C "$release_dir"
           ln -sfn "$release_dir" /srv/open-chat/current
           rm -f "/tmp/$ARCHIVE_NAME"
+          sudo -n systemctl daemon-reload
           sudo -n systemctl restart open-chat
-          sudo -n systemctl is-active --quiet open-chat
+
+          for attempt in $(seq 1 12); do
+            if sudo -n systemctl is-active --quiet open-chat && curl --fail --silent --show-error http://127.0.0.1:3000 > /dev/null; then
+              break
+            fi
+
+            if [ "$attempt" -eq 12 ]; then
+              sudo -n systemctl status open-chat --no-pager || true
+              sudo tail -n 120 /srv/open-chat/shared/log/open-chat-error.log || true
+              sudo tail -n 120 /srv/open-chat/shared/log/open-chat.log || true
+              exit 1
+            fi
+
+            sleep 5
+          done
+
+          ls -1dt /srv/open-chat/releases/* 2>/dev/null | tail -n +6 | xargs -r rm -rf
           EOF
 
       - name: Verify public URL
@@ -105,6 +122,6 @@ jobs:
             --show-error \
             --silent \
             --location \
-            --retry 5 \
+            --retry 12 \
             --retry-delay 5 \
             "https://chat.eliasfeijo.dev"
