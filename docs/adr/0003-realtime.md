@@ -34,6 +34,70 @@ Business logic remains in application services.
 
 Redis is used only for ephemeral coordination such as presence and cross-instance event fan-out. PostgreSQL remains the durable source of truth for messages and room membership.
 
+## Current Repository Implementation
+
+The repository currently implements one concrete realtime slice on top of this ADR.
+
+### Implemented client commands
+
+- `subscribe-room`: authenticate the socket, authorize room membership, register the connection in the room subscription hub, send a subscription acknowledgment, then publish the current room presence count and typing snapshot for that room
+- `set-room-typing`: validate the room-scoped typing payload and forward it into the messages application layer
+
+### Implemented server events
+
+- `subscribed-room`: confirms that the socket is now subscribed to the requested room
+- `room-message-posted`: broadcasts a newly persisted durable message to subscribed room connections
+- `room-presence-updated`: broadcasts the current active participant count for a room
+- `room-typing-updated`: broadcasts the current room-scoped typing snapshot with user ids, profile metadata when available, and expiry timestamps
+- `error`: returns validation or authorization errors to the socket
+
+### Current durable message update path
+
+The current repository does not submit new messages over WebSocket.
+
+Instead, durable message creation still happens through the existing server-side message flow. After PostgreSQL persistence succeeds, the messages application service publishes a realtime event through the in-process room subscription hub so subscribed clients receive the new message without refresh.
+
+Consequence:
+
+- PostgreSQL remains the commit point for durable chat history
+- realtime message delivery is a publication path, not a second write path
+
+### Current presence implementation
+
+Room presence is currently implemented as a room-scoped active participant count.
+
+The current gateway and subscription hub maintain connection state in memory inside one application instance. When a connection subscribes or disconnects, the hub recalculates the number of distinct subscribed user ids for that room and broadcasts `room-presence-updated`.
+
+Current limitations:
+
+- presence is single-instance only
+- the current UI shows counts, not a named presence roster
+- Redis is not yet used for presence coordination
+
+### Current typing implementation
+
+Typing is currently room-scoped, ephemeral, and Redis-backed.
+
+Implementation details:
+
+- the client sends `set-room-typing` only for joined rooms
+- the messages application layer validates membership before mutating typing state
+- typing indicators are stored in Redis under room-scoped keys with expiry timestamps as sorted-set scores
+- each update publishes the full active typing snapshot for that room
+- the client removes expired typing entries locally using the server-provided `expiresAt` timestamps
+
+Current behavior:
+
+- typing state is never written to PostgreSQL
+- the current TTL is short-lived and intentionally ephemeral
+- stop-typing signals are sent on blur, successful message submission, and component teardown
+
+Current limitations:
+
+- Redis stores typing state, but room fan-out is still single-instance
+- the current protocol sends snapshots instead of deltas
+- there is no reconnect replay policy beyond resending the snapshot on room subscription
+
 ## Connection Lifecycle
 
 1. The client establishes a WebSocket connection after it has an authenticated session or when it needs anonymous realtime capabilities in the future.
@@ -108,7 +172,7 @@ The broadcast path includes a database write before fan-out, which adds latency 
 
 Presence is ephemeral.
 
-Redis responsibilities for presence:
+Target Redis responsibilities for presence:
 
 - track user online state
 - track room-level active presence counts
@@ -125,6 +189,10 @@ Why this approach was chosen:
 - presence changes frequently and does not justify durable writes for each transition
 - Redis provides a simple fit for expiring ephemeral state
 
+Current implementation note:
+
+- the repository currently uses an in-memory room subscription hub for presence counts and has not moved presence into Redis yet
+
 ## Typing Indicators
 
 Typing indicators are transient room-scoped signals.
@@ -140,6 +208,10 @@ Why this approach was chosen:
 - typing is ephemeral UI state, not business history
 - automatic expiration keeps the system resilient to dropped connections and missed stop events
 
+Current implementation note:
+
+- the repository currently stores room typing state in Redis and publishes typing snapshots over the existing WebSocket gateway
+
 ## Scalability Considerations
 
 The initial design targets a small number of application instances.
@@ -150,6 +222,11 @@ Scaling approach:
 - use Redis for presence coordination and room event fan-out when more than one instance is active
 - keep broadcast payloads scoped to rooms
 - optimize only after observing connection counts, room hot spots, or publish latency issues
+
+Current repository status:
+
+- room message fan-out and room presence are still single-instance in-memory behavior
+- Redis is currently used for typing state only, not for cross-instance pub/sub
 
 What is intentionally not introduced now:
 

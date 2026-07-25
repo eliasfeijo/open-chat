@@ -62,7 +62,7 @@ For a small VM, the recommended host pattern is:
 - `systemd` for process supervision
 - Caddy or Nginx as the reverse proxy
 - external PostgreSQL
-- no local Redis for the current slice
+- Upstash Redis or another compatible Redis endpoint for ephemeral typing state
 - one application instance only
 
 Why this is preferred over Dokku or similar tooling on a very small VM:
@@ -116,8 +116,9 @@ Recommended production values:
 Notes:
 
 - PostgreSQL remains the durable source of truth.
-- Redis is not yet required for the current single-instance realtime slice.
-- Upstash Redis values remain part of the environment contract because the repository still validates them.
+- Redis is now required for the current typing-indicator slice.
+- The current Redis integration uses the Upstash REST client and the `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` environment variables.
+- Room presence and message fan-out are still single-instance runtime behavior even though typing state now uses Redis.
 
 ---
 
@@ -232,7 +233,7 @@ The current deployment model has explicit limits.
 
 ### Single-instance realtime only
 
-Realtime room fan-out is currently backed by in-memory subscription state inside one application instance.
+Realtime room fan-out and room presence counts are currently backed by in-memory subscription state inside one application instance.
 
 Consequence:
 
@@ -240,7 +241,7 @@ Consequence:
 
 ### Redis is not yet the fan-out layer
 
-Redis is reserved for later cross-instance coordination and ephemeral state.
+Redis currently stores ephemeral typing state, but it is not yet the cross-instance subscription or fan-out layer.
 
 Consequence:
 
@@ -268,6 +269,7 @@ Before calling the deployment setup complete, verify:
 6. `http://127.0.0.1:3000` responds locally on the VM after restart
 7. the realtime gateway starts with the application process
 8. a signed-in room member can receive a newly posted room message without refresh
+9. a signed-in room member can receive room-scoped typing indicator updates while Redis is reachable
 
 ---
 

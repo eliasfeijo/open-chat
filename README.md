@@ -200,12 +200,16 @@ The repository now includes a local Docker Compose stack for:
 Current scope note:
 
 - PostgreSQL is required for the current database, auth, and users foundation.
-- Redis is included for future local parity, but the current foundation does not yet consume it at runtime.
-- The current environment contract still expects Upstash REST placeholders because no repository code reads Redis yet.
+- The current realtime slice uses Redis for ephemeral room typing state and PostgreSQL for durable messages.
+- The current Redis adapter reads `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` through the Upstash REST client.
+- Local Docker Redis is available for infrastructure parity, but the current repository code path expects the Upstash REST-style environment contract.
 
 Production deployment note:
 
 - The current realtime slice starts a long-running WebSocket listener at application startup.
+- Live room message updates are published only after successful PostgreSQL persistence.
+- Room presence currently reports room-scoped active participant counts from the single-instance in-memory subscription hub.
+- Typing indicators are ephemeral, room-scoped, and backed by Redis plus WebSocket broadcasts.
 - Prefer a single-VM or equivalent long-running Node.js host with Caddy or Nginx in front.
 - See [docs/deployment.md](docs/deployment.md) for the recommended single-instance deployment pattern and CI/CD direction.
 
