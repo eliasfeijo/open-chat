@@ -137,6 +137,10 @@ export async function createRealtimeGateway(
             roomId: message.roomId,
             type: "subscribed-room",
           });
+
+          await dependencies.roomSubscriptionHub.publishRoomPresenceUpdated(
+            message.roomId,
+          );
         }
       } catch (error) {
         const message =

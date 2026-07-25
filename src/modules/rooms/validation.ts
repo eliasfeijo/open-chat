@@ -128,6 +128,11 @@ export const getRoomMembershipSchema = z.object({
   userId: roomOwnerUserIdSchema,
 });
 
+export const authorizeRoomRealtimeSubscriptionSchema = z.object({
+  actorUserId: roomOwnerUserIdSchema,
+  roomId: roomIdSchema,
+});
+
 export const joinRoomSchema = z.object({
   actorUserId: roomOwnerUserIdSchema,
   roomId: roomIdSchema,
@@ -153,6 +158,9 @@ export const listRoomsSchema = z.object({
 export type CreateRoomInput = z.infer<typeof createRoomSchema>;
 export type GetRoomBySlugInput = z.infer<typeof getRoomBySlugSchema>;
 export type GetRoomMembershipInput = z.infer<typeof getRoomMembershipSchema>;
+export type AuthorizeRoomRealtimeSubscriptionInput = z.infer<
+  typeof authorizeRoomRealtimeSubscriptionSchema
+>;
 export type JoinRoomInput = z.infer<typeof joinRoomSchema>;
 export type LeaveRoomInput = z.infer<typeof leaveRoomSchema>;
 export type ListRoomsInput = z.infer<typeof listRoomsSchema>;

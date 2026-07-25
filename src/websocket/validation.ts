@@ -39,6 +39,12 @@ export const websocketServerSubscribedRoomSchema = z.object({
   type: z.literal("subscribed-room"),
 });
 
+export const websocketServerRoomPresenceUpdatedSchema = z.object({
+  activeUserCount: z.number().int().min(0),
+  roomId: roomIdSchema,
+  type: z.literal("room-presence-updated"),
+});
+
 export const websocketServerRoomMessagePostedSchema = z.object({
   author: websocketRoomMessageAuthorSchema.nullable(),
   message: websocketRoomMessageSchema,
@@ -48,6 +54,7 @@ export const websocketServerRoomMessagePostedSchema = z.object({
 export const websocketServerMessageSchema = z.discriminatedUnion("type", [
   websocketServerErrorSchema,
   websocketServerSubscribedRoomSchema,
+  websocketServerRoomPresenceUpdatedSchema,
   websocketServerRoomMessagePostedSchema,
 ]);
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  authorizeRoomRealtimeSubscriptionSchema,
   createRoomFormSchema,
   createRoomSchema,
   getRoomBySlugSchema,
@@ -137,6 +138,18 @@ describe("room membership command schemas", () => {
     expect(query).toEqual({
       roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
       userId: "user-1",
+    });
+  });
+
+  it("normalizes realtime room subscription input", () => {
+    const command = authorizeRoomRealtimeSubscriptionSchema.parse({
+      actorUserId: " user-1 ",
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+    });
+
+    expect(command).toEqual({
+      actorUserId: "user-1",
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
     });
   });
 

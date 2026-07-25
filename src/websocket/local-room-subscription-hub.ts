@@ -12,12 +12,13 @@ type RoomConnection = {
 };
 
 export type LocalRoomSubscriptionHub = RoomMessageRealtimePublisher & {
-  disconnectConnection(connectionId: string): void;
-  subscribeConnectionToRoom(input: {
-    connection: RoomConnection;
-    roomId: string;
-  }): void;
-};
+    disconnectConnection(connectionId: string): void;
+    publishRoomPresenceUpdated(roomId: string): Promise<void>;
+    subscribeConnectionToRoom(input: {
+      connection: RoomConnection;
+      roomId: string;
+    }): void;
+  };
 
 function mapAuthor(author: MessageAuthorProfile | null) {
   if (!author) {
@@ -48,9 +49,49 @@ function mapRoomMessagePostedEvent(
   };
 }
 
+function mapRoomPresenceUpdatedEvent(input: {
+  activeUserCount: number;
+  roomId: string;
+}): WebSocketServerMessage {
+  return {
+    activeUserCount: input.activeUserCount,
+    roomId: input.roomId,
+    type: "room-presence-updated",
+  };
+}
+
 export function createLocalRoomSubscriptionHub(): LocalRoomSubscriptionHub {
   const roomConnections = new Map<string, Map<string, RoomConnection>>();
   const subscribedRoomIdsByConnectionId = new Map<string, Set<string>>();
+
+  function getActiveUserCount(roomId: string) {
+    const connections = roomConnections.get(roomId);
+
+    if (!connections || connections.size === 0) {
+      return 0;
+    }
+
+    return new Set(
+      Array.from(connections.values(), (connection) => connection.userId),
+    ).size;
+  }
+
+  async function publishRoomPresenceUpdated(roomId: string) {
+    const subscribedConnections = roomConnections.get(roomId);
+
+    if (!subscribedConnections || subscribedConnections.size === 0) {
+      return;
+    }
+
+    const message = mapRoomPresenceUpdatedEvent({
+      activeUserCount: getActiveUserCount(roomId),
+      roomId,
+    });
+
+    for (const connection of subscribedConnections.values()) {
+      connection.send(message);
+    }
+  }
 
   return {
     disconnectConnection(connectionId) {
@@ -72,7 +113,13 @@ export function createLocalRoomSubscriptionHub(): LocalRoomSubscriptionHub {
       }
 
       subscribedRoomIdsByConnectionId.delete(connectionId);
+
+      for (const roomId of subscribedRoomIds) {
+        void publishRoomPresenceUpdated(roomId);
+      }
     },
+
+    publishRoomPresenceUpdated,
 
     async publishRoomMessagePosted(event) {
       const subscribedConnections = roomConnections.get(event.message.roomId);

@@ -26,6 +26,13 @@ export class UnauthenticatedRoomMembershipActorError extends Error {
   }
 }
 
+export class UnauthenticatedRoomRealtimeSubscriberError extends Error {
+  constructor() {
+    super("You need to sign in to subscribe to live room activity.");
+    this.name = "UnauthenticatedRoomRealtimeSubscriberError";
+  }
+}
+
 export class UnauthenticatedRoomEditorError extends Error {
   constructor() {
     super("You need to sign in to update this room.");
@@ -51,6 +58,15 @@ export class RoomMembershipNotFoundError extends Error {
   constructor(roomId: string, userId: string) {
     super(`User ${userId} is not a member of room ${roomId}.`);
     this.name = "RoomMembershipNotFoundError";
+  }
+}
+
+export class RoomRealtimeSubscriptionForbiddenError extends Error {
+  constructor(roomId: string, userId: string) {
+    super(
+      `User ${userId} must join room ${roomId} before receiving live activity.`,
+    );
+    this.name = "RoomRealtimeSubscriptionForbiddenError";
   }
 }
 

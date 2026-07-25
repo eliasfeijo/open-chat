@@ -1,4 +1,5 @@
 import { getDatabase } from "@/db";
+import { createAuthorizeRoomRealtimeSubscription } from "@/modules/rooms/application/authorize-room-realtime-subscription";
 import { createCreateRoom } from "@/modules/rooms/application/create-room";
 import { createGetRoomBySlug } from "@/modules/rooms/application/get-room-by-slug";
 import { createGetRoomMembership } from "@/modules/rooms/application/get-room-membership";
@@ -17,6 +18,9 @@ function createRoomsServices() {
   const roomRepository = createDrizzleRoomRepository(database);
 
   return {
+    authorizeRoomRealtimeSubscription: createAuthorizeRoomRealtimeSubscription({
+      roomMembershipRepository,
+    }),
     createRoom: createCreateRoom({
       roomRepository,
       runInTransaction: async (operation) =>
@@ -67,6 +71,13 @@ export async function createRoom(input: {
   topic: string | null;
 }) {
   return createRoomsServices().createRoom(input);
+}
+
+export async function authorizeRoomRealtimeSubscription(input: {
+  actorUserId: string | null;
+  roomId: string;
+}) {
+  return createRoomsServices().authorizeRoomRealtimeSubscription(input);
 }
 
 export async function listRooms(input?: { limit?: number }) {

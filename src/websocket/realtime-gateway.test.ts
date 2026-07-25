@@ -8,6 +8,41 @@ import {
 } from "@/websocket/realtime-gateway";
 import type { WebSocketServerMessage } from "@/websocket/validation";
 
+const queuedMessagesBySocket = new WeakMap<
+  WebSocket,
+  WebSocketServerMessage[]
+>();
+const pendingMessageReadersBySocket = new WeakMap<
+  WebSocket,
+  Array<(message: WebSocketServerMessage) => void>
+>();
+
+function registerSocketMessageQueue(socket: WebSocket) {
+  queuedMessagesBySocket.set(socket, []);
+  pendingMessageReadersBySocket.set(socket, []);
+
+  socket.on("message", (rawMessage) => {
+    const message = JSON.parse(
+      rawMessage.toString("utf8"),
+    ) as WebSocketServerMessage;
+    const pendingReaders = pendingMessageReadersBySocket.get(socket) ?? [];
+
+    if (pendingReaders.length > 0) {
+      const nextReader = pendingReaders.shift();
+
+      if (nextReader) {
+        nextReader(message);
+      }
+
+      return;
+    }
+
+    const queuedMessages = queuedMessagesBySocket.get(socket) ?? [];
+    queuedMessages.push(message);
+    queuedMessagesBySocket.set(socket, queuedMessages);
+  });
+}
+
 async function connectClient(port: number) {
   const socket = new WebSocket(`ws://127.0.0.1:${port}/ws`);
 
@@ -16,20 +51,23 @@ async function connectClient(port: number) {
     socket.once("error", (error) => reject(error));
   });
 
+  registerSocketMessageQueue(socket);
+
   return socket;
 }
 
 async function readMessage(socket: WebSocket) {
+  const queuedMessages = queuedMessagesBySocket.get(socket) ?? [];
+  const nextQueuedMessage = queuedMessages.shift();
+
+  if (nextQueuedMessage) {
+    return nextQueuedMessage;
+  }
+
   return new Promise<WebSocketServerMessage>((resolve, reject) => {
-    socket.once("message", (rawMessage) => {
-      try {
-        resolve(
-          JSON.parse(rawMessage.toString("utf8")) as WebSocketServerMessage,
-        );
-      } catch (error) {
-        reject(error);
-      }
-    });
+    const pendingReaders = pendingMessageReadersBySocket.get(socket) ?? [];
+    pendingReaders.push(resolve);
+    pendingMessageReadersBySocket.set(socket, pendingReaders);
     socket.once("error", (error) => reject(error));
   });
 }
@@ -97,6 +135,16 @@ describe("createRealtimeGateway", () => {
     await expect(readMessage(otherRoomSocket)).resolves.toMatchObject({
       roomId: "a35c596e-d022-421f-9c3d-6f9960f5c6c2",
       type: "subscribed-room",
+    });
+    await expect(readMessage(subscribedRoomSocket)).resolves.toMatchObject({
+      activeUserCount: 1,
+      roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+      type: "room-presence-updated",
+    });
+    await expect(readMessage(otherRoomSocket)).resolves.toMatchObject({
+      activeUserCount: 1,
+      roomId: "a35c596e-d022-421f-9c3d-6f9960f5c6c2",
+      type: "room-presence-updated",
     });
 
     await roomSubscriptionHub.publishRoomMessagePosted({
@@ -171,8 +219,104 @@ describe("createRealtimeGateway", () => {
       roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
       type: "subscribed-room",
     });
+    await expect(readMessage(socket)).resolves.toMatchObject({
+      activeUserCount: 1,
+      roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+      type: "room-presence-updated",
+    });
 
     socket.close();
+  });
+
+  it("broadcasts room-scoped presence counts on subscribe and disconnect", async () => {
+    const roomSubscriptionHub = createLocalRoomSubscriptionHub();
+    const gateway = await createRealtimeGateway({
+      authenticateConnection: vi
+        .fn()
+        .mockResolvedValueOnce({ userId: "user-1" })
+        .mockResolvedValueOnce({ userId: "user-2" })
+        .mockResolvedValueOnce({ userId: "user-3" }),
+      authorizeRoomSubscription: vi.fn().mockResolvedValue(undefined),
+      host: "127.0.0.1",
+      port: 0,
+      roomSubscriptionHub,
+    });
+
+    gateways.push(gateway);
+
+    const firstRoomSocket = await connectClient(gateway.port);
+    const secondRoomSocket = await connectClient(gateway.port);
+    const otherRoomSocket = await connectClient(gateway.port);
+
+    firstRoomSocket.send(
+      JSON.stringify({
+        roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+        type: "subscribe-room",
+      }),
+    );
+
+    await expect(readMessage(firstRoomSocket)).resolves.toMatchObject({
+      roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+      type: "subscribed-room",
+    });
+    await expect(readMessage(firstRoomSocket)).resolves.toMatchObject({
+      activeUserCount: 1,
+      roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+      type: "room-presence-updated",
+    });
+
+    otherRoomSocket.send(
+      JSON.stringify({
+        roomId: "a35c596e-d022-421f-9c3d-6f9960f5c6c2",
+        type: "subscribe-room",
+      }),
+    );
+
+    await expect(readMessage(otherRoomSocket)).resolves.toMatchObject({
+      roomId: "a35c596e-d022-421f-9c3d-6f9960f5c6c2",
+      type: "subscribed-room",
+    });
+    await expect(readMessage(otherRoomSocket)).resolves.toMatchObject({
+      activeUserCount: 1,
+      roomId: "a35c596e-d022-421f-9c3d-6f9960f5c6c2",
+      type: "room-presence-updated",
+    });
+
+    secondRoomSocket.send(
+      JSON.stringify({
+        roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+        type: "subscribe-room",
+      }),
+    );
+
+    await expect(readMessage(secondRoomSocket)).resolves.toMatchObject({
+      roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+      type: "subscribed-room",
+    });
+
+    await expect(readMessage(firstRoomSocket)).resolves.toMatchObject({
+      activeUserCount: 2,
+      roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+      type: "room-presence-updated",
+    });
+    await expect(readMessage(secondRoomSocket)).resolves.toMatchObject({
+      activeUserCount: 2,
+      roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+      type: "room-presence-updated",
+    });
+    await expectNoMessage(otherRoomSocket);
+
+    secondRoomSocket.close();
+
+    await expect(readMessage(firstRoomSocket)).resolves.toMatchObject({
+      activeUserCount: 1,
+      roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+      type: "room-presence-updated",
+    });
+    await expectNoMessage(otherRoomSocket);
+
+    firstRoomSocket.close();
+    otherRoomSocket.close();
   });
 
   it("rejects unauthenticated sockets even if they send immediately after open", async () => {

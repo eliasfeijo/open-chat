@@ -1,6 +1,6 @@
 import { getServerEnv } from "@/lib/env";
 import { getAuthenticatedSessionContextFromHeaders } from "@/modules/auth";
-import { authorizeRoomMessageSubscription } from "@/modules/messages";
+import { authorizeRoomRealtimeSubscription } from "@/modules/rooms";
 import { getLocalRoomSubscriptionHub } from "@/websocket";
 import {
   createRealtimeGateway,
@@ -46,7 +46,7 @@ export async function registerRealtimeGateway() {
           userId: sessionContext.user.id,
         };
       },
-      authorizeRoomSubscription: authorizeRoomMessageSubscription,
+      authorizeRoomSubscription: authorizeRoomRealtimeSubscription,
       port: serverEnv.REALTIME_GATEWAY_PORT ?? 3001,
       roomSubscriptionHub: getLocalRoomSubscriptionHub(),
     }).then((gateway) => {
