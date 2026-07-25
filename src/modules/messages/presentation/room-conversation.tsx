@@ -42,6 +42,10 @@ function getRealtimeGatewayUrl() {
   return `${protocol}://${window.location.hostname}:3001/ws`;
 }
 
+function createInitialRealtimeStatus(canPost: boolean): RealtimeStatus {
+  return canPost ? "connecting" : "disconnected";
+}
+
 export function RoomConversation({
   canPost,
   currentUserId,
@@ -56,41 +60,25 @@ export function RoomConversation({
   const [authorProfilesByUserId, setAuthorProfilesByUserId] = useState(
     initialAuthorProfilesByUserId,
   );
-  const [realtimeStatus, setRealtimeStatus] = useState<RealtimeStatus>(
-    canPost ? "connecting" : "disconnected",
+  const [realtimeStatus, setRealtimeStatus] = useState<RealtimeStatus>(() =>
+    createInitialRealtimeStatus(canPost),
   );
   const [realtimeError, setRealtimeError] = useState<string | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    setMessages(initialMessages);
-  }, [initialMessages]);
-
-  useEffect(() => {
-    setAuthorProfilesByUserId(initialAuthorProfilesByUserId);
-  }, [initialAuthorProfilesByUserId]);
-
-  useEffect(() => {
     if (!canPost) {
-      setRealtimeStatus("disconnected");
-      setRealtimeError(null);
-
       return;
     }
 
     const realtimeGatewayUrl = getRealtimeGatewayUrl();
 
     if (!realtimeGatewayUrl) {
-      setRealtimeStatus("error");
-      setRealtimeError("Realtime gateway URL is not available.");
-
       return;
     }
 
     const socket = new WebSocket(realtimeGatewayUrl);
     socketRef.current = socket;
-    setRealtimeStatus("connecting");
-    setRealtimeError(null);
 
     socket.addEventListener("open", () => {
       socket.send(

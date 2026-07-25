@@ -8,13 +8,13 @@ import {
 } from "./support/test-data-cleanup";
 
 const test = base.extend<{ testData: E2eTestDataTracker }>({
-  testData: async ({}, use) => {
+  testData: async ({}, runFixture) => {
     const tracker = createE2eTestDataTracker();
 
     await cleanupLingeringPhase1ATestData();
 
     try {
-      await use(tracker);
+      await runFixture(tracker);
     } finally {
       await cleanupE2eTestData(tracker);
     }

@@ -45,7 +45,7 @@ describe("createPostRoomMessage", () => {
       roomMembershipReader,
     });
 
-    const createdMessage = await expect(
+    await expect(
       postRoomMessage({
         actorUserId: "user-1",
         body: "Shipping the first room message slice.",
