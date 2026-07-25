@@ -52,14 +52,30 @@ jobs:
           echo "RELEASE_ID=$release_id" >> "$GITHUB_ENV"
           echo "ARCHIVE_NAME=open-chat-$release_id.tgz" >> "$GITHUB_ENV"
 
+      - name: Prepare standalone deployment payload
+        run: |
+          rm -rf deploy
+          mkdir -p deploy/.next
+          cp -R .next/standalone/. deploy/
+          cp -R .next/static deploy/.next/static
+          if [ -d public ]; then
+            cp -R public deploy/public
+          fi
+          cat > deploy/package.json <<'EOF'
+          {
+            "name": "open-chat-runtime",
+            "private": true,
+            "scripts": {
+              "start": "node server.js"
+            }
+          }
+          EOF
+
       - name: Archive deployment payload
         run: |
           tar -czf "$ARCHIVE_NAME" \
-            .next \
-            public \
-            package.json \
-            pnpm-lock.yaml \
-            next.config.ts
+            -C deploy \
+            .
 
       - name: Configure SSH
         run: |
@@ -81,10 +97,6 @@ jobs:
           release_dir="/srv/open-chat/releases/$RELEASE_ID"
           mkdir -p "$release_dir"
           tar -xzf "/tmp/$ARCHIVE_NAME" -C "$release_dir"
-          cd "$release_dir"
-          corepack enable
-          corepack prepare pnpm@11.17.0 --activate
-          pnpm install --prod --frozen-lockfile
           ln -sfn "$release_dir" /srv/open-chat/current
           rm -f "/tmp/$ARCHIVE_NAME"
           sudo -n systemctl restart open-chat
