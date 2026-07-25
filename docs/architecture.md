@@ -125,14 +125,14 @@ flowchart LR
 		Auth[Better Auth]
 		Postgres[Neon PostgreSQL]
 		Redis[Upstash Redis]
-		Vercel[Vercel Runtime]
+		Runtime[Long-Running Application Runtime]
 
 		User --> Browser
 		Browser --> App
 		App --> Auth
 		App --> Postgres
 		App --> Redis
-		App --> Vercel
+		App --> Runtime
 ```
 
 Actors and responsibilities:
@@ -141,7 +141,7 @@ Actors and responsibilities:
 - Better Auth manages authentication flows and session primitives.
 - PostgreSQL stores durable application data.
 - Redis coordinates ephemeral state across connections and instances.
-- Vercel hosts the deployed application runtime.
+- A long-running application runtime hosts the deployed modular monolith.
 
 Architectural consequence: all external dependencies are behind application or infrastructure boundaries. The rest of the system should not be aware of vendor-specific behavior.
 

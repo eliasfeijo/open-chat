@@ -45,7 +45,7 @@ OpenChat adopts the following core stack.
 - Forms: React Hook Form
 - Unit and integration testing: Vitest
 - End-to-end testing: Playwright
-- Deployment: Vercel, Neon PostgreSQL, and Upstash Redis
+- Deployment: long-running Node.js application host, managed PostgreSQL, and Upstash Redis
 
 ## Rationale By Technology
 

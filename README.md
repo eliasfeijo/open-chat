@@ -100,9 +100,10 @@ Testing:
 
 Deployment:
 
-- Vercel
-- Neon PostgreSQL
+- Single long-running Node.js application host
+- Managed PostgreSQL
 - Upstash Redis
+- Reverse proxy such as Caddy or Nginx
 
 ---
 
@@ -137,6 +138,7 @@ Canonical documentation lives in:
 - docs/coding-standards.md
 - docs/domain-model.md
 - docs/roadmap.md
+- docs/deployment.md
 - docs/adr/0001-modular-monolith.md
 - docs/adr/0002-tech-stack.md
 - docs/adr/0003-realtime.md
@@ -200,6 +202,12 @@ Current scope note:
 - PostgreSQL is required for the current database, auth, and users foundation.
 - Redis is included for future local parity, but the current foundation does not yet consume it at runtime.
 - The current environment contract still expects Upstash REST placeholders because no repository code reads Redis yet.
+
+Production deployment note:
+
+- The current realtime slice starts a long-running WebSocket listener at application startup.
+- Prefer a single-VM or equivalent long-running Node.js host with Caddy or Nginx in front.
+- See [docs/deployment.md](docs/deployment.md) for the recommended single-instance deployment pattern and CI/CD direction.
 
 Run the development server:
 
