@@ -44,7 +44,7 @@ Implemented only in part:
 
 - room editing exists for the current core metadata, but slug remains intentionally immutable while room routing is slug-based
 - messaging is durable and permission-checked, and joined users can now receive new room messages in realtime within the current single-instance slice
-- realtime room activity now has an explicit WebSocket gateway, room-scoped subscriptions, persist-then-broadcast durable message fan-out, and ephemeral active participant counts, but typing, reconnect recovery, named presence lists, and cross-instance coordination are still not implemented
+- realtime room activity now has an explicit WebSocket gateway, room-scoped subscriptions, persist-then-broadcast durable message fan-out, ephemeral active participant counts, and Redis-backed typing indicators, but reconnect recovery, richer named presence, and cross-instance coordination are still not implemented
 - tag vocabulary remains implicit and room owners can manage room tags, but there is no broader tag curation flow yet
 
 Not implemented yet despite earlier roadmap expectations:
@@ -138,7 +138,8 @@ Current status:
 
 - implemented with a single-instance gateway, explicit room subscription protocol, and live durable message fan-out
 - now includes a first ephemeral presence slice based on room-scoped active participant counts
-- still missing typing, reconnect recovery policy, named presence details, and cross-instance fan-out
+- now includes a first ephemeral typing slice backed by Redis TTLs and room-scoped websocket broadcasts
+- still missing reconnect recovery policy, richer named presence details, and cross-instance fan-out
 
 Architectural note:
 
@@ -164,7 +165,7 @@ Scope:
 Success criteria:
 
 - users can reliably see who is active in a room, starting with room-scoped active participant counts
-- typing state behaves as short-lived ephemeral UI feedback
+- typing state behaves as short-lived ephemeral UI feedback with no PostgreSQL writes
 - profile editing is complete enough for basic identity customization beyond username and bio
 
 Architectural constraint:

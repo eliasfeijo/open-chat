@@ -8,6 +8,19 @@ import {
 } from "@/websocket/realtime-gateway";
 import type { WebSocketServerMessage } from "@/websocket/validation";
 
+function createTypingParticipant(userId: string, expiresAt: string) {
+  return {
+    author: {
+      bio: `Bio for ${userId}`,
+      displayName: `Display ${userId}`,
+      id: userId,
+      username: userId,
+    },
+    expiresAt: new Date(expiresAt),
+    userId,
+  };
+}
+
 const queuedMessagesBySocket = new WeakMap<
   WebSocket,
   WebSocketServerMessage[]
@@ -106,8 +119,10 @@ describe("createRealtimeGateway", () => {
       }),
       authorizeRoomSubscription,
       host: "127.0.0.1",
+      listRoomTypingParticipants: vi.fn().mockResolvedValue([]),
       port: 0,
       roomSubscriptionHub,
+      setRoomTypingState: vi.fn(),
     });
 
     gateways.push(gateway);
@@ -141,10 +156,20 @@ describe("createRealtimeGateway", () => {
       roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
       type: "room-presence-updated",
     });
+    await expect(readMessage(subscribedRoomSocket)).resolves.toMatchObject({
+      roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+      type: "room-typing-updated",
+      typingParticipants: [],
+    });
     await expect(readMessage(otherRoomSocket)).resolves.toMatchObject({
       activeUserCount: 1,
       roomId: "a35c596e-d022-421f-9c3d-6f9960f5c6c2",
       type: "room-presence-updated",
+    });
+    await expect(readMessage(otherRoomSocket)).resolves.toMatchObject({
+      roomId: "a35c596e-d022-421f-9c3d-6f9960f5c6c2",
+      type: "room-typing-updated",
+      typingParticipants: [],
     });
 
     await roomSubscriptionHub.publishRoomMessagePosted({
@@ -200,8 +225,10 @@ describe("createRealtimeGateway", () => {
       ),
       authorizeRoomSubscription: vi.fn().mockResolvedValue(undefined),
       host: "127.0.0.1",
+      listRoomTypingParticipants: vi.fn().mockResolvedValue([]),
       port: 0,
       roomSubscriptionHub,
+      setRoomTypingState: vi.fn(),
     });
 
     gateways.push(gateway);
@@ -224,6 +251,11 @@ describe("createRealtimeGateway", () => {
       roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
       type: "room-presence-updated",
     });
+    await expect(readMessage(socket)).resolves.toMatchObject({
+      roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+      type: "room-typing-updated",
+      typingParticipants: [],
+    });
 
     socket.close();
   });
@@ -238,8 +270,10 @@ describe("createRealtimeGateway", () => {
         .mockResolvedValueOnce({ userId: "user-3" }),
       authorizeRoomSubscription: vi.fn().mockResolvedValue(undefined),
       host: "127.0.0.1",
+      listRoomTypingParticipants: vi.fn().mockResolvedValue([]),
       port: 0,
       roomSubscriptionHub,
+      setRoomTypingState: vi.fn(),
     });
 
     gateways.push(gateway);
@@ -264,6 +298,11 @@ describe("createRealtimeGateway", () => {
       roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
       type: "room-presence-updated",
     });
+    await expect(readMessage(firstRoomSocket)).resolves.toMatchObject({
+      roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+      type: "room-typing-updated",
+      typingParticipants: [],
+    });
 
     otherRoomSocket.send(
       JSON.stringify({
@@ -280,6 +319,11 @@ describe("createRealtimeGateway", () => {
       activeUserCount: 1,
       roomId: "a35c596e-d022-421f-9c3d-6f9960f5c6c2",
       type: "room-presence-updated",
+    });
+    await expect(readMessage(otherRoomSocket)).resolves.toMatchObject({
+      roomId: "a35c596e-d022-421f-9c3d-6f9960f5c6c2",
+      type: "room-typing-updated",
+      typingParticipants: [],
     });
 
     secondRoomSocket.send(
@@ -304,6 +348,11 @@ describe("createRealtimeGateway", () => {
       roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
       type: "room-presence-updated",
     });
+    await expect(readMessage(secondRoomSocket)).resolves.toMatchObject({
+      roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+      type: "room-typing-updated",
+      typingParticipants: [],
+    });
     await expectNoMessage(otherRoomSocket);
 
     secondRoomSocket.close();
@@ -319,6 +368,84 @@ describe("createRealtimeGateway", () => {
     otherRoomSocket.close();
   });
 
+  it("publishes room-scoped typing snapshots and typing updates", async () => {
+    const roomSubscriptionHub = createLocalRoomSubscriptionHub();
+    const listRoomTypingParticipants = vi
+      .fn()
+      .mockResolvedValueOnce([
+        createTypingParticipant("user-2", "2026-01-01T00:00:05.000Z"),
+      ])
+      .mockResolvedValue([]);
+    const setRoomTypingState = vi.fn().mockImplementation(async () => {
+      await roomSubscriptionHub.publishRoomTypingUpdated({
+        roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+        typingParticipants: [
+          createTypingParticipant("user-1", "2026-01-01T00:00:06.000Z"),
+          createTypingParticipant("user-2", "2026-01-01T00:00:05.000Z"),
+        ],
+      });
+    });
+    const gateway = await createRealtimeGateway({
+      authenticateConnection: vi.fn().mockResolvedValue({
+        userId: "user-1",
+      }),
+      authorizeRoomSubscription: vi.fn().mockResolvedValue(undefined),
+      host: "127.0.0.1",
+      listRoomTypingParticipants,
+      port: 0,
+      roomSubscriptionHub,
+      setRoomTypingState,
+    });
+
+    gateways.push(gateway);
+
+    const socket = await connectClient(gateway.port);
+
+    socket.send(
+      JSON.stringify({
+        roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+        type: "subscribe-room",
+      }),
+    );
+
+    await expect(readMessage(socket)).resolves.toMatchObject({
+      roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+      type: "subscribed-room",
+    });
+    await expect(readMessage(socket)).resolves.toMatchObject({
+      activeUserCount: 1,
+      roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+      type: "room-presence-updated",
+    });
+    await expect(readMessage(socket)).resolves.toMatchObject({
+      roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+      type: "room-typing-updated",
+      typingParticipants: [{ userId: "user-2" }],
+    });
+
+    socket.send(
+      JSON.stringify({
+        isTyping: true,
+        roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+        type: "set-room-typing",
+      }),
+    );
+
+    await expect(readMessage(socket)).resolves.toMatchObject({
+      roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+      type: "room-typing-updated",
+      typingParticipants: [{ userId: "user-1" }, { userId: "user-2" }],
+    });
+
+    expect(setRoomTypingState).toHaveBeenCalledWith({
+      actorUserId: "user-1",
+      isTyping: true,
+      roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
+    });
+
+    socket.close();
+  });
+
   it("rejects unauthenticated sockets even if they send immediately after open", async () => {
     const roomSubscriptionHub = createLocalRoomSubscriptionHub();
     const gateway = await createRealtimeGateway({
@@ -330,8 +457,10 @@ describe("createRealtimeGateway", () => {
       ),
       authorizeRoomSubscription: vi.fn(),
       host: "127.0.0.1",
+      listRoomTypingParticipants: vi.fn().mockResolvedValue([]),
       port: 0,
       roomSubscriptionHub,
+      setRoomTypingState: vi.fn(),
     });
 
     gateways.push(gateway);

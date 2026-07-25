@@ -3,6 +3,10 @@ import type {
   RoomMessagePostedEvent,
   RoomMessageRealtimePublisher,
 } from "@/modules/messages/application/ports/room-message-realtime-publisher";
+import type {
+  RoomTypingRealtimePublisher,
+  RoomTypingUpdatedEvent,
+} from "@/modules/messages/application/ports/room-typing-realtime-publisher";
 import type { WebSocketServerMessage } from "@/websocket/validation";
 
 type RoomConnection = {
@@ -11,7 +15,8 @@ type RoomConnection = {
   userId: string;
 };
 
-export type LocalRoomSubscriptionHub = RoomMessageRealtimePublisher & {
+export type LocalRoomSubscriptionHub = RoomMessageRealtimePublisher &
+  RoomTypingRealtimePublisher & {
     disconnectConnection(connectionId: string): void;
     publishRoomPresenceUpdated(roomId: string): Promise<void>;
     subscribeConnectionToRoom(input: {
@@ -57,6 +62,20 @@ function mapRoomPresenceUpdatedEvent(input: {
     activeUserCount: input.activeUserCount,
     roomId: input.roomId,
     type: "room-presence-updated",
+  };
+}
+
+function mapRoomTypingUpdatedEvent(
+  event: RoomTypingUpdatedEvent,
+): WebSocketServerMessage {
+  return {
+    roomId: event.roomId,
+    type: "room-typing-updated",
+    typingParticipants: event.typingParticipants.map((participant) => ({
+      author: mapAuthor(participant.author),
+      expiresAt: participant.expiresAt.toISOString(),
+      userId: participant.userId,
+    })),
   };
 }
 
@@ -129,6 +148,20 @@ export function createLocalRoomSubscriptionHub(): LocalRoomSubscriptionHub {
       }
 
       const message = mapRoomMessagePostedEvent(event);
+
+      for (const connection of subscribedConnections.values()) {
+        connection.send(message);
+      }
+    },
+
+    async publishRoomTypingUpdated(event) {
+      const subscribedConnections = roomConnections.get(event.roomId);
+
+      if (!subscribedConnections || subscribedConnections.size === 0) {
+        return;
+      }
+
+      const message = mapRoomTypingUpdatedEvent(event);
 
       for (const connection of subscribedConnections.values()) {
         connection.send(message);

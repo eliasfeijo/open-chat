@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   listRoomMessagesSchema,
+  listRoomTypingParticipantsSchema,
   postRoomMessageFormSchema,
   postRoomMessageSchema,
+  setRoomTypingStateSchema,
 } from "@/modules/messages/validation";
 
 describe("postRoomMessageSchema", () => {
@@ -54,6 +56,32 @@ describe("listRoomMessagesSchema", () => {
       }),
     ).toEqual({
       limit: 50,
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+    });
+  });
+});
+
+describe("room typing schemas", () => {
+  it("normalizes room typing command input", () => {
+    const command = setRoomTypingStateSchema.parse({
+      actorUserId: " user-1 ",
+      isTyping: true,
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+    });
+
+    expect(command).toEqual({
+      actorUserId: "user-1",
+      isTyping: true,
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+    });
+  });
+
+  it("normalizes room typing snapshot lookup input", () => {
+    const query = listRoomTypingParticipantsSchema.parse({
+      roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
+    });
+
+    expect(query).toEqual({
       roomId: "4f833765-a31e-4c93-bd73-39bdaec1a9b9",
     });
   });

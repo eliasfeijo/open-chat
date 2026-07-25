@@ -10,8 +10,15 @@ export const websocketClientSubscribeRoomSchema = z.object({
   type: z.literal("subscribe-room"),
 });
 
+export const websocketClientSetRoomTypingSchema = z.object({
+  isTyping: z.boolean(),
+  roomId: roomIdSchema,
+  type: z.literal("set-room-typing"),
+});
+
 export const websocketClientMessageSchema = z.discriminatedUnion("type", [
   websocketClientSubscribeRoomSchema,
+  websocketClientSetRoomTypingSchema,
 ]);
 
 export const websocketRoomMessageAuthorSchema = z.object({
@@ -45,6 +52,18 @@ export const websocketServerRoomPresenceUpdatedSchema = z.object({
   type: z.literal("room-presence-updated"),
 });
 
+export const websocketServerRoomTypingParticipantSchema = z.object({
+  author: websocketRoomMessageAuthorSchema.nullable(),
+  expiresAt: isoDateTimeSchema,
+  userId: messageAuthorUserIdSchema,
+});
+
+export const websocketServerRoomTypingUpdatedSchema = z.object({
+  roomId: roomIdSchema,
+  type: z.literal("room-typing-updated"),
+  typingParticipants: z.array(websocketServerRoomTypingParticipantSchema),
+});
+
 export const websocketServerRoomMessagePostedSchema = z.object({
   author: websocketRoomMessageAuthorSchema.nullable(),
   message: websocketRoomMessageSchema,
@@ -55,6 +74,7 @@ export const websocketServerMessageSchema = z.discriminatedUnion("type", [
   websocketServerErrorSchema,
   websocketServerSubscribedRoomSchema,
   websocketServerRoomPresenceUpdatedSchema,
+  websocketServerRoomTypingUpdatedSchema,
   websocketServerRoomMessagePostedSchema,
 ]);
 

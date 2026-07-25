@@ -43,6 +43,16 @@ export const authorizeRoomMessageSubscriptionSchema = z.object({
   roomId: messageRoomIdSchema,
 });
 
+export const setRoomTypingStateSchema = z.object({
+  actorUserId: messageAuthorUserIdSchema,
+  isTyping: z.boolean(),
+  roomId: messageRoomIdSchema,
+});
+
+export const listRoomTypingParticipantsSchema = z.object({
+  roomId: messageRoomIdSchema,
+});
+
 export const listRoomMessagesSchema = z.object({
   limit: z.number().int().positive().max(100).default(50),
   roomId: messageRoomIdSchema,
@@ -51,3 +61,4 @@ export const listRoomMessagesSchema = z.object({
 export type ListRoomMessagesInput = z.infer<typeof listRoomMessagesSchema>;
 export type Message = z.infer<typeof messageSchema>;
 export type PostRoomMessageInput = z.infer<typeof postRoomMessageSchema>;
+export type SetRoomTypingStateInput = z.infer<typeof setRoomTypingStateSchema>;

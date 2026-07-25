@@ -19,3 +19,7 @@ export function getLocalRoomSubscriptionHub() {
 export function getRoomMessageRealtimePublisher() {
   return getLocalRoomSubscriptionHub();
 }
+
+export function getRoomTypingRealtimePublisher() {
+  return getLocalRoomSubscriptionHub();
+}

@@ -1,5 +1,9 @@
 import { getServerEnv } from "@/lib/env";
 import { getAuthenticatedSessionContextFromHeaders } from "@/modules/auth";
+import {
+  listRoomTypingParticipants,
+  setRoomTypingState,
+} from "@/modules/messages";
 import { authorizeRoomRealtimeSubscription } from "@/modules/rooms";
 import { getLocalRoomSubscriptionHub } from "@/websocket";
 import {
@@ -47,8 +51,10 @@ export async function registerRealtimeGateway() {
         };
       },
       authorizeRoomSubscription: authorizeRoomRealtimeSubscription,
+      listRoomTypingParticipants,
       port: serverEnv.REALTIME_GATEWAY_PORT ?? 3001,
       roomSubscriptionHub: getLocalRoomSubscriptionHub(),
+      setRoomTypingState,
     }).then((gateway) => {
       globalScope[realtimeGatewayKey] = gateway;
     });

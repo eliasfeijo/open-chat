@@ -8,6 +8,7 @@ import type { LocalRoomSubscriptionHub } from "@/websocket/local-room-subscripti
 import {
   websocketClientMessageSchema,
   websocketServerMessageSchema,
+  websocketServerRoomTypingUpdatedSchema,
   type WebSocketServerMessage,
 } from "@/websocket/validation";
 
@@ -19,10 +20,27 @@ type RealtimeGatewayDependencies = {
     actorUserId: string | null;
     roomId: string;
   }) => Promise<unknown>;
+  listRoomTypingParticipants: (input: { roomId: string }) => Promise<
+    Array<{
+      author: {
+        bio: string | null;
+        displayName: string | null;
+        id: string;
+        username: string | null;
+      } | null;
+      expiresAt: Date;
+      userId: string;
+    }>
+  >;
   host?: string;
   path?: string;
   port: number;
   roomSubscriptionHub: LocalRoomSubscriptionHub;
+  setRoomTypingState: (input: {
+    actorUserId: string | null;
+    isTyping: boolean;
+    roomId: string;
+  }) => Promise<unknown>;
 };
 
 export type RealtimeGateway = {
@@ -69,6 +87,23 @@ function createSendJson(socket: WebSocket) {
 
     socket.send(JSON.stringify(websocketServerMessageSchema.parse(message)));
   };
+}
+
+function createTypingSnapshotMessage(input: {
+  roomId: string;
+  typingParticipants: Awaited<
+    ReturnType<RealtimeGatewayDependencies["listRoomTypingParticipants"]>
+  >;
+}): WebSocketServerMessage {
+  return websocketServerRoomTypingUpdatedSchema.parse({
+    roomId: input.roomId,
+    type: "room-typing-updated",
+    typingParticipants: input.typingParticipants.map((participant) => ({
+      author: participant.author,
+      expiresAt: participant.expiresAt.toISOString(),
+      userId: participant.userId,
+    })),
+  });
 }
 
 export async function createRealtimeGateway(
@@ -141,7 +176,26 @@ export async function createRealtimeGateway(
           await dependencies.roomSubscriptionHub.publishRoomPresenceUpdated(
             message.roomId,
           );
+
+          sendJson(
+            createTypingSnapshotMessage({
+              roomId: message.roomId,
+              typingParticipants: await dependencies.listRoomTypingParticipants(
+                {
+                  roomId: message.roomId,
+                },
+              ),
+            }),
+          );
+
+          return;
         }
+
+        await dependencies.setRoomTypingState({
+          actorUserId: authenticatedConnection.userId,
+          isTyping: message.isTyping,
+          roomId: message.roomId,
+        });
       } catch (error) {
         const message =
           error instanceof ZodError

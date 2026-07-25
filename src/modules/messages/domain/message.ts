@@ -27,3 +27,19 @@ export class RoomMessageSubscriberNotMemberError extends Error {
     this.name = "RoomMessageSubscriberNotMemberError";
   }
 }
+
+export class UnauthenticatedRoomTypingActorError extends Error {
+  constructor() {
+    super("You need to sign in to send room typing activity.");
+    this.name = "UnauthenticatedRoomTypingActorError";
+  }
+}
+
+export class RoomTypingActorNotMemberError extends Error {
+  constructor(roomId: string, userId: string) {
+    super(
+      `User ${userId} must join room ${roomId} before sending typing activity.`,
+    );
+    this.name = "RoomTypingActorNotMemberError";
+  }
+}

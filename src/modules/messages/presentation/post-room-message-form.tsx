@@ -1,6 +1,12 @@
 "use client";
 
-import { useActionState, type ReactElement } from "react";
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  type ReactElement,
+} from "react";
 
 import {
   postRoomMessageAction,
@@ -8,6 +14,7 @@ import {
 } from "@/modules/messages/presentation/server/post-room-message-action";
 
 type PostRoomMessageFormProps = Readonly<{
+  onTypingStateChange?: (isTyping: boolean) => void;
   roomName: string;
   roomId: string;
   roomSlug: string;
@@ -20,6 +27,7 @@ const initialPostRoomMessageActionState: PostRoomMessageActionState = {
 };
 
 export function PostRoomMessageForm({
+  onTypingStateChange,
   roomName,
   roomId,
   roomSlug,
@@ -28,6 +36,59 @@ export function PostRoomMessageForm({
     postRoomMessageAction,
     initialPostRoomMessageActionState,
   );
+  const [body, setBody] = useState("");
+  const isTypingRef = useRef(false);
+  const lastTypingHeartbeatAtRef = useRef(0);
+
+  function updateTypingState(isTyping: boolean) {
+    if (!onTypingStateChange) {
+      return;
+    }
+
+    if (isTypingRef.current === isTyping && !isTyping) {
+      return;
+    }
+
+    isTypingRef.current = isTyping;
+    onTypingStateChange(isTyping);
+  }
+
+  function publishTypingHeartbeat(nextBody: string) {
+    const trimmedBody = nextBody.trim();
+
+    if (trimmedBody.length === 0) {
+      updateTypingState(false);
+
+      return;
+    }
+
+    const now = Date.now();
+
+    if (
+      !isTypingRef.current ||
+      now - lastTypingHeartbeatAtRef.current >= 2_000
+    ) {
+      lastTypingHeartbeatAtRef.current = now;
+      updateTypingState(true);
+    }
+  }
+
+  useEffect(() => {
+    if (actionState.status !== "success") {
+      return;
+    }
+
+    setBody("");
+    updateTypingState(false);
+  }, [actionState.status]);
+
+  useEffect(() => {
+    return () => {
+      if (isTypingRef.current) {
+        onTypingStateChange?.(false);
+      }
+    };
+  }, [onTypingStateChange]);
 
   return (
     <form action={formAction} className="space-y-4">
@@ -51,7 +112,15 @@ export function PostRoomMessageForm({
           className="min-h-36 w-full rounded-3xl border border-(--color-border) bg-(--color-page) px-5 py-4 text-base outline-none transition focus:border-(--color-accent)"
           id="room-message-body"
           name="body"
+          onBlur={() => updateTypingState(false)}
+          onChange={(event) => {
+            const nextBody = event.currentTarget.value;
+
+            setBody(nextBody);
+            publishTypingHeartbeat(nextBody);
+          }}
           placeholder={`Say something that gets ${roomName} moving.`}
+          value={body}
         />
         {actionState.fieldErrors.body ? (
           <p className="text-sm text-red-700 dark:text-red-300">
