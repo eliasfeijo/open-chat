@@ -83,10 +83,9 @@ export function RoomDetails({
               <p className="font-medium">
                 {ownerProfile?.username
                   ? `@${ownerProfile.username}`
-                  : "Profile pending setup"}
-              </p>
-              <p className="break-all text-(--color-muted)">
-                {room.ownerUserId}
+                  : ownerProfile?.displayName
+                    ? ownerProfile.displayName
+                    : "Profile pending setup"}
               </p>
               {ownerProfile?.bio ? (
                 <p className="leading-6 text-(--color-muted)">

@@ -58,7 +58,7 @@ function getParticipantLabel(input: {
     return `@${input.authorProfile.username}`;
   }
 
-  return `OpenChat user (${input.userId.slice(0, 6)})`;
+  return "OpenChat user";
 }
 
 function getParticipantInitials(input: {
@@ -628,11 +628,11 @@ export function RoomConversation({
         ) : (
           <section className="space-y-3 text-sm leading-7 text-(--color-muted)">
             <h3 className="text-lg font-semibold tracking-[-0.03em] text-(--color-foreground)">
-              Composer locked until you join
+              Join the room to post
             </h3>
             <p>
-              Public browsing stays open so the room feels active from the
-              outside, but posting is held behind an explicit membership step.
+              You can read the conversation right away. Join first when you are
+              ready to participate.
             </p>
           </section>
         )}
