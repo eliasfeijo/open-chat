@@ -102,9 +102,8 @@ export default async function RoomDetailPage({
             </div>
 
             <p className="max-w-2xl text-base leading-7 text-(--color-muted)">
-              This room now reads like a conversation surface: public identity,
-              a continuous transcript, and a composer that sits near the active
-              thread.
+              Public profiles, a durable transcript, and realtime updates keep
+              this room readable and alive.
             </p>
           </div>
 
@@ -124,8 +123,8 @@ export default async function RoomDetailPage({
             </p>
             <p className="mt-1 text-sm text-(--color-muted)">
               {latestMessage
-                ? "The transcript is ordered chronologically so the room feels like one ongoing exchange."
-                : "The transcript is ready for the first live exchange."}
+                ? "New messages appear in order so the conversation stays easy to follow."
+                : "No messages yet. Start the conversation and set the tone."}
             </p>
           </div>
         </div>
@@ -158,8 +157,8 @@ export default async function RoomDetailPage({
                     Conversation
                   </h2>
                   <p className="max-w-2xl text-sm leading-7 text-(--color-muted)">
-                    Messages stay durable in PostgreSQL, but the layout now
-                    centers the chat flow instead of a feed of static cards.
+                    Post in realtime, keep a durable history, and stay synced
+                    with everyone currently in the room.
                   </p>
                 </div>
                 <div className="rounded-full border border-(--color-border) bg-(--color-page) px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-(--color-muted)">

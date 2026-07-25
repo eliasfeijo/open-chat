@@ -33,12 +33,11 @@ export default async function SignUpPage({
             </span>
             <div className="space-y-4">
               <h1 className="max-w-3xl text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">
-                Join OpenChat and complete your public identity.
+                Join OpenChat and start in public.
               </h1>
               <p className="max-w-2xl text-lg leading-8 text-(--color-muted)">
-                Start with the minimum onboarding needed for the product: an
-                account, then a lightweight profile you can refine before room
-                creation arrives.
+                Create your account, set your profile, and jump into rooms that
+                are built to be discovered.
               </p>
             </div>
           </div>
@@ -49,8 +48,7 @@ export default async function SignUpPage({
                 Create your account
               </h2>
               <p className="text-sm leading-6 text-(--color-muted)">
-                Your profile can stay minimal for now and be refined after sign
-                up.
+                Keep it simple now. You can refine your profile anytime.
               </p>
             </div>
             <SignUpForm />

@@ -33,16 +33,16 @@ export default async function SignInPage({
             </span>
             <div className="space-y-4">
               <h1 className="max-w-3xl text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">
-                Continue into your public chat workspace.
+                Welcome back to OpenChat.
               </h1>
               <p className="max-w-2xl text-lg leading-8 text-(--color-muted)">
-                Sign in to manage your profile now, then move into room creation
-                and discoverable conversations in the next product slice.
+                Sign in to continue your conversations, discover public rooms,
+                and keep your profile up to date.
               </p>
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-(--color-border) bg-(--color-surface) p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)]">
+          <div className="rounded-4xl border border-(--color-border) bg-(--color-surface) p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)]">
             <div className="mb-6 space-y-2">
               <h2 className="text-2xl font-semibold tracking-[-0.03em]">
                 Welcome back

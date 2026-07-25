@@ -38,18 +38,15 @@ export default async function ProfilePage(): Promise<ReactElement> {
                 Shape your public identity.
               </h1>
               <p className="max-w-2xl text-lg leading-8 text-(--color-muted)">
-                This is the minimum onboarding surface for the current slice.
-                Your account already exists. Add a public handle and short bio
-                so the next room features can attach ownership and discovery to
-                a real profile.
+                Add a recognizable username and a short bio so other people can
+                understand who you are when you join public rooms.
               </p>
             </div>
 
             {userProfile.username ? null : (
               <div className="rounded-[1.75rem] border border-amber-300/40 bg-amber-100/60 p-5 text-sm leading-7 text-amber-950 dark:border-amber-400/20 dark:bg-amber-950/30 dark:text-amber-100">
-                Choose a username to finish your initial onboarding. It is not
-                required yet, but it will make future room ownership and public
-                identity clearer.
+                Choose a username to make your identity easier to recognize in
+                rooms, search results, and live conversations.
               </div>
             )}
           </div>

@@ -51,19 +51,17 @@ export default async function RoomsPage({
 
             <div className="space-y-4">
               <h1 className="text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">
-                Create public rooms and discover the conversations already
-                taking shape.
+                Build public rooms people can actually find.
               </h1>
               <p className="max-w-2xl text-lg leading-8 text-(--color-muted)">
-                Room creation now carries durable tags, and discovery can filter
-                by text or tag without leaving the PostgreSQL-backed room model.
+                Name the room, set the topic, add discovery tags, and make it
+                easy for the right people to join.
               </p>
             </div>
 
             <div className="rounded-[1.75rem] border border-(--color-border) bg-(--color-surface) p-5 text-sm leading-7 text-(--color-muted)">
-              Start with a clear name, a stable slug, a focused topic, and a few
-              discovery tags. The creator is still stored as the room owner
-              immediately.
+              Good public rooms have a clear purpose. A short description and a
+              focused set of tags make discovery much better.
             </div>
           </div>
 
@@ -76,8 +74,8 @@ export default async function RoomsPage({
               Discover rooms
             </h2>
             <p className="text-base leading-7 text-(--color-muted)">
-              Search the current public rooms by name, topic, description, or
-              tag.
+              Search by name, topic, description, or tag to find active
+              conversations.
             </p>
           </div>
 
