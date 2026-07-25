@@ -1,48 +1,85 @@
 # OpenChat
 
-OpenChat is an open-source public chat platform for discoverable conversations.
+OpenChat is a public-first chat platform where conversations are meant to be discovered, not hidden behind invites.
 
-The product goal is to make public rooms easy to create, easy to browse, and easy to search. The intended shape is closer to Reddit meets IRC than to a full closed-community platform.
+Imagine Reddit if every post were a live chat room.
 
-Unlike Discord, OpenChat treats discoverability and public search as core product characteristics rather than secondary features.
+The product goal is simple: make public rooms easy to create, easy to browse, easy to search, and live by default.
+
+OpenChat is intentionally closer to Reddit meets IRC than to a closed community workspace.
 
 ---
 
-## MVP Scope
+## Why OpenChat?
+
+Most online conversations are now trapped behind invite links and private workspaces.
+
+That creates three problems:
+
+- great discussions are hard to discover
+- search engines cannot index most community knowledge
+- joining a community usually requires social access first
+
+OpenChat exists to make communities public by default.
+
+---
+
+## MVP: What Works Today
 
 The initial product scope is intentionally narrow.
 
-Users can:
+Available now:
 
-- create an account
-- authenticate
-- edit a profile
-- create public rooms
-- define room name, description, topic, and tags
-- browse rooms
-- search rooms
-- join rooms
-- leave rooms
-- send messages
-- receive realtime room updates
-- see online users in active rooms
+- [x] create an account and authenticate
+- [x] set up and edit a profile
+- [x] create public rooms with name, description, topic, and tags
+- [x] browse and search rooms
+- [x] join and leave rooms
+- [x] send durable messages
+- [x] receive live room message updates
+- [x] see active room presence counts
 
 Explicitly not in V1:
 
-- private messages
-- threads
-- reactions
-- uploads
-- voice
-- video
-- bots
-- moderation systems
-- notifications
-- federation
+- [ ] private messages
+- [ ] threads
+- [ ] reactions
+- [ ] uploads
+- [ ] voice and video
+- [ ] bots
+- [ ] moderation systems
+- [ ] notifications
+- [ ] federation
 
 ---
 
-## Project Principles
+## Why Not Discord Or Reddit?
+
+OpenChat is not trying to replace everything. It focuses on public, discoverable, live conversations.
+
+| Capability                     | Discord | Reddit | OpenChat |
+| ------------------------------ | ------- | ------ | -------- |
+| Public discovery by default    | No      | Yes    | Yes      |
+| Live chat in rooms             | Yes     | No     | Yes      |
+| Searchable room communities    | Limited | Yes    | Yes      |
+| Invite required to participate | Usually | No     | No       |
+
+---
+
+## Philosophy
+
+OpenChat is opinionated.
+
+- rooms are public
+- discovery matters
+- search is a core feature
+- realtime should stay simple
+- architecture should stay readable
+- features should be added slowly and deliberately
+
+---
+
+## Architecture At A Glance
 
 OpenChat intentionally optimizes for:
 
@@ -55,7 +92,7 @@ OpenChat intentionally optimizes for:
 
 The project does not optimize for premature scale or premature architectural flexibility.
 
-Core architectural rules:
+Core rules:
 
 - modular monolith
 - PostgreSQL as the source of truth
@@ -107,7 +144,7 @@ Deployment:
 
 ---
 
-## Repository Shape
+## Repository Shape (Contributor View)
 
 ```text
 src/
@@ -134,15 +171,18 @@ Modules own their own domain, application, infrastructure, presentation, and val
 Canonical documentation lives in:
 
 - docs/architecture.md
-- docs/project-principles.md
-- docs/coding-standards.md
-- docs/domain-model.md
 - docs/roadmap.md
 - docs/deployment.md
 - docs/adr/0001-modular-monolith.md
 - docs/adr/0002-tech-stack.md
 - docs/adr/0003-realtime.md
 - docs/adr/0004-data-storage.md
+
+Additional contributor references:
+
+- docs/project-principles.md
+- docs/coding-standards.md
+- docs/domain-model.md
 
 Read the architecture and ADR set before changing architectural direction.
 
