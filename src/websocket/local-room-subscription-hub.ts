@@ -56,10 +56,12 @@ function mapRoomMessagePostedEvent(
 
 function mapRoomPresenceUpdatedEvent(input: {
   activeUserCount: number;
+  activeUserIds: string[];
   roomId: string;
 }): WebSocketServerMessage {
   return {
     activeUserCount: input.activeUserCount,
+    activeUserIds: input.activeUserIds,
     roomId: input.roomId,
     type: "room-presence-updated",
   };
@@ -84,15 +86,21 @@ export function createLocalRoomSubscriptionHub(): LocalRoomSubscriptionHub {
   const subscribedRoomIdsByConnectionId = new Map<string, Set<string>>();
 
   function getActiveUserCount(roomId: string) {
+    return getActiveUserIds(roomId).length;
+  }
+
+  function getActiveUserIds(roomId: string) {
     const connections = roomConnections.get(roomId);
 
     if (!connections || connections.size === 0) {
-      return 0;
+      return [];
     }
 
-    return new Set(
-      Array.from(connections.values(), (connection) => connection.userId),
-    ).size;
+    return Array.from(
+      new Set(
+        Array.from(connections.values(), (connection) => connection.userId),
+      ),
+    );
   }
 
   async function publishRoomPresenceUpdated(roomId: string) {
@@ -104,6 +112,7 @@ export function createLocalRoomSubscriptionHub(): LocalRoomSubscriptionHub {
 
     const message = mapRoomPresenceUpdatedEvent({
       activeUserCount: getActiveUserCount(roomId),
+      activeUserIds: getActiveUserIds(roomId),
       roomId,
     });
 

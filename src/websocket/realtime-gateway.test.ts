@@ -153,6 +153,7 @@ describe("createRealtimeGateway", () => {
     });
     await expect(readMessage(subscribedRoomSocket)).resolves.toMatchObject({
       activeUserCount: 1,
+      activeUserIds: ["user-1"],
       roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
       type: "room-presence-updated",
     });
@@ -163,6 +164,7 @@ describe("createRealtimeGateway", () => {
     });
     await expect(readMessage(otherRoomSocket)).resolves.toMatchObject({
       activeUserCount: 1,
+      activeUserIds: ["user-1"],
       roomId: "a35c596e-d022-421f-9c3d-6f9960f5c6c2",
       type: "room-presence-updated",
     });
@@ -248,6 +250,7 @@ describe("createRealtimeGateway", () => {
     });
     await expect(readMessage(socket)).resolves.toMatchObject({
       activeUserCount: 1,
+      activeUserIds: ["user-1"],
       roomId: "9f441a9f-e920-4e92-93d8-6eb7364580fe",
       type: "room-presence-updated",
     });

@@ -48,6 +48,7 @@ export const websocketServerSubscribedRoomSchema = z.object({
 
 export const websocketServerRoomPresenceUpdatedSchema = z.object({
   activeUserCount: z.number().int().min(0),
+  activeUserIds: z.array(messageAuthorUserIdSchema).optional(),
   roomId: roomIdSchema,
   type: z.literal("room-presence-updated"),
 });
