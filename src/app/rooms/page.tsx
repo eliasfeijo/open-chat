@@ -14,6 +14,7 @@ import { syncUserProfileFromAuthIdentity } from "@/modules/users";
 
 type RoomsPageProps = Readonly<{
   searchParams: Promise<{
+    page?: string;
     q?: string;
     tag?: string;
   }>;
@@ -31,14 +32,18 @@ export default async function RoomsPage({
   }
 
   const resolvedSearchParams = await searchParams;
+  const parsedPage = Number.parseInt(resolvedSearchParams.page ?? "1", 10);
+  const activePage =
+    Number.isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage;
   const activeQuery = resolvedSearchParams.q ?? "";
   const activeTagSlug = resolvedSearchParams.tag ?? "";
-  const [availableTags, rooms, memberships] = await Promise.all([
+  const [availableTags, roomsDiscovery, memberships] = await Promise.all([
     listTags({
-      limit: 100,
+      limit: 20,
     }),
     searchRooms({
       limit: 20,
+      page: activePage,
       query: activeQuery,
       tagSlug: activeTagSlug,
     }),
@@ -48,8 +53,29 @@ export default async function RoomsPage({
         })
       : Promise.resolve([]),
   ]);
+  const rooms = roomsDiscovery.items;
   const membershipRoomIds = memberships.map((membership) => membership.roomId);
   const hasDiscoveryFilters = activeQuery !== "" || activeTagSlug !== "";
+
+  function buildPaginationHref(page: number) {
+    const params = new URLSearchParams();
+
+    if (activeQuery !== "") {
+      params.set("q", activeQuery);
+    }
+
+    if (activeTagSlug !== "") {
+      params.set("tag", activeTagSlug);
+    }
+
+    if (page > 1) {
+      params.set("page", String(page));
+    }
+
+    const queryString = params.toString();
+
+    return queryString === "" ? "/rooms" : `/rooms?${queryString}`;
+  }
 
   const createRoomPanel = authenticatedUser ? (
     <CreateRoomForm />
@@ -130,8 +156,8 @@ export default async function RoomsPage({
 
           {hasDiscoveryFilters ? (
             <p className="text-sm text-(--color-muted)">
-              Showing {rooms.length} room{rooms.length === 1 ? "" : "s"} for the
-              current discovery filters.
+              Showing {rooms.length} room{rooms.length === 1 ? "" : "s"} on page{" "}
+              {roomsDiscovery.page} for the current discovery filters.
             </p>
           ) : null}
 
@@ -141,6 +167,41 @@ export default async function RoomsPage({
             membershipRoomIds={membershipRoomIds}
             rooms={rooms}
           />
+
+          <nav
+            aria-label="Rooms pagination"
+            className="flex items-center justify-between gap-3 rounded-3xl border border-(--color-border) bg-(--color-surface) p-4"
+          >
+            <Link
+              aria-disabled={!roomsDiscovery.hasPreviousPage}
+              className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-medium transition ${
+                roomsDiscovery.hasPreviousPage
+                  ? "border border-(--color-border) bg-(--color-page) text-(--color-foreground) hover:bg-(--color-surface-strong)"
+                  : "cursor-not-allowed border border-(--color-border) bg-(--color-page) text-(--color-muted) opacity-60"
+              }`}
+              href={buildPaginationHref(Math.max(roomsDiscovery.page - 1, 1))}
+              tabIndex={roomsDiscovery.hasPreviousPage ? 0 : -1}
+            >
+              Previous
+            </Link>
+
+            <span className="text-sm text-(--color-muted)">
+              Page {roomsDiscovery.page}
+            </span>
+
+            <Link
+              aria-disabled={!roomsDiscovery.hasNextPage}
+              className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-medium transition ${
+                roomsDiscovery.hasNextPage
+                  ? "border border-(--color-border) bg-(--color-page) text-(--color-foreground) hover:bg-(--color-surface-strong)"
+                  : "cursor-not-allowed border border-(--color-border) bg-(--color-page) text-(--color-muted) opacity-60"
+              }`}
+              href={buildPaginationHref(roomsDiscovery.page + 1)}
+              tabIndex={roomsDiscovery.hasNextPage ? 0 : -1}
+            >
+              Next
+            </Link>
+          </nav>
         </section>
       </section>
     </main>

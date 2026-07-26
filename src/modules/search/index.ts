@@ -14,6 +14,7 @@ function createSearchServices() {
 
 export async function searchRooms(input?: {
   limit?: number;
+  page?: number | string;
   query?: string | null;
   tagSlug?: string | null;
 }) {
@@ -21,6 +22,7 @@ export async function searchRooms(input?: {
 }
 
 export type {
+  PaginatedRoomSearchResult,
   RoomSearchResult,
   SearchRoomsInput,
 } from "@/modules/search/validation";

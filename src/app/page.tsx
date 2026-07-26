@@ -62,6 +62,16 @@ const guestHighlights = [
   },
 ];
 
+const featuredTopics = [
+  "golang",
+  "linux",
+  "movies",
+  "photography",
+  "indiehackers",
+  "brazil",
+  "books",
+];
+
 export default async function Home(): Promise<ReactElement> {
   const authenticatedUser = await getAuthenticatedUser();
 
@@ -101,6 +111,12 @@ export default async function Home(): Promise<ReactElement> {
             <div className="flex flex-col gap-3 md:flex-row">
               <Link
                 className="inline-flex w-full items-center justify-center rounded-full bg-(--color-accent) px-6 py-3 text-sm font-semibold text-(--color-accent-foreground) transition hover:brightness-110 md:w-auto"
+                href="/rooms"
+              >
+                {authenticatedUser ? "Explore rooms" : "Discover conversations"}
+              </Link>
+              <Link
+                className="inline-flex w-full items-center justify-center rounded-full border border-(--color-border) bg-(--color-surface) px-6 py-3 text-sm font-semibold text-(--color-foreground) transition hover:bg-(--color-surface-strong) md:w-auto"
                 href={
                   authenticatedUser
                     ? "/profile"
@@ -108,12 +124,6 @@ export default async function Home(): Promise<ReactElement> {
                 }
               >
                 {authenticatedUser ? "Continue to profile" : "Join RoomSurf"}
-              </Link>
-              <Link
-                className="inline-flex w-full items-center justify-center rounded-full border border-(--color-border) bg-(--color-surface) px-6 py-3 text-sm font-semibold text-(--color-foreground) transition hover:bg-(--color-surface-strong) md:w-auto"
-                href="/rooms"
-              >
-                Browse rooms
               </Link>
               {authenticatedUser ? (
                 <Link
@@ -131,6 +141,25 @@ export default async function Home(): Promise<ReactElement> {
                 </a>
               )}
             </div>
+
+            {!authenticatedUser ? (
+              <div className="space-y-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-(--color-muted)">
+                  Featured topics
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {featuredTopics.map((topic) => (
+                    <Link
+                      key={topic}
+                      className="rounded-full border border-(--color-border) bg-(--color-surface) px-3 py-1.5 text-xs font-medium text-(--color-foreground) transition hover:bg-(--color-surface-strong)"
+                      href={`/rooms?q=${encodeURIComponent(topic)}`}
+                    >
+                      #{topic}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
 
           <aside className="rounded-4xl border border-(--color-border) bg-(--color-surface) p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur">

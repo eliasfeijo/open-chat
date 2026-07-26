@@ -37,9 +37,21 @@ export const roomSearchResultSchema = z.object({
 
 export const searchRoomsSchema = z.object({
   limit: z.coerce.number().int().positive().max(50).default(20),
+  page: z.coerce.number().int().positive().max(1000).default(1),
   query: roomSearchTextSchema.optional().default(null),
   tagSlug: optionalTagSlugSchema.default(null),
 });
 
+export const paginatedRoomSearchResultSchema = z.object({
+  hasNextPage: z.boolean(),
+  hasPreviousPage: z.boolean(),
+  items: z.array(roomSearchResultSchema),
+  limit: z.number().int().positive(),
+  page: z.number().int().positive(),
+});
+
 export type RoomSearchResult = z.infer<typeof roomSearchResultSchema>;
+export type PaginatedRoomSearchResult = z.infer<
+  typeof paginatedRoomSearchResultSchema
+>;
 export type SearchRoomsInput = z.infer<typeof searchRoomsSchema>;

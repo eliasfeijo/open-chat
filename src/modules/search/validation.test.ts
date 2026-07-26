@@ -9,6 +9,7 @@ describe("searchRoomsSchema", () => {
   it("normalizes empty filters to null", () => {
     expect(searchRoomsSchema.parse({ query: "  ", tagSlug: "" })).toEqual({
       limit: 20,
+      page: 1,
       query: null,
       tagSlug: null,
     });
@@ -18,11 +19,13 @@ describe("searchRoomsSchema", () => {
     expect(
       searchRoomsSchema.parse({
         limit: "12",
+        page: "3",
         query: "  builders  ",
         tagSlug: "  TypeScript  ",
       }),
     ).toEqual({
       limit: 12,
+      page: 3,
       query: "builders",
       tagSlug: "typescript",
     });

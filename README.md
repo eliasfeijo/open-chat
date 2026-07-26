@@ -12,7 +12,7 @@ Instead of private servers, conversations happen in public rooms that anyone can
 
 RoomSurf is the official hosted deployment of the OpenChat open-source project.
 
-OpenChat powers the product. RoomSurf is the live instance built around that product direction.
+RoomSurf is powered by the OpenChat open-source project. It is the live instance built around that product direction.
 
 ---
 
@@ -22,17 +22,14 @@ OpenChat powers the product. RoomSurf is the live instance built around that pro
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1)](https://www.postgresql.org)
 [![Redis](https://img.shields.io/badge/Redis-Upstash-DC382D)](https://upstash.com)
 [![Drizzle ORM](https://img.shields.io/badge/Drizzle-ORM-C5F74F)](https://orm.drizzle.team)
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-16a34a)](CONTRIBUTING.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-1f2937)](LICENSE)
 
-## Live Demo 🌊
+## Live Demo
 
 Visit RoomSurf: [room.surf](https://room.surf)
 
-## Product Preview 🏄
-
-OpenGraph image for social sharing and link previews:
-
-![RoomSurf product preview](https://room.surf/opengraph-image)
+## Product Preview
 
 Homepage screenshot:
 
@@ -42,9 +39,13 @@ Demo of room discovery and live chat:
 
 ![Demo of RoomSurf room discovery and live chat](public/roomsurf-demo.gif)
 
+OpenGraph image for social sharing and link previews:
+
+![RoomSurf product preview](https://room.surf/opengraph-image)
+
 ---
 
-## Project Status 🌊
+## Project Status
 
 RoomSurf is in active MVP development.
 
@@ -56,7 +57,7 @@ Core realtime public rooms are implemented. The current focus is stabilizing the
 
 The web became valuable because knowledge was linkable, searchable, and public.
 
-Today, many communities live behind invitation links and closed workspaces. Great conversations disappear from the open web.
+Today, much of the internet's knowledge lives inside Discord servers, Slack workspaces, WhatsApp groups, and private communities. Search engines cannot see it, links cannot reference it, and great discussions disappear over time.
 
 RoomSurf is an experiment in reversing that trend.
 
@@ -64,7 +65,7 @@ Not every conversation should be public, but public conversations should be easy
 
 ---
 
-## Why RoomSurf? 🏄
+## Why RoomSurf?
 
 Most online conversations are now trapped behind invite links and private workspaces.
 
@@ -78,16 +79,29 @@ RoomSurf exists to make communities public by default.
 
 ---
 
-## Philosophy 🌊
+## Philosophy
 
 RoomSurf is opinionated.
 
 - rooms are public
 - discovery matters
 - search is a core feature
+- knowledge should remain linkable
 - realtime should stay simple
 - architecture should stay readable
 - features should be added slowly and deliberately
+
+---
+
+## Who is RoomSurf for?
+
+RoomSurf is designed for communities that benefit from public, searchable, live discussion.
+
+- developer communities
+- local communities
+- hobby groups
+- open-source projects
+- study groups
 
 ---
 
@@ -133,7 +147,7 @@ RoomSurf is not trying to replace everything. It focuses on public, discoverable
 
 ---
 
-## Product Direction (Next UX Improvements)
+## What's Next
 
 Areas currently being refined:
 

@@ -17,6 +17,7 @@ describe("createSearchRooms", () => {
 
     expect(roomSearchRepository.search).toHaveBeenCalledWith({
       limit: 20,
+      page: 1,
       query: null,
       tagSlug: null,
     });
@@ -32,12 +33,14 @@ describe("createSearchRooms", () => {
     });
 
     await searchRooms({
+      page: "2",
       query: "  builders  ",
       tagSlug: "  TypeScript  ",
     });
 
     expect(roomSearchRepository.search).toHaveBeenCalledWith({
       limit: 20,
+      page: 2,
       query: "builders",
       tagSlug: "typescript",
     });

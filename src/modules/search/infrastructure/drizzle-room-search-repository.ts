@@ -83,6 +83,7 @@ export function createDrizzleRoomSearchRepository(
 
   return {
     async search(input) {
+      const offset = (input.page - 1) * input.limit;
       const textCondition = input.query
         ? or(
             ilike(rooms.name, `%${input.query}%`),
@@ -109,13 +110,30 @@ export function createDrizzleRoomSearchRepository(
       const roomIdRows = await database
         .select({ id: rooms.id })
         .from(rooms)
+        .leftJoin(roomMemberCounts, eq(roomMemberCounts.roomId, rooms.id))
+        .leftJoin(roomMessageStats, eq(roomMessageStats.roomId, rooms.id))
         .where(whereClause)
-        .orderBy(desc(rooms.createdAt))
-        .limit(input.limit);
-      const roomIds = roomIdRows.map((room) => room.id);
+        .orderBy(
+          desc(
+            sql`coalesce(${roomMessageStats.latestMessageAt}, ${rooms.updatedAt}, ${rooms.createdAt})`,
+          ),
+          desc(sql<number>`coalesce(${roomMemberCounts.memberCount}, 0)`),
+          desc(sql<number>`coalesce(${roomMessageStats.messageCount}, 0)`),
+          desc(rooms.createdAt),
+        )
+        .limit(input.limit + 1)
+        .offset(offset);
+      const hasNextPage = roomIdRows.length > input.limit;
+      const roomIds = roomIdRows.slice(0, input.limit).map((room) => room.id);
 
       if (roomIds.length === 0) {
-        return [];
+        return {
+          hasNextPage: false,
+          hasPreviousPage: input.page > 1,
+          items: [],
+          limit: input.limit,
+          page: input.page,
+        };
       }
 
       const rows = await database
@@ -182,9 +200,17 @@ export function createDrizzleRoomSearchRepository(
         }
       }
 
-      return roomIds
+      const items = roomIds
         .map((roomId) => resultsByRoomId.get(roomId))
         .filter((room): room is NonNullable<typeof room> => room !== undefined);
+
+      return {
+        hasNextPage,
+        hasPreviousPage: input.page > 1,
+        items,
+        limit: input.limit,
+        page: input.page,
+      };
     },
   };
 }

@@ -6,6 +6,7 @@ export function createSearchRooms(dependencies: {
 }) {
   return async function searchRooms(input?: {
     limit?: number;
+    page?: number | string;
     query?: string | null;
     tagSlug?: string | null;
   }) {
