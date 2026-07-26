@@ -15,7 +15,7 @@ export async function NavigationBar(): Promise<ReactElement> {
             className="text-base font-semibold tracking-[-0.04em] sm:text-lg"
             href="/"
           >
-            OpenChat
+            RoomSurf
           </Link>
           <span className="hidden text-sm text-(--color-muted) lg:inline">
             Public rooms for discoverable conversations
@@ -66,7 +66,7 @@ export async function NavigationBar(): Promise<ReactElement> {
               href="/sign-up?redirectTo=/profile"
             >
               <span className="lg:hidden">Join</span>
-              <span className="hidden lg:inline">Join OpenChat</span>
+              <span className="hidden lg:inline">Join RoomSurf</span>
             </Link>
           </div>
         )}

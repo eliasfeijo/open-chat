@@ -93,7 +93,7 @@ export default async function Home(): Promise<ReactElement> {
               </h1>
               <p className="max-w-3xl text-base leading-7 text-(--color-muted) sm:text-lg sm:leading-8 lg:text-xl">
                 {authenticatedUser
-                  ? "OpenChat helps people create, find, and join public rooms without hidden invites. If it matters to a community, it should be easy to find and easy to join."
+                  ? "RoomSurf helps people create, find, and join public rooms without hidden invites. If it matters to a community, it should be easy to find and easy to join."
                   : "Explore public rooms like a curious passerby, then join the ones that feel like home. No invite maze, no secret handshake, just discoverable conversations."}
               </p>
             </div>
@@ -107,7 +107,7 @@ export default async function Home(): Promise<ReactElement> {
                     : "/sign-up?redirectTo=/profile"
                 }
               >
-                {authenticatedUser ? "Continue to profile" : "Join OpenChat"}
+                {authenticatedUser ? "Continue to profile" : "Join RoomSurf"}
               </Link>
               <Link
                 className="inline-flex w-full items-center justify-center rounded-full border border-(--color-border) bg-(--color-surface) px-6 py-3 text-sm font-semibold text-(--color-foreground) transition hover:bg-(--color-surface-strong) md:w-auto"
@@ -181,7 +181,7 @@ export default async function Home(): Promise<ReactElement> {
                   Product scope with clear boundaries
                 </h2>
                 <p className="text-base leading-7 text-(--color-muted)">
-                  OpenChat keeps a focused scope while growing deliberately. The
+                  RoomSurf keeps a focused scope while growing deliberately. The
                   modules below cover the current product and keep delivery
                   reliable as new features arrive.
                 </p>
@@ -203,7 +203,7 @@ export default async function Home(): Promise<ReactElement> {
           <section id="how-it-works" className="space-y-5">
             <div className="space-y-2">
               <h2 className="text-2xl font-semibold tracking-[-0.03em] text-(--color-foreground)">
-                How OpenChat feels for new visitors
+                How RoomSurf feels for new visitors
               </h2>
               <p className="text-base leading-7 text-(--color-muted)">
                 You can browse first, find signal quickly, and only sign in when

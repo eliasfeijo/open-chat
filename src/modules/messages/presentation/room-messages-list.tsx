@@ -44,7 +44,7 @@ function getParticipantName(input: {
     return input.authorProfile.displayName;
   }
 
-  return "OpenChat user";
+  return "RoomSurf user";
 }
 
 function getParticipantInitials(input: {
@@ -57,7 +57,7 @@ function getParticipantInitials(input: {
     input.messageAuthorUserId;
   const alphaNumericLabel = label.replace(/[^a-zA-Z0-9]/g, "");
 
-  return alphaNumericLabel.slice(0, 2).toUpperCase() || "OC";
+  return alphaNumericLabel.slice(0, 2).toUpperCase() || "RS";
 }
 
 export function RoomMessagesList({

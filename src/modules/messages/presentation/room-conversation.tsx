@@ -58,7 +58,7 @@ function getParticipantLabel(input: {
     return `@${input.authorProfile.username}`;
   }
 
-  return "OpenChat user";
+  return "RoomSurf user";
 }
 
 function getParticipantInitials(input: {
@@ -71,7 +71,7 @@ function getParticipantInitials(input: {
     input.userId;
   const alphaNumericLabel = sourceLabel.replace(/[^a-zA-Z0-9]/g, "");
 
-  return alphaNumericLabel.slice(0, 2).toUpperCase() || "OC";
+  return alphaNumericLabel.slice(0, 2).toUpperCase() || "RS";
 }
 
 function getHoverCardPositionClass(input: {

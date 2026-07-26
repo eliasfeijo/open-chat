@@ -29,11 +29,11 @@ export default async function SignInPage({
         <div className="grid w-full gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(24rem,30rem)] lg:items-start">
           <div className="space-y-6 pt-6">
             <span className="inline-flex rounded-full border border-(--color-border) bg-(--color-surface) px-4 py-1 text-sm font-medium text-(--color-muted)">
-              Sign in to OpenChat
+              Sign in to RoomSurf
             </span>
             <div className="space-y-4">
               <h1 className="max-w-3xl text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">
-                Welcome back to OpenChat.
+                Welcome back to RoomSurf.
               </h1>
               <p className="max-w-2xl text-lg leading-8 text-(--color-muted)">
                 Sign in to continue your conversations, discover public rooms,

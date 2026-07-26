@@ -33,7 +33,7 @@ export default async function SignUpPage({
             </span>
             <div className="space-y-4">
               <h1 className="max-w-3xl text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">
-                Join OpenChat and start in public.
+                Join RoomSurf and start in public.
               </h1>
               <p className="max-w-2xl text-lg leading-8 text-(--color-muted)">
                 Create your account, set your profile, and jump into rooms that
