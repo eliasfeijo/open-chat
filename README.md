@@ -41,7 +41,7 @@ Demo of room discovery and live chat:
 
 OpenGraph image for social sharing and link previews:
 
-![RoomSurf product preview](https://room.surf/opengraph-image)
+![RoomSurf product preview](https://room.surf/opengraph-image?a=1)
 
 ---
 
