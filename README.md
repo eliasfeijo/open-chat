@@ -1,12 +1,60 @@
 # OpenChat
 
-OpenChat is a public-first chat platform where conversations are meant to be discovered, not hidden behind invites.
+Public-first chat for discoverable conversations.
 
 Imagine Reddit if every post were a live chat room.
 
-The product goal is simple: make public rooms easy to create, easy to browse, easy to search, and live by default.
+Instead of private servers, conversations happen in public rooms that anyone can discover and join.
 
 OpenChat is intentionally closer to Reddit meets IRC than to a closed community workspace.
+
+---
+
+[![Status: MVP Development](https://img.shields.io/badge/status-mvp%20development-0f766e)](https://github.com/eliasfeijo/open-chat)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6)](https://www.typescriptlang.org)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1)](https://www.postgresql.org)
+[![Redis](https://img.shields.io/badge/Redis-Upstash-DC382D)](https://upstash.com)
+[![Drizzle ORM](https://img.shields.io/badge/Drizzle-ORM-C5F74F)](https://orm.drizzle.team)
+[![License: MIT](https://img.shields.io/badge/license-MIT-1f2937)](LICENSE)
+
+## Live Demo
+
+Try OpenChat: [chat.eliasfeijo.dev](https://chat.eliasfeijo.dev)
+
+## Product Preview
+
+OpenGraph image for social sharing and link previews:
+
+![OpenChat product preview](https://chat.eliasfeijo.dev/opengraph-image)
+
+Homepage screenshot:
+
+![Screenshot of OpenChat homepage](public/openchat-home.png)
+
+Demo of room discovery and live chat:
+
+![Demo of OpenChat room discovery and live chat](public/openchat-demo.gif)
+
+---
+
+## Project Status
+
+OpenChat is in active MVP development.
+
+Core realtime public rooms are implemented. The current focus is stabilizing the public-room experience before expanding into moderation, notifications, and richer community features.
+
+---
+
+## Why We Believe Public Conversations Matter
+
+The web became valuable because knowledge was linkable, searchable, and public.
+
+Today, many communities live behind invitation links and closed workspaces. Great conversations disappear from the open web.
+
+OpenChat is an experiment in reversing that trend.
+
+Not every conversation should be public, but public conversations should be easy to create, discover, and preserve.
 
 ---
 
@@ -21,6 +69,19 @@ That creates three problems:
 - joining a community usually requires social access first
 
 OpenChat exists to make communities public by default.
+
+---
+
+## Philosophy
+
+OpenChat is opinionated.
+
+- rooms are public
+- discovery matters
+- search is a core feature
+- realtime should stay simple
+- architecture should stay readable
+- features should be added slowly and deliberately
 
 ---
 
@@ -66,20 +127,20 @@ OpenChat is not trying to replace everything. It focuses on public, discoverable
 
 ---
 
-## Philosophy
+## Product Direction (Next UX Improvements)
 
-OpenChat is opinionated.
+Areas currently being refined:
 
-- rooms are public
-- discovery matters
-- search is a core feature
-- realtime should stay simple
-- architecture should stay readable
-- features should be added slowly and deliberately
+- stronger homepage hero focused on public, discoverable conversations
+- richer empty states with seed-room ideas
+- stronger visual emphasis on tags during room creation
+- higher-signal room cards with activity and presence context
 
 ---
 
-## Architecture At A Glance
+## Architecture
+
+### At A Glance
 
 OpenChat intentionally optimizes for:
 
@@ -103,7 +164,7 @@ Core rules:
 
 ---
 
-## Technology Stack
+### Technology Stack
 
 Frontend:
 
@@ -144,7 +205,7 @@ Deployment:
 
 ---
 
-## Repository Shape (Contributor View)
+### Repository Shape (Contributor View)
 
 ```text
 src/
@@ -166,7 +227,7 @@ Modules own their own domain, application, infrastructure, presentation, and val
 
 ---
 
-## Documentation
+### Documentation
 
 Canonical documentation lives in:
 
@@ -188,7 +249,16 @@ Read the architecture and ADR set before changing architectural direction.
 
 ---
 
-## AI Contribution
+## Contributing
+
+Open a discussion or pull request if you want to contribute to product direction, architecture, or implementation.
+
+- contributor guide: [CONTRIBUTING.md](CONTRIBUTING.md)
+- architecture: [docs/architecture.md](docs/architecture.md)
+- coding standards: [docs/coding-standards.md](docs/coding-standards.md)
+- project principles: [docs/project-principles.md](docs/project-principles.md)
+
+### AI Contribution
 
 This repository is designed for AI-assisted development.
 
