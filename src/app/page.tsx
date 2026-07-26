@@ -57,31 +57,31 @@ export default async function Home(): Promise<ReactElement> {
       <NavigationBar />
       <div className="absolute inset-x-0 top-0 -z-10 h-128 bg-[radial-gradient(circle_at_top,rgba(217,119,6,0.18),transparent_48%),radial-gradient(circle_at_left,rgba(14,116,144,0.18),transparent_32%)]" />
 
-      <section className="mx-auto flex w-full max-w-6xl flex-col gap-16 px-6 py-16 sm:px-10 lg:px-12">
+      <section className="mx-auto flex w-full max-w-6xl flex-col gap-14 px-4 py-12 sm:px-8 sm:py-14 lg:px-12 lg:py-16">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)] lg:items-end">
           <div className="space-y-8">
-            <span className="inline-flex rounded-full border border-(--color-border) bg-(--color-surface) px-4 py-1 text-sm font-medium text-(--color-muted) shadow-sm">
+            <span className="inline-flex rounded-full border border-(--color-border) bg-(--color-surface) px-3 py-1 text-xs font-medium text-(--color-muted) shadow-sm sm:px-4 sm:text-sm">
               {authenticatedUser
                 ? `Signed in as ${authenticatedUser.name}`
                 : "Read first. Join when ready."}
             </span>
 
             <div className="space-y-5">
-              <h1 className="max-w-4xl text-5xl font-semibold tracking-[-0.04em] text-(--color-foreground) sm:text-6xl">
+              <h1 className="max-w-4xl text-4xl font-semibold tracking-[-0.04em] text-(--color-foreground) sm:text-5xl lg:text-6xl">
                 {authenticatedUser
                   ? "Public conversations that stay discoverable."
                   : "Conversations worth reading, before you even sign in."}
               </h1>
-              <p className="max-w-3xl text-lg leading-8 text-(--color-muted) sm:text-xl">
+              <p className="max-w-3xl text-base leading-7 text-(--color-muted) sm:text-lg sm:leading-8 lg:text-xl">
                 {authenticatedUser
                   ? "OpenChat helps people create, find, and join public rooms without hidden invites. If it matters to a community, it should be easy to find and easy to join."
                   : "Explore public rooms like a curious passerby, then join the ones that feel like home. No invite maze, no secret handshake, just discoverable conversations."}
               </p>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="flex flex-col gap-3 md:flex-row">
               <Link
-                className="inline-flex items-center justify-center rounded-full bg-(--color-accent) px-6 py-3 text-sm font-semibold text-(--color-accent-foreground) transition hover:brightness-110"
+                className="inline-flex w-full items-center justify-center rounded-full bg-(--color-accent) px-6 py-3 text-sm font-semibold text-(--color-accent-foreground) transition hover:brightness-110 md:w-auto"
                 href={
                   authenticatedUser
                     ? "/profile"
@@ -91,21 +91,21 @@ export default async function Home(): Promise<ReactElement> {
                 {authenticatedUser ? "Continue to profile" : "Join OpenChat"}
               </Link>
               <Link
-                className="inline-flex items-center justify-center rounded-full border border-(--color-border) bg-(--color-surface) px-6 py-3 text-sm font-semibold text-(--color-foreground) transition hover:bg-(--color-surface-strong)"
+                className="inline-flex w-full items-center justify-center rounded-full border border-(--color-border) bg-(--color-surface) px-6 py-3 text-sm font-semibold text-(--color-foreground) transition hover:bg-(--color-surface-strong) md:w-auto"
                 href="/rooms"
               >
                 Browse rooms
               </Link>
               {authenticatedUser ? (
                 <Link
-                  className="inline-flex items-center justify-center rounded-full border border-(--color-border) bg-(--color-surface) px-6 py-3 text-sm font-semibold text-(--color-foreground) transition hover:bg-(--color-surface-strong)"
+                  className="inline-flex w-full items-center justify-center rounded-full border border-(--color-border) bg-(--color-surface) px-6 py-3 text-sm font-semibold text-(--color-foreground) transition hover:bg-(--color-surface-strong) md:w-auto"
                   href="/profile"
                 >
                   Edit profile
                 </Link>
               ) : (
                 <a
-                  className="inline-flex items-center justify-center rounded-full border border-(--color-border) bg-(--color-surface) px-6 py-3 text-sm font-semibold text-(--color-foreground) transition hover:bg-(--color-surface-strong)"
+                  className="inline-flex w-full items-center justify-center rounded-full border border-(--color-border) bg-(--color-surface) px-6 py-3 text-sm font-semibold text-(--color-foreground) transition hover:bg-(--color-surface-strong) md:w-auto"
                   href="#how-it-works"
                 >
                   How it works

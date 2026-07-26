@@ -17,7 +17,7 @@ export async function NavigationBar(): Promise<ReactElement> {
           >
             OpenChat
           </Link>
-          <span className="hidden text-sm text-(--color-muted) sm:inline">
+          <span className="hidden text-sm text-(--color-muted) md:inline">
             Public rooms for discoverable conversations
           </span>
         </div>
@@ -42,9 +42,9 @@ export async function NavigationBar(): Promise<ReactElement> {
             <SignOutButton className="inline-flex items-center justify-center rounded-full bg-(--color-accent) px-4 py-2 text-sm font-semibold text-(--color-accent-foreground) transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70" />
           </div>
         ) : (
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
             <Link
-              className="hidden items-center justify-center rounded-full border border-(--color-border) bg-(--color-page) px-4 py-2 text-sm font-medium text-(--color-muted) transition hover:bg-(--color-surface-strong) sm:inline-flex"
+              className="hidden items-center justify-center rounded-full border border-(--color-border) bg-(--color-page) px-4 py-2 text-sm font-medium text-(--color-muted) transition hover:bg-(--color-surface-strong) md:inline-flex"
               href="/"
             >
               How it works
@@ -56,7 +56,7 @@ export async function NavigationBar(): Promise<ReactElement> {
               Browse rooms
             </Link>
             <Link
-              className="hidden sm:inline-flex items-center justify-center whitespace-nowrap rounded-full border border-(--color-border) bg-(--color-page) px-3 py-2 text-xs font-medium transition hover:bg-(--color-surface-strong) sm:px-4 sm:text-sm"
+              className="hidden md:inline-flex items-center justify-center whitespace-nowrap rounded-full border border-(--color-border) bg-(--color-page) px-3 py-2 text-xs font-medium transition hover:bg-(--color-surface-strong) md:px-4 md:text-sm"
               href="/sign-in?redirectTo=/profile"
             >
               Sign in
@@ -65,8 +65,8 @@ export async function NavigationBar(): Promise<ReactElement> {
               className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-(--color-accent) px-3 py-2 text-xs font-semibold text-(--color-accent-foreground) shadow-sm transition hover:brightness-110 sm:px-4 sm:text-sm"
               href="/sign-up?redirectTo=/profile"
             >
-              <span className="sm:hidden">Join</span>
-              <span className="hidden sm:inline">Join OpenChat</span>
+              <span className="md:hidden">Join</span>
+              <span className="hidden md:inline">Join OpenChat</span>
             </Link>
           </div>
         )}
