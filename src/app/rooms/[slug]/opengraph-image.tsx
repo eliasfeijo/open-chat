@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
 import { getRoomBySlug } from "@/modules/rooms";
@@ -10,6 +12,10 @@ export const size = {
   height: 630,
 };
 export const contentType = "image/png";
+
+const roomSurfIconDataUrl = `data:image/svg+xml;base64,${readFileSync(
+  join(process.cwd(), "public", "roomsurf-icon.svg"),
+).toString("base64")}`;
 
 type RoomOpenGraphImageProps = Readonly<{
   params: Promise<{
@@ -45,7 +51,7 @@ export default async function RoomOpenGraphImage({
           "radial-gradient(circle at 12% 18%, rgba(250, 204, 21, 0.32), transparent 36%), radial-gradient(circle at 88% 72%, rgba(14, 116, 144, 0.34), transparent 44%), linear-gradient(140deg, #0f172a 0%, #111827 45%, #1f2937 100%)",
         color: "#f8fafc",
         display: "flex",
-        flexDirection: "column",
+        gap: "42px",
         height: "100%",
         justifyContent: "space-between",
         padding: "64px",
@@ -54,111 +60,141 @@ export default async function RoomOpenGraphImage({
     >
       <div
         style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "16px",
+          justifyContent: "flex-start",
+          width: "640px",
+        }}
+      >
+        <div style={{ alignItems: "center", display: "flex", gap: "14px" }}>
+          <img
+            alt="RoomSurf icon"
+            height={54}
+            src={roomSurfIconDataUrl}
+            style={{ borderRadius: "12px" }}
+            width={54}
+          />
+          <span
+            style={{
+              fontSize: 42,
+              fontWeight: 700,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            RoomSurf Room
+          </span>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <p
+            style={{
+              color: "#dbeafe",
+              fontSize: 20,
+              letterSpacing: "0.12em",
+              margin: 0,
+              textTransform: "uppercase",
+            }}
+          >
+            /{slug}
+          </p>
+          <h1
+            style={{
+              fontSize: 54,
+              fontWeight: 700,
+              letterSpacing: "-0.035em",
+              lineHeight: 1.02,
+              margin: 0,
+              maxWidth: "580px",
+            }}
+          >
+            {truncate(roomName, 80)}
+          </h1>
+          <p
+            style={{
+              color: "#cbd5e1",
+              fontSize: 24,
+              fontWeight: 500,
+              lineHeight: 1.24,
+              margin: 0,
+              maxWidth: "520px",
+            }}
+          >
+            {truncate(roomTopic, 90)}
+          </p>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <p
+            style={{
+              color: "#e2e8f0",
+              fontSize: 20,
+              lineHeight: 1.3,
+              margin: 0,
+              maxWidth: "540px",
+            }}
+          >
+            {truncate(roomDescription, 150)}
+          </p>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "nowrap" }}>
+            {["Public room", "Read before joining", "Member-only posting"].map(
+              (label) => (
+                <div
+                  key={label}
+                  style={{
+                    alignItems: "center",
+                    background: "rgba(15, 23, 42, 0.42)",
+                    border: "1px solid rgba(148, 163, 184, 0.44)",
+                    borderRadius: "999px",
+                    color: "#e2e8f0",
+                    display: "flex",
+                    fontSize: 16,
+                    fontWeight: 500,
+                    letterSpacing: "0.01em",
+                    padding: "6px 12px",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {label}
+                </div>
+              ),
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div
+        style={{
           alignItems: "center",
           display: "flex",
-          gap: "14px",
+          flex: 1,
+          justifyContent: "center",
+          position: "relative",
         }}
       >
         <div
           style={{
             alignItems: "center",
-            background: "rgba(248, 250, 252, 0.16)",
-            border: "1px solid rgba(248, 250, 252, 0.28)",
-            borderRadius: "999px",
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: "40px",
+            boxShadow: "0 28px 80px rgba(0,0,0,0.26)",
             display: "flex",
-            fontSize: 26,
-            fontWeight: 700,
-            height: 54,
+            height: "410px",
             justifyContent: "center",
-            letterSpacing: "0.02em",
-            width: 54,
+            padding: "26px",
+            position: "relative",
+            width: "410px",
           }}
         >
-          RS
-        </div>
-        <span
-          style={{
-            fontSize: 42,
-            fontWeight: 700,
-            letterSpacing: "-0.02em",
-          }}
-        >
-          RoomSurf Room
-        </span>
-      </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-        <p
-          style={{
-            color: "#dbeafe",
-            fontSize: 22,
-            letterSpacing: "0.12em",
-            margin: 0,
-            textTransform: "uppercase",
-          }}
-        >
-          /{slug}
-        </p>
-        <h1
-          style={{
-            fontSize: 70,
-            fontWeight: 700,
-            letterSpacing: "-0.035em",
-            lineHeight: 1.06,
-            margin: 0,
-            maxWidth: "1030px",
-          }}
-        >
-          {truncate(roomName, 80)}
-        </h1>
-        <p
-          style={{
-            color: "#cbd5e1",
-            fontSize: 34,
-            fontWeight: 500,
-            lineHeight: 1.24,
-            margin: 0,
-            maxWidth: "1000px",
-          }}
-        >
-          {truncate(roomTopic, 90)}
-        </p>
-      </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-        <p
-          style={{
-            color: "#e2e8f0",
-            fontSize: 24,
-            lineHeight: 1.3,
-            margin: 0,
-            maxWidth: "1040px",
-          }}
-        >
-          {truncate(roomDescription, 150)}
-        </p>
-        <div style={{ display: "flex", gap: "12px" }}>
-          {["Public room", "Read before joining", "Member-only posting"].map(
-            (label) => (
-              <div
-                key={label}
-                style={{
-                  alignItems: "center",
-                  background: "rgba(15, 23, 42, 0.42)",
-                  border: "1px solid rgba(148, 163, 184, 0.44)",
-                  borderRadius: "999px",
-                  color: "#e2e8f0",
-                  display: "flex",
-                  fontSize: 20,
-                  fontWeight: 500,
-                  letterSpacing: "0.01em",
-                  padding: "8px 18px",
-                }}
-              >
-                {label}
-              </div>
-            ),
-          )}
+          <img
+            alt="RoomSurf icon"
+            height={358}
+            src={roomSurfIconDataUrl}
+            style={{ borderRadius: "26px" }}
+            width={358}
+          />
         </div>
       </div>
     </div>,

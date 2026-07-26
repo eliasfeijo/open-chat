@@ -15,7 +15,7 @@ describe("appConfig", () => {
   });
 
   it("describes the product foundation", () => {
-    expect(appConfig.description).toContain("discoverable live conversations");
+    expect(appConfig.description).toContain("discoverable conversations");
     expect(appConfig.foundationAreas).toHaveLength(3);
   });
 });

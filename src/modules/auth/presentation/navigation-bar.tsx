@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
@@ -12,10 +13,18 @@ export async function NavigationBar(): Promise<ReactElement> {
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:gap-6 sm:px-10 sm:py-4 lg:px-12">
         <div className="flex items-center gap-3 sm:gap-4">
           <Link
-            className="text-base font-semibold tracking-[-0.04em] sm:text-lg"
+            className="flex items-center gap-3 text-base font-semibold tracking-[-0.04em] sm:text-lg"
             href="/"
           >
-            RoomSurf
+            <Image
+              alt="RoomSurf icon"
+              className="rounded-[0.65rem]"
+              height={32}
+              priority
+              src="/roomsurf-icon-32.png"
+              width={32}
+            />
+            <span>RoomSurf</span>
           </Link>
           <span className="hidden text-sm text-(--color-muted) lg:inline">
             Public rooms for discoverable conversations

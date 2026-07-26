@@ -36,11 +36,11 @@ OpenGraph image for social sharing and link previews:
 
 Homepage screenshot:
 
-![Screenshot of the RoomSurf homepage](public/openchat-home.png)
+![Screenshot of the RoomSurf homepage](public/roomsurf-homepage.png)
 
 Demo of room discovery and live chat:
 
-![Demo of RoomSurf room discovery and live chat](public/openchat-demo.gif)
+![Demo of RoomSurf room discovery and live chat](public/roomsurf-demo.gif)
 
 ---
 
