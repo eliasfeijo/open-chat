@@ -149,7 +149,14 @@ export default async function RoomsPage({
 
 export const metadata: Metadata = {
   description:
-    "Browse public rooms, discover active topics, and read live conversations before joining.",
+    "Browse public rooms, discover active topics, and join realtime discussions on RoomSurf.",
+  keywords: [
+    "public chat",
+    "public communities",
+    "discoverable conversations",
+    "realtime discussion",
+    "chat rooms",
+  ],
   robots: {
     follow: true,
     index: true,

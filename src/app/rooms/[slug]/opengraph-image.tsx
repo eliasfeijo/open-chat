@@ -4,7 +4,7 @@ import { getRoomBySlug } from "@/modules/rooms";
 
 export const runtime = "nodejs";
 
-export const alt = "OpenChat room";
+export const alt = "RoomSurf room";
 export const size = {
   width: 1200,
   height: 630,
@@ -74,7 +74,7 @@ export default async function RoomOpenGraphImage({
             width: 54,
           }}
         >
-          OC
+          RS
         </div>
         <span
           style={{
@@ -83,7 +83,7 @@ export default async function RoomOpenGraphImage({
             letterSpacing: "-0.02em",
           }}
         >
-          OpenChat Room
+          RoomSurf Room
         </span>
       </div>
 

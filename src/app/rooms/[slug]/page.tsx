@@ -44,11 +44,12 @@ export async function generateMetadata({
 
   return {
     description,
+    keywords: ["public chat", "chat rooms", "discoverable conversations"],
     openGraph: {
       description,
       images: [
         {
-          alt: `${room.name} room on OpenChat`,
+          alt: `${room.name} room on RoomSurf`,
           height: 630,
           url: imageUrl,
           width: 1200,

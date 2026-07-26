@@ -31,10 +31,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: resolveMetadataBase(),
   title: {
-    default: "OpenChat: Public-first Chat for Discoverable Conversations",
+    default: "RoomSurf: Public-first Chat for Discoverable Conversations",
     template: `%s | ${appConfig.name}`,
   },
   description: appConfig.description,
+  keywords: [...appConfig.seoKeywords],
   manifest: "/manifest.webmanifest",
   applicationName: appConfig.name,
   appleWebApp: {
@@ -75,14 +76,25 @@ export const metadata: Metadata = {
   },
   openGraph: {
     description: appConfig.description,
+    images: [
+      {
+        alt: "RoomSurf social preview",
+        height: 630,
+        url: "/opengraph-image",
+        width: 1200,
+      },
+    ],
+    locale: "en_US",
     siteName: appConfig.name,
-    title: "OpenChat: Public-first Chat for Discoverable Conversations",
+    title: "RoomSurf: Public-first Chat for Discoverable Conversations",
     type: "website",
+    url: appConfig.siteUrl,
   },
   twitter: {
     card: "summary_large_image",
     description: appConfig.description,
-    title: appConfig.name,
+    images: ["/opengraph-image"],
+    title: "RoomSurf: Public-first Chat for Discoverable Conversations",
   },
 };
 

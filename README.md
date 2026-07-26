@@ -1,4 +1,8 @@
-# OpenChat
+# RoomSurf
+
+Hosted at:
+
+https://room.surf
 
 Public-first chat for discoverable conversations.
 
@@ -6,7 +10,9 @@ Imagine Reddit if every post were a live chat room.
 
 Instead of private servers, conversations happen in public rooms that anyone can discover and join.
 
-OpenChat is intentionally closer to Reddit meets IRC than to a closed community workspace.
+RoomSurf is the official hosted deployment of the OpenChat open-source project.
+
+OpenChat powers the product. RoomSurf is the live instance built around that product direction.
 
 ---
 
@@ -20,27 +26,27 @@ OpenChat is intentionally closer to Reddit meets IRC than to a closed community 
 
 ## Live Demo
 
-Try OpenChat: [chat.eliasfeijo.dev](https://chat.eliasfeijo.dev)
+Visit RoomSurf: [room.surf](https://room.surf)
 
 ## Product Preview
 
 OpenGraph image for social sharing and link previews:
 
-![OpenChat product preview](https://chat.eliasfeijo.dev/opengraph-image)
+![RoomSurf product preview](https://room.surf/opengraph-image)
 
 Homepage screenshot:
 
-![Screenshot of OpenChat homepage](public/openchat-home.png)
+![Screenshot of the RoomSurf homepage](public/openchat-home.png)
 
 Demo of room discovery and live chat:
 
-![Demo of OpenChat room discovery and live chat](public/openchat-demo.gif)
+![Demo of RoomSurf room discovery and live chat](public/openchat-demo.gif)
 
 ---
 
 ## Project Status
 
-OpenChat is in active MVP development.
+RoomSurf is in active MVP development.
 
 Core realtime public rooms are implemented. The current focus is stabilizing the public-room experience before expanding into moderation, notifications, and richer community features.
 
@@ -52,13 +58,13 @@ The web became valuable because knowledge was linkable, searchable, and public.
 
 Today, many communities live behind invitation links and closed workspaces. Great conversations disappear from the open web.
 
-OpenChat is an experiment in reversing that trend.
+RoomSurf is an experiment in reversing that trend.
 
 Not every conversation should be public, but public conversations should be easy to create, discover, and preserve.
 
 ---
 
-## Why OpenChat?
+## Why RoomSurf?
 
 Most online conversations are now trapped behind invite links and private workspaces.
 
@@ -68,13 +74,13 @@ That creates three problems:
 - search engines cannot index most community knowledge
 - joining a community usually requires social access first
 
-OpenChat exists to make communities public by default.
+RoomSurf exists to make communities public by default.
 
 ---
 
 ## Philosophy
 
-OpenChat is opinionated.
+RoomSurf is opinionated.
 
 - rooms are public
 - discovery matters
@@ -116,9 +122,9 @@ Explicitly not in V1:
 
 ## Why Not Discord Or Reddit?
 
-OpenChat is not trying to replace everything. It focuses on public, discoverable, live conversations.
+RoomSurf is not trying to replace everything. It focuses on public, discoverable, live conversations.
 
-| Capability                     | Discord | Reddit | OpenChat |
+| Capability                     | Discord | Reddit | RoomSurf |
 | ------------------------------ | ------- | ------ | -------- |
 | Public discovery by default    | No      | Yes    | Yes      |
 | Live chat in rooms             | Yes     | No     | Yes      |
@@ -138,11 +144,21 @@ Areas currently being refined:
 
 ---
 
+## OpenChat And RoomSurf
+
+OpenChat is the open-source project in this repository.
+
+RoomSurf is the official hosted deployment running at [room.surf](https://room.surf).
+
+This repository is intentionally still named `open-chat` because the product brand and the repository identity are separate concerns.
+
+---
+
 ## Architecture
 
 ### At A Glance
 
-OpenChat intentionally optimizes for:
+OpenChat, the open-source project, intentionally optimizes for:
 
 - maintainability
 - clarity

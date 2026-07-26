@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "OpenChat - Public-first chat platform";
+export const alt =
+  "RoomSurf - Public-first chat for discoverable conversations";
 export const size = {
   width: 1200,
   height: 630,
@@ -45,7 +46,7 @@ export default function OpenGraphImage() {
             width: 54,
           }}
         >
-          OC
+          RS
         </div>
         <span
           style={{
@@ -54,7 +55,7 @@ export default function OpenGraphImage() {
             letterSpacing: "-0.02em",
           }}
         >
-          OpenChat
+          RoomSurf
         </span>
       </div>
 
@@ -68,7 +69,7 @@ export default function OpenGraphImage() {
             textTransform: "uppercase",
           }}
         >
-          Public-first chat platform
+          Public-first chat
         </p>
         <h1
           style={{
@@ -80,16 +81,16 @@ export default function OpenGraphImage() {
             maxWidth: "980px",
           }}
         >
-          Discover conversations in live public rooms.
+          Surf public rooms. Discover conversations.
         </h1>
       </div>
 
       <div style={{ display: "flex", gap: "14px" }}>
         {[
           "Public rooms",
-          "Live messaging",
+          "Realtime discussion",
+          "Discoverable communities",
           "Search and tags",
-          "Open source",
         ].map((label) => (
           <div
             key={label}

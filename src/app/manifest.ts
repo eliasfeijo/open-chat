@@ -2,10 +2,11 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "OpenChat",
-    short_name: "OpenChat",
+    id: "/",
+    name: "RoomSurf",
+    short_name: "RoomSurf",
     description:
-      "Public-first chat platform for discoverable conversations. Join live public rooms and explore communities in real time.",
+      "Public-first chat for discoverable conversations. Surf public rooms, discover active communities, and join realtime discussions.",
     start_url: "/",
     scope: "/",
     display: "standalone",

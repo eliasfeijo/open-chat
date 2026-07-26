@@ -5,6 +5,19 @@ import { getAuthenticatedUser } from "@/modules/auth";
 import { NavigationBar } from "@/modules/auth/presentation/navigation-bar";
 import { appConfig } from "@/shared/config/app-config";
 
+const websiteStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: appConfig.name,
+  description: appConfig.description,
+  url: appConfig.siteUrl,
+  potentialAction: {
+    "@type": "SearchAction",
+    "query-input": "required name=search_term_string",
+    target: `${appConfig.siteUrl}/rooms?q={search_term_string}`,
+  },
+};
+
 const liveTodayChecklist = [
   "Create a public profile with a recognizable handle",
   "Create and discover public rooms",
@@ -54,6 +67,12 @@ export default async function Home(): Promise<ReactElement> {
 
   return (
     <main className="relative isolate min-h-screen overflow-hidden bg-(--color-page)">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(websiteStructuredData),
+        }}
+      />
       <NavigationBar />
       <div className="absolute inset-x-0 top-0 -z-10 h-128 bg-[radial-gradient(circle_at_top,rgba(217,119,6,0.18),transparent_48%),radial-gradient(circle_at_left,rgba(14,116,144,0.18),transparent_32%)]" />
 

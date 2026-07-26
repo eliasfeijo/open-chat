@@ -1,7 +1,15 @@
 export const appConfig = {
-  name: "OpenChat",
+  name: "RoomSurf",
+  siteUrl: "https://room.surf",
   description:
-    "Public-first chat for discoverable live conversations in open rooms.",
+    "Public-first chat for discoverable conversations. Surf public rooms, discover active communities, and join realtime discussions.",
+  seoKeywords: [
+    "public chat",
+    "public communities",
+    "discoverable conversations",
+    "realtime discussion",
+    "chat rooms",
+  ],
   initialModules: ["auth", "users", "rooms", "tags", "messages", "search"],
   foundationAreas: [
     {
