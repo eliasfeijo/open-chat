@@ -2,6 +2,8 @@
 
 import type { ReactElement } from "react";
 
+import { MessageMarkdown } from "@/modules/messages/presentation/message-markdown";
+
 export type RoomMessagesListAuthorProfile = {
   bio: string | null;
   displayName: string | null;
@@ -166,9 +168,7 @@ export function RoomMessagesList({
                   </p>
                 ) : null}
 
-                <p className="whitespace-pre-wrap text-base leading-7 text-(--color-foreground)">
-                  {message.body}
-                </p>
+                <MessageMarkdown>{message.body}</MessageMarkdown>
               </div>
             </div>
           </article>
