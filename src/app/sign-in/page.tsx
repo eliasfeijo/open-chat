@@ -1,15 +1,40 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import type { ReactElement } from "react";
 
 import { getAuthenticatedUser } from "@/modules/auth";
 import { NavigationBar } from "@/modules/auth/presentation/navigation-bar";
 import { SignInForm } from "@/modules/auth/presentation/sign-in-form";
+import { appConfig } from "@/shared/config/app-config";
 
 type SignInPageProps = Readonly<{
   searchParams: Promise<{
     redirectTo?: string;
   }>;
 }>;
+
+export const metadata: Metadata = {
+  description:
+    "Sign in to RoomSurf to continue your public conversations, join rooms, and keep your profile up to date.",
+  openGraph: {
+    description:
+      "Sign in to RoomSurf to continue your public conversations, join rooms, and keep your profile up to date.",
+    siteName: appConfig.name,
+    title: "Sign in to RoomSurf",
+    type: "website",
+  },
+  robots: {
+    follow: true,
+    index: false,
+  },
+  title: "Sign in to RoomSurf",
+  twitter: {
+    card: "summary",
+    description:
+      "Sign in to RoomSurf to continue your public conversations, join rooms, and keep your profile up to date.",
+    title: "Sign in to RoomSurf",
+  },
+};
 
 export default async function SignInPage({
   searchParams,

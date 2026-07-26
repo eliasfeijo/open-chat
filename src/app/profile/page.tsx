@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import type { ReactElement } from "react";
 
 import { getAuthenticatedUser } from "@/modules/auth";
@@ -8,6 +9,30 @@ import {
   syncUserProfileFromAuthIdentity,
 } from "@/modules/users";
 import { ProfileForm } from "@/modules/users/presentation/profile-form";
+import { appConfig } from "@/shared/config/app-config";
+
+export const metadata: Metadata = {
+  description:
+    "Update your RoomSurf profile so other people can recognize you in public rooms and search results.",
+  openGraph: {
+    description:
+      "Update your RoomSurf profile so other people can recognize you in public rooms and search results.",
+    siteName: appConfig.name,
+    title: "Your RoomSurf profile",
+    type: "website",
+  },
+  robots: {
+    follow: true,
+    index: false,
+  },
+  title: "Your RoomSurf profile",
+  twitter: {
+    card: "summary",
+    description:
+      "Update your RoomSurf profile so other people can recognize you in public rooms and search results.",
+    title: "Your RoomSurf profile",
+  },
+};
 
 export default async function ProfilePage(): Promise<ReactElement> {
   const authenticatedUser = await getAuthenticatedUser();

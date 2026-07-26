@@ -82,7 +82,7 @@ export default async function Home(): Promise<ReactElement> {
             <span className="inline-flex rounded-full border border-(--color-border) bg-(--color-surface) px-3 py-1 text-xs font-medium text-(--color-muted) shadow-sm sm:px-4 sm:text-sm">
               {authenticatedUser
                 ? `Signed in as ${authenticatedUser.name}`
-                : "Read first. Join when ready."}
+                : "Read first. Join when ready. 🌊"}
             </span>
 
             <div className="space-y-5">
@@ -203,7 +203,7 @@ export default async function Home(): Promise<ReactElement> {
           <section id="how-it-works" className="space-y-5">
             <div className="space-y-2">
               <h2 className="text-2xl font-semibold tracking-[-0.03em] text-(--color-foreground)">
-                How RoomSurf feels for new visitors
+                How RoomSurf feels for new visitors 🏄
               </h2>
               <p className="text-base leading-7 text-(--color-muted)">
                 You can browse first, find signal quickly, and only sign in when

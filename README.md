@@ -1,4 +1,4 @@
-# RoomSurf
+# RoomSurf 🏄
 
 Hosted at:
 
@@ -24,11 +24,11 @@ OpenChat powers the product. RoomSurf is the live instance built around that pro
 [![Drizzle ORM](https://img.shields.io/badge/Drizzle-ORM-C5F74F)](https://orm.drizzle.team)
 [![License: MIT](https://img.shields.io/badge/license-MIT-1f2937)](LICENSE)
 
-## Live Demo
+## Live Demo 🌊
 
 Visit RoomSurf: [room.surf](https://room.surf)
 
-## Product Preview
+## Product Preview 🏄
 
 OpenGraph image for social sharing and link previews:
 
@@ -44,7 +44,7 @@ Demo of room discovery and live chat:
 
 ---
 
-## Project Status
+## Project Status 🌊
 
 RoomSurf is in active MVP development.
 
@@ -64,7 +64,7 @@ Not every conversation should be public, but public conversations should be easy
 
 ---
 
-## Why RoomSurf?
+## Why RoomSurf? 🏄
 
 Most online conversations are now trapped behind invite links and private workspaces.
 
@@ -78,7 +78,7 @@ RoomSurf exists to make communities public by default.
 
 ---
 
-## Philosophy
+## Philosophy 🌊
 
 RoomSurf is opinionated.
 

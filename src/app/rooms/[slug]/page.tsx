@@ -13,6 +13,7 @@ import { RoomMembershipPanel } from "@/modules/rooms/presentation/room-membershi
 import { getRoomBySlug, getRoomMembership } from "@/modules/rooms";
 import { listRoomTags } from "@/modules/tags";
 import { getUserProfilesByIds } from "@/modules/users";
+import { appConfig } from "@/shared/config/app-config";
 
 type RoomDetailPageProps = Readonly<{
   params: Promise<{
@@ -39,12 +40,14 @@ export async function generateMetadata({
   const description =
     room.description ??
     room.topic ??
-    `Read public conversation in ${room.name}. Join to post when you are ready.`;
+    `Read the public room ${room.name} on RoomSurf. Join when you're ready to post and keep the conversation going.`;
   const imageUrl = `/rooms/${room.slug}/opengraph-image`;
+  const title = `${room.name} | RoomSurf public room`;
 
   return {
     description,
     keywords: ["public chat", "chat rooms", "discoverable conversations"],
+    title,
     openGraph: {
       description,
       images: [
@@ -55,19 +58,19 @@ export async function generateMetadata({
           width: 1200,
         },
       ],
-      title: room.name,
+      siteName: appConfig.name,
+      title,
       type: "article",
     },
     robots: {
       follow: true,
       index: true,
     },
-    title: room.name,
     twitter: {
       card: "summary_large_image",
       description,
       images: [imageUrl],
-      title: room.name,
+      title,
     },
   };
 }

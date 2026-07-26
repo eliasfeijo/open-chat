@@ -89,7 +89,7 @@ export default async function RoomsPage({
         <div className="grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(20rem,1.05fr)] lg:items-start">
           <div className="space-y-6">
             <span className="inline-flex rounded-full border border-(--color-border) bg-(--color-surface) px-4 py-1 text-sm font-medium text-(--color-muted)">
-              Rooms
+              Rooms 🏄
             </span>
 
             <div className="space-y-4">
@@ -114,7 +114,7 @@ export default async function RoomsPage({
         <section className="space-y-4">
           <div className="space-y-2">
             <h2 className="text-2xl font-semibold tracking-[-0.03em] text-(--color-foreground)">
-              Discover rooms
+              Discover rooms 🌊
             </h2>
             <p className="text-base leading-7 text-(--color-muted)">
               Search by name, topic, description, or tag to find active
@@ -150,6 +150,13 @@ export default async function RoomsPage({
 export const metadata: Metadata = {
   description:
     "Browse public rooms, discover active topics, and join realtime discussions on RoomSurf.",
+  openGraph: {
+    description:
+      "Browse public rooms, discover active topics, and join realtime discussions on RoomSurf.",
+    siteName: "RoomSurf",
+    title: "Discover Rooms | RoomSurf",
+    type: "website",
+  },
   keywords: [
     "public chat",
     "public communities",
@@ -161,5 +168,11 @@ export const metadata: Metadata = {
     follow: true,
     index: true,
   },
-  title: "Discover Rooms",
+  title: "Discover Rooms | RoomSurf",
+  twitter: {
+    card: "summary_large_image",
+    description:
+      "Browse public rooms, discover active topics, and join realtime discussions on RoomSurf.",
+    title: "Discover Rooms | RoomSurf",
+  },
 };

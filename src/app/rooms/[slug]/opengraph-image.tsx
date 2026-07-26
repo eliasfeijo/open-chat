@@ -2,8 +2,6 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
-import { getRoomBySlug } from "@/modules/rooms";
-
 export const runtime = "nodejs";
 
 export const alt = "RoomSurf room";
@@ -23,6 +21,14 @@ type RoomOpenGraphImageProps = Readonly<{
   }>;
 }>;
 
+function toTitleCaseSlug(slug: string): string {
+  return slug
+    .split("-")
+    .filter(Boolean)
+    .map((segment) => segment[0].toUpperCase() + segment.slice(1))
+    .join(" ");
+}
+
 function truncate(input: string, maxLength: number): string {
   if (input.length <= maxLength) {
     return input;
@@ -35,13 +41,11 @@ export default async function RoomOpenGraphImage({
   params,
 }: RoomOpenGraphImageProps) {
   const { slug } = await params;
-  const room = await getRoomBySlug(slug);
 
-  const roomName = room?.name ?? `/${slug}`;
-  const roomTopic = room?.topic ?? "Public room conversation";
+  const roomName = toTitleCaseSlug(slug) || slug;
+  const roomTopic = "Public room conversation";
   const roomDescription =
-    room?.description ??
-    "Read the room before joining. Sign in and join the room to post.";
+    "Read the room before joining. Sign in to join and post in realtime.";
 
   return new ImageResponse(
     <div

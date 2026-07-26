@@ -1,15 +1,40 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import type { ReactElement } from "react";
 
 import { getAuthenticatedUser } from "@/modules/auth";
 import { NavigationBar } from "@/modules/auth/presentation/navigation-bar";
 import { SignUpForm } from "@/modules/auth/presentation/sign-up-form";
+import { appConfig } from "@/shared/config/app-config";
 
 type SignUpPageProps = Readonly<{
   searchParams: Promise<{
     redirectTo?: string;
   }>;
 }>;
+
+export const metadata: Metadata = {
+  description:
+    "Create a RoomSurf account to join public rooms, post messages, and build your public profile.",
+  openGraph: {
+    description:
+      "Create a RoomSurf account to join public rooms, post messages, and build your public profile.",
+    siteName: appConfig.name,
+    title: "Create your RoomSurf account",
+    type: "website",
+  },
+  robots: {
+    follow: true,
+    index: false,
+  },
+  title: "Create your RoomSurf account",
+  twitter: {
+    card: "summary",
+    description:
+      "Create a RoomSurf account to join public rooms, post messages, and build your public profile.",
+    title: "Create your RoomSurf account",
+  },
+};
 
 export default async function SignUpPage({
   searchParams,
