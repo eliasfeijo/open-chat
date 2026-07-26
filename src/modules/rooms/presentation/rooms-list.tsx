@@ -3,6 +3,50 @@ import type { ReactElement } from "react";
 
 import type { RoomSearchResult } from "@/modules/search";
 
+function formatRelativeTime(fromDate: Date, toDate: Date = new Date()): string {
+  const differenceInSeconds = Math.round(
+    (fromDate.getTime() - toDate.getTime()) / 1000,
+  );
+  const absSeconds = Math.abs(differenceInSeconds);
+  const formatter = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+
+  if (absSeconds < 60) {
+    return formatter.format(differenceInSeconds, "second");
+  }
+
+  const differenceInMinutes = Math.round(differenceInSeconds / 60);
+  const absMinutes = Math.abs(differenceInMinutes);
+
+  if (absMinutes < 60) {
+    return formatter.format(differenceInMinutes, "minute");
+  }
+
+  const differenceInHours = Math.round(differenceInMinutes / 60);
+  const absHours = Math.abs(differenceInHours);
+
+  if (absHours < 24) {
+    return formatter.format(differenceInHours, "hour");
+  }
+
+  const differenceInDays = Math.round(differenceInHours / 24);
+  const absDays = Math.abs(differenceInDays);
+
+  if (absDays < 30) {
+    return formatter.format(differenceInDays, "day");
+  }
+
+  const differenceInMonths = Math.round(differenceInDays / 30);
+  const absMonths = Math.abs(differenceInMonths);
+
+  if (absMonths < 12) {
+    return formatter.format(differenceInMonths, "month");
+  }
+
+  const differenceInYears = Math.round(differenceInMonths / 12);
+
+  return formatter.format(differenceInYears, "year");
+}
+
 type RoomsListProps = Readonly<{
   activeTagSlug: string | null;
   currentUserId: string | null;
@@ -18,8 +62,22 @@ export function RoomsList({
 }: RoomsListProps): ReactElement {
   if (rooms.length === 0) {
     return (
-      <div className="rounded-4xl border border-dashed border-(--color-border) bg-(--color-surface) p-8 text-sm leading-7 text-(--color-muted)">
-        No rooms yet. Create the first public room for this workspace slice.
+      <div className="space-y-5 rounded-4xl border border-dashed border-(--color-border) bg-(--color-surface) p-8">
+        <p className="text-sm leading-7 text-(--color-muted)">
+          There are no public conversations yet.
+        </p>
+        <div className="space-y-2 text-sm text-(--color-muted)">
+          <p className="font-medium text-(--color-foreground)">
+            Try creating one of these rooms:
+          </p>
+          <ul className="space-y-1">
+            <li>Indie Hackers</li>
+            <li>Golang</li>
+            <li>Linux</li>
+            <li>Brazil</li>
+            <li>Photography</li>
+          </ul>
+        </div>
       </div>
     );
   }
@@ -55,6 +113,12 @@ export function RoomsList({
       currentUserId && input.room.ownerUserId === currentUserId
         ? "You own this room"
         : "Joined";
+    const latestRoomActivity =
+      input.room.latestMessageAt ?? input.room.updatedAt;
+    const hasMessages = input.room.messageCount > 0;
+    const lastActivityLabel = hasMessages
+      ? formatRelativeTime(latestRoomActivity)
+      : "No messages yet";
 
     return (
       <article
@@ -112,6 +176,20 @@ export function RoomsList({
                 })}
               </div>
             ) : null}
+
+            <div className="flex flex-wrap gap-2 pt-1">
+              <span className="rounded-full border border-(--color-border) bg-(--color-page) px-3 py-1 text-xs font-medium text-(--color-muted)">
+                {input.room.memberCount} member
+                {input.room.memberCount === 1 ? "" : "s"}
+              </span>
+              <span className="rounded-full border border-(--color-border) bg-(--color-page) px-3 py-1 text-xs font-medium text-(--color-muted)">
+                {input.room.messageCount} message
+                {input.room.messageCount === 1 ? "" : "s"}
+              </span>
+              <span className="rounded-full border border-(--color-border) bg-(--color-page) px-3 py-1 text-xs font-medium text-(--color-muted)">
+                Last activity {lastActivityLabel}
+              </span>
+            </div>
           </div>
 
           <span

@@ -12,7 +12,7 @@ import {
 } from "drizzle-orm";
 
 import type { Database } from "@/db";
-import { roomTags, rooms, tags } from "@/db/schema";
+import { messages, roomMembers, roomTags, rooms, tags } from "@/db/schema";
 import type { RoomSearchRepository } from "@/modules/search/application/ports/room-search-repository";
 import { roomSearchResultSchema } from "@/modules/search/validation";
 import { tagSchema } from "@/modules/tags/validation";
@@ -33,9 +33,54 @@ function combineConditions(conditions: Array<SQL | undefined>) {
   return and(...definedConditions);
 }
 
+function toDateOrNull(value: Date | string | null): Date | null {
+  if (value === null) {
+    return null;
+  }
+
+  return value instanceof Date ? value : new Date(value);
+}
+
+function toNonNegativeInteger(
+  value: number | string | null | undefined,
+): number {
+  if (typeof value === "number") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const parsedValue = Number.parseInt(value, 10);
+
+    return Number.isNaN(parsedValue) ? 0 : parsedValue;
+  }
+
+  return 0;
+}
+
 export function createDrizzleRoomSearchRepository(
   database: Database,
 ): RoomSearchRepository {
+  const roomMemberCounts = database
+    .select({
+      memberCount: sql<number>`count(*)::int`.as("member_count"),
+      roomId: roomMembers.roomId,
+    })
+    .from(roomMembers)
+    .groupBy(roomMembers.roomId)
+    .as("room_member_counts");
+
+  const roomMessageStats = database
+    .select({
+      latestMessageAt: sql<Date | null>`max(${messages.createdAt})`.as(
+        "latest_message_at",
+      ),
+      messageCount: sql<number>`count(*)::int`.as("message_count"),
+      roomId: messages.roomId,
+    })
+    .from(messages)
+    .groupBy(messages.roomId)
+    .as("room_message_stats");
+
   return {
     async search(input) {
       const textCondition = input.query
@@ -78,6 +123,9 @@ export function createDrizzleRoomSearchRepository(
           createdAt: rooms.createdAt,
           description: rooms.description,
           id: rooms.id,
+          latestMessageAt: roomMessageStats.latestMessageAt,
+          memberCount: roomMemberCounts.memberCount,
+          messageCount: roomMessageStats.messageCount,
           name: rooms.name,
           ownerUserId: rooms.ownerUserId,
           slug: rooms.slug,
@@ -88,6 +136,8 @@ export function createDrizzleRoomSearchRepository(
           updatedAt: rooms.updatedAt,
         })
         .from(rooms)
+        .leftJoin(roomMemberCounts, eq(roomMemberCounts.roomId, rooms.id))
+        .leftJoin(roomMessageStats, eq(roomMessageStats.roomId, rooms.id))
         .leftJoin(roomTags, eq(roomTags.roomId, rooms.id))
         .leftJoin(tags, eq(tags.id, roomTags.tagId))
         .where(inArray(rooms.id, roomIds))
@@ -108,6 +158,9 @@ export function createDrizzleRoomSearchRepository(
               createdAt: row.createdAt,
               description: row.description,
               id: row.id,
+              latestMessageAt: toDateOrNull(row.latestMessageAt),
+              memberCount: toNonNegativeInteger(row.memberCount),
+              messageCount: toNonNegativeInteger(row.messageCount),
               name: row.name,
               ownerUserId: row.ownerUserId,
               slug: row.slug,
