@@ -82,14 +82,14 @@ export function RoomMessagesList({
       {messages.map((message) => (
         <div
           key={message.id}
-          className={`flex ${
+          className={`flex w-fit min-w-[95%] max-w-[95%] ${
             currentUserId && message.authorUserId === currentUserId
               ? "justify-end"
               : "justify-start"
           }`}
         >
           <article
-            className={`w-full max-w-3xl rounded-4xl border p-5 shadow-sm backdrop-blur-sm sm:p-6 ${
+            className={`w-full max-w-3xl overflow-hidden rounded-4xl border p-5 shadow-sm backdrop-blur-sm sm:p-6 ${
               currentUserId && message.authorUserId === currentUserId
                 ? "border-emerald-500/20 bg-linear-to-br from-emerald-500/14 to-(--color-surface-strong)"
                 : "border-(--color-border) bg-(--color-surface)"
@@ -115,7 +115,7 @@ export function RoomMessagesList({
                 })}
               </div>
 
-              <div className="min-w-0 flex-1 space-y-3">
+              <div className="min-w-0 flex-1 space-y-3 break-words">
                 <div
                   className={`flex flex-wrap items-center gap-2 text-sm ${
                     currentUserId && message.authorUserId === currentUserId

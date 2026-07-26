@@ -18,7 +18,7 @@ export async function NavigationBar(): Promise<ReactElement> {
           >
             <Image
               alt="RoomSurf icon"
-              className="rounded-[0.65rem]"
+              className="rounded-[0.65rem] h-auto"
               height={32}
               priority
               src="/roomsurf-logo-monochrome.svg"

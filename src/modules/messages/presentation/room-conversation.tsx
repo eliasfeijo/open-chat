@@ -549,7 +549,7 @@ export function RoomConversation({
 
       <div
         ref={messagesContainerRef}
-        className="max-h-168 overflow-y-auto pr-1"
+        className="max-h-168 overflow-x-hidden overflow-y-auto pr-1"
       >
         <RoomMessagesList
           authorProfilesByUserId={authorProfilesByUserId}
