@@ -1,7 +1,7 @@
 export const appConfig = {
   name: "OpenChat",
   description:
-    "OpenChat is an open-source public-first chat platform where rooms are discoverable, conversations are live, and communities are easy to find.",
+    "Public-first chat for discoverable live conversations in open rooms.",
   initialModules: ["auth", "users", "rooms", "tags", "messages", "search"],
   foundationAreas: [
     {

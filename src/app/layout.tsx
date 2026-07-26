@@ -1,8 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { getServerEnv } from "@/lib/env";
 import { appConfig } from "@/shared/config/app-config";
 import { Providers } from "./providers";
 import "./globals.css";
+
+const serverEnv = getServerEnv();
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,8 +18,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(serverEnv.BETTER_AUTH_URL),
   title: {
-    default: appConfig.name,
+    default: "OpenChat: Public-first Chat for Discoverable Conversations",
     template: `%s | ${appConfig.name}`,
   },
   description: appConfig.description,
@@ -60,7 +64,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     description: appConfig.description,
-    title: appConfig.name,
+    siteName: appConfig.name,
+    title: "OpenChat: Public-first Chat for Discoverable Conversations",
     type: "website",
   },
   twitter: {
