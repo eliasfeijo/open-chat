@@ -53,24 +53,24 @@ export const metadata: Metadata = {
       {
         sizes: "32x32",
         type: "image/png",
-        url: "/openchat-icon-32.png",
+        url: "/roomsurf-icon-32.png",
       },
       {
         sizes: "192x192",
         type: "image/png",
-        url: "/openchat-icon-192.png",
+        url: "/roomsurf-icon-192.png",
       },
       {
         type: "image/svg+xml",
-        url: "/openchat-icon.svg",
+        url: "/roomsurf-icon.svg",
       },
     ],
-    shortcut: ["/openchat-icon-32.png"],
+    shortcut: ["/roomsurf-icon-32.png"],
     apple: [
       {
         sizes: "180x180",
         type: "image/png",
-        url: "/openchat-icon-180.png",
+        url: "/roomsurf-icon-180.png",
       },
     ],
   },
