@@ -40,11 +40,20 @@ export async function generateMetadata({
     room.description ??
     room.topic ??
     `Read public conversation in ${room.name}. Join to post when you are ready.`;
+  const imageUrl = `/rooms/${room.slug}/opengraph-image`;
 
   return {
     description,
     openGraph: {
       description,
+      images: [
+        {
+          alt: `${room.name} room on OpenChat`,
+          height: 630,
+          url: imageUrl,
+          width: 1200,
+        },
+      ],
       title: room.name,
       type: "article",
     },
@@ -56,6 +65,7 @@ export async function generateMetadata({
     twitter: {
       card: "summary_large_image",
       description,
+      images: [imageUrl],
       title: room.name,
     },
   };
