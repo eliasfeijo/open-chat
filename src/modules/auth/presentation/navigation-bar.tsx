@@ -17,7 +17,7 @@ export async function NavigationBar(): Promise<ReactElement> {
           >
             OpenChat
           </Link>
-          <span className="hidden text-sm text-(--color-muted) md:inline">
+          <span className="hidden text-sm text-(--color-muted) lg:inline">
             Public rooms for discoverable conversations
           </span>
         </div>
@@ -44,7 +44,7 @@ export async function NavigationBar(): Promise<ReactElement> {
         ) : (
           <div className="flex items-center gap-2 sm:gap-2.5 md:gap-3">
             <Link
-              className="hidden items-center justify-center rounded-full border border-(--color-border) bg-(--color-page) px-4 py-2 text-sm font-medium text-(--color-muted) transition hover:bg-(--color-surface-strong) md:inline-flex"
+              className="hidden items-center justify-center rounded-full border border-(--color-border) bg-(--color-page) px-4 py-2 text-sm font-medium text-(--color-muted) transition hover:bg-(--color-surface-strong) lg:inline-flex"
               href="/"
             >
               How it works
@@ -65,8 +65,8 @@ export async function NavigationBar(): Promise<ReactElement> {
               className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-(--color-accent) px-3 py-2 text-xs font-semibold text-(--color-accent-foreground) shadow-sm transition hover:brightness-110 sm:px-4 sm:text-sm"
               href="/sign-up?redirectTo=/profile"
             >
-              <span className="md:hidden">Join</span>
-              <span className="hidden md:inline">Join OpenChat</span>
+              <span className="lg:hidden">Join</span>
+              <span className="hidden lg:inline">Join OpenChat</span>
             </Link>
           </div>
         )}
