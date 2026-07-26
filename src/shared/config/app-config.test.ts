@@ -15,7 +15,7 @@ describe("appConfig", () => {
   });
 
   it("describes the product foundation", () => {
-    expect(appConfig.description).toContain("public chat platform");
+    expect(appConfig.description).toContain("public-first chat platform");
     expect(appConfig.foundationAreas).toHaveLength(3);
   });
 });
