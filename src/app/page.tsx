@@ -74,7 +74,7 @@ export default async function Home(): Promise<ReactElement> {
         }}
       />
       <NavigationBar />
-      <div className="absolute inset-x-0 top-0 -z-10 h-128 bg-[radial-gradient(circle_at_top,rgba(217,119,6,0.18),transparent_48%),radial-gradient(circle_at_left,rgba(14,116,144,0.18),transparent_32%)]" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(217,119,6,0.18),transparent_38%),radial-gradient(circle_at_0%_28%,rgba(14,116,144,0.16),transparent_30%),radial-gradient(circle_at_82%_82%,rgba(14,116,144,0.14),transparent_34%)]" />
 
       <section className="mx-auto flex w-full max-w-6xl flex-col gap-14 px-4 py-12 sm:px-8 sm:py-14 lg:px-12 lg:py-16">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)] lg:items-end">
