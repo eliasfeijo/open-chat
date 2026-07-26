@@ -27,17 +27,13 @@ RoomSurf is powered by the OpenChat open-source project. It is the live instance
 
 ## Live Demo
 
-Visit RoomSurf: [room.surf](https://room.surf)
+![Demo of RoomSurf room discovery and live chat](public/roomsurf-demo.gif)
 
 ## Product Preview
 
 Homepage screenshot:
 
 ![Screenshot of the RoomSurf homepage](public/roomsurf-home.png)
-
-Demo of room discovery and live chat:
-
-![Demo of RoomSurf room discovery and live chat](public/roomsurf-demo.gif)
 
 OpenGraph image for social sharing and link previews:
 
