@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { asc, desc, eq, sql } from "drizzle-orm";
 
-import { tags } from "@/db/schema";
+import { roomTags, tags } from "@/db/schema";
 import type {
   CreateTagRecordInput,
   TagRepository,
@@ -31,6 +31,22 @@ export function createDrizzleTagRepository(
       });
 
       return tag ? mapTag(tag) : null;
+    },
+
+    async list(input) {
+      const listedTags = await database
+        .select({
+          id: tags.id,
+          name: tags.name,
+          slug: tags.slug,
+        })
+        .from(tags)
+        .leftJoin(roomTags, eq(roomTags.tagId, tags.id))
+        .groupBy(tags.id, tags.name, tags.slug)
+        .orderBy(desc(sql<number>`count(${roomTags.roomId})`), asc(tags.name))
+        .limit(input?.limit ?? 50);
+
+      return listedTags.map(mapTag);
     },
   };
 }

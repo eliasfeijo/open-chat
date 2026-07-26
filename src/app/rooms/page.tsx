@@ -8,6 +8,7 @@ import { RoomsList } from "@/modules/rooms/presentation/rooms-list";
 import { listUserRoomMemberships } from "@/modules/rooms";
 import { RoomDiscoveryFilters } from "@/modules/search/presentation/room-discovery-filters";
 import { searchRooms } from "@/modules/search";
+import { listTags } from "@/modules/tags";
 import { syncUserProfileFromAuthIdentity } from "@/modules/users";
 
 type RoomsPageProps = Readonly<{
@@ -33,7 +34,10 @@ export default async function RoomsPage({
   const resolvedSearchParams = await searchParams;
   const activeQuery = resolvedSearchParams.q ?? "";
   const activeTagSlug = resolvedSearchParams.tag ?? "";
-  const [rooms, memberships] = await Promise.all([
+  const [availableTags, rooms, memberships] = await Promise.all([
+    listTags({
+      limit: 100,
+    }),
     searchRooms({
       limit: 20,
       query: activeQuery,
@@ -89,6 +93,7 @@ export default async function RoomsPage({
           <RoomDiscoveryFilters
             activeQuery={activeQuery}
             activeTagSlug={activeTagSlug}
+            availableTags={availableTags}
           />
 
           {hasDiscoveryFilters ? (

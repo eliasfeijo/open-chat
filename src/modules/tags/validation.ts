@@ -50,4 +50,9 @@ export const tagSlugListFromTextSchema = z
   })
   .pipe(tagSlugListSchema);
 
+export const listTagsSchema = z.object({
+  limit: z.coerce.number().int().positive().max(200).default(50),
+});
+
 export type Tag = z.infer<typeof tagSchema>;
+export type ListTagsInput = z.infer<typeof listTagsSchema>;

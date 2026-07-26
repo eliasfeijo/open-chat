@@ -8,4 +8,5 @@ export type CreateTagRecordInput = {
 export interface TagRepository {
   create(input: CreateTagRecordInput): Promise<Tag>;
   findBySlug(slug: string): Promise<Tag | null>;
+  list(input?: { limit?: number }): Promise<Tag[]>;
 }
