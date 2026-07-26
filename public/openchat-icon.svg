@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">OpenChat Icon</title>
+  <desc id="desc">Rounded-square app icon with a chat bubble and globe motif for discoverable public conversations.</desc>
+
+  <defs>
+    <linearGradient id="bgGradient" x1="52" y1="44" x2="460" y2="470" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="0.52" stop-color="#0b2943"/>
+      <stop offset="1" stop-color="#0e7490"/>
+    </linearGradient>
+
+    <radialGradient id="auroraGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(392 118) rotate(135) scale(200)">
+      <stop offset="0" stop-color="#facc15" stop-opacity="0.68"/>
+      <stop offset="1" stop-color="#facc15" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="bubbleFill" x1="144" y1="142" x2="368" y2="364" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e5edf5"/>
+    </linearGradient>
+
+    <filter id="bubbleShadow" x="102" y="102" width="316" height="322" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="8" result="blur"/>
+      <feOffset dy="7" result="offsetBlur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.26"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="offsetBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="464" height="464" rx="108" fill="url(#bgGradient)"/>
+  <rect x="24" y="24" width="464" height="464" rx="108" fill="url(#auroraGlow)"/>
+  <rect x="24" y="24" width="464" height="464" rx="108" fill="none" stroke="#e2e8f0" stroke-opacity="0.14" stroke-width="4"/>
+
+  <g filter="url(#bubbleShadow)">
+    <path d="M128 190C128 161.28 151.28 138 180 138H332C360.72 138 384 161.28 384 190V272C384 300.72 360.72 324 332 324H246L184 376V324H180C151.28 324 128 300.72 128 272V190Z" fill="url(#bubbleFill)"/>
+  </g>
+
+  <g fill="none" stroke="#0d5f78" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="256" cy="232" r="62" stroke-width="13"/>
+    <path d="M194 232H318" stroke-width="10"/>
+    <path d="M256 170C272 186 280.5 208.5 280.5 232C280.5 255.5 272 278 256 294" stroke-width="8.5"/>
+    <path d="M256 170C240 186 231.5 208.5 231.5 232C231.5 255.5 240 278 256 294" stroke-width="8.5"/>
+    <path d="M207 201C221 207 238 210.5 256 210.5C274 210.5 291 207 305 201" stroke-width="7"/>
+    <path d="M207 263C221 257 238 253.5 256 253.5C274 253.5 291 257 305 263" stroke-width="7"/>
+  </g>
+
+  <circle cx="386" cy="126" r="19" fill="#facc15"/>
+  <circle cx="386" cy="126" r="8" fill="#fff6bf"/>
+
+  <circle cx="148" cy="112" r="8" fill="#f8fafc" fill-opacity="0.22"/>
+  <circle cx="126" cy="132" r="4" fill="#f8fafc" fill-opacity="0.2"/>
+</svg>

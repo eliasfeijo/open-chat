@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { appConfig } from "@/shared/config/app-config";
 import { Providers } from "./providers";
@@ -20,6 +20,44 @@ export const metadata: Metadata = {
     template: `%s | ${appConfig.name}`,
   },
   description: appConfig.description,
+  manifest: "/manifest.webmanifest",
+  applicationName: appConfig.name,
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: appConfig.name,
+  },
+  formatDetection: {
+    address: false,
+    email: false,
+    telephone: false,
+  },
+  icons: {
+    icon: [
+      {
+        sizes: "32x32",
+        type: "image/png",
+        url: "/openchat-icon-32.png",
+      },
+      {
+        sizes: "192x192",
+        type: "image/png",
+        url: "/openchat-icon-192.png",
+      },
+      {
+        type: "image/svg+xml",
+        url: "/openchat-icon.svg",
+      },
+    ],
+    shortcut: ["/openchat-icon-32.png"],
+    apple: [
+      {
+        sizes: "180x180",
+        type: "image/png",
+        url: "/openchat-icon-180.png",
+      },
+    ],
+  },
   openGraph: {
     description: appConfig.description,
     title: appConfig.name,
@@ -30,6 +68,13 @@ export const metadata: Metadata = {
     description: appConfig.description,
     title: appConfig.name,
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0e7490",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
