@@ -122,9 +122,22 @@ export default async function RoomOpenGraphImage({
           >
             {truncate(roomTopic, 90)}
           </p>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <div
+            style={{
+              alignItems: "center",
+              alignSelf: "flex-start",
+              background: "#facc15",
+              borderRadius: "999px",
+              color: "#0f172a",
+              display: "flex",
+              fontSize: 18,
+              fontWeight: 700,
+              letterSpacing: "0.01em",
+              padding: "10px 18px",
+            }}
+          >
+            Browse rooms
+          </div>
           <p
             style={{
               color: "#e2e8f0",
@@ -136,6 +149,9 @@ export default async function RoomOpenGraphImage({
           >
             {truncate(roomDescription, 150)}
           </p>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           <div style={{ display: "flex", gap: "10px", flexWrap: "nowrap" }}>
             {["Public room", "Read before joining", "Member-only posting"].map(
               (label) => (

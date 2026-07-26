@@ -2,7 +2,7 @@ export const appConfig = {
   name: "RoomSurf",
   siteUrl: "https://room.surf",
   description:
-    "RoomSurf is public-first chat for discoverable conversations: surf live rooms, discover active communities, and join realtime discussions around shared interests.",
+    "RoomSurf is public-first chat for discoverable conversations. Browse live rooms, find active communities, and join realtime discussions.",
   seoKeywords: [
     "public chat",
     "public communities",

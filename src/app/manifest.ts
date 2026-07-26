@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "RoomSurf",
     short_name: "RoomSurf",
     description:
-      "Public-first chat for discoverable conversations. Surf public rooms, discover active communities, and join realtime discussions.",
+      "Public-first chat for discoverable conversations. Browse live rooms, find active communities, and join realtime discussions.",
     start_url: "/",
     scope: "/",
     display: "standalone",

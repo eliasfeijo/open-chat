@@ -101,6 +101,22 @@ export default function OpenGraphImage() {
           >
             Discover live public communities and join realtime discussions.
           </p>
+          <div
+            style={{
+              alignItems: "center",
+              alignSelf: "flex-start",
+              background: "#facc15",
+              borderRadius: "999px",
+              color: "#0f172a",
+              display: "flex",
+              fontSize: 18,
+              fontWeight: 700,
+              letterSpacing: "0.01em",
+              padding: "10px 18px",
+            }}
+          >
+            Browse rooms
+          </div>
         </div>
 
         <div style={{ display: "flex", gap: "10px", flexWrap: "nowrap" }}>
