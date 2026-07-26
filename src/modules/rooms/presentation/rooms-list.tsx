@@ -5,7 +5,7 @@ import type { RoomSearchResult } from "@/modules/search";
 
 type RoomsListProps = Readonly<{
   activeTagSlug: string | null;
-  currentUserId: string;
+  currentUserId: string | null;
   membershipRoomIds: string[];
   rooms: RoomSearchResult[];
 }>;
@@ -29,6 +29,12 @@ export function RoomsList({
   const discoverRooms: RoomSearchResult[] = [];
 
   for (const room of rooms) {
+    if (!currentUserId) {
+      discoverRooms.push(room);
+
+      continue;
+    }
+
     const isJoinedRoom =
       room.ownerUserId === currentUserId || membershipRoomIdSet.has(room.id);
 
@@ -46,7 +52,9 @@ export function RoomsList({
     room: RoomSearchResult;
   }) {
     const ownershipLabel =
-      input.room.ownerUserId === currentUserId ? "You own this room" : "Joined";
+      currentUserId && input.room.ownerUserId === currentUserId
+        ? "You own this room"
+        : "Joined";
 
     return (
       <article

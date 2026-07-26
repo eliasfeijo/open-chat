@@ -1,4 +1,5 @@
-import { redirect } from "next/navigation";
+import Link from "next/link";
+import type { Metadata } from "next";
 import type { ReactElement } from "react";
 
 import { getAuthenticatedUser } from "@/modules/auth";
@@ -23,13 +24,11 @@ export default async function RoomsPage({
 }: RoomsPageProps): Promise<ReactElement> {
   const authenticatedUser = await getAuthenticatedUser();
 
-  if (!authenticatedUser) {
-    redirect("/sign-in?redirectTo=/rooms");
+  if (authenticatedUser) {
+    await syncUserProfileFromAuthIdentity({
+      authUserId: authenticatedUser.id,
+    });
   }
-
-  await syncUserProfileFromAuthIdentity({
-    authUserId: authenticatedUser.id,
-  });
 
   const resolvedSearchParams = await searchParams;
   const activeQuery = resolvedSearchParams.q ?? "";
@@ -43,12 +42,45 @@ export default async function RoomsPage({
       query: activeQuery,
       tagSlug: activeTagSlug,
     }),
-    listUserRoomMemberships({
-      userId: authenticatedUser.id,
-    }),
+    authenticatedUser
+      ? listUserRoomMemberships({
+          userId: authenticatedUser.id,
+        })
+      : Promise.resolve([]),
   ]);
   const membershipRoomIds = memberships.map((membership) => membership.roomId);
   const hasDiscoveryFilters = activeQuery !== "" || activeTagSlug !== "";
+
+  const createRoomPanel = authenticatedUser ? (
+    <CreateRoomForm />
+  ) : (
+    <section className="space-y-5 rounded-4xl border border-(--color-border) bg-(--color-surface) p-6 shadow-sm">
+      <div className="space-y-2">
+        <h2 className="text-2xl font-semibold tracking-[-0.03em] text-(--color-foreground)">
+          Want to start a room?
+        </h2>
+        <p className="text-sm leading-7 text-(--color-muted)">
+          Browsing is public. Creating and posting require an account so rooms
+          stay human and accountable.
+        </p>
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        <Link
+          className="inline-flex items-center justify-center rounded-full bg-(--color-accent) px-5 py-2.5 text-sm font-semibold text-(--color-accent-foreground) transition hover:brightness-110"
+          href="/sign-up?redirectTo=/rooms"
+        >
+          Create account to start a room
+        </Link>
+        <Link
+          className="inline-flex items-center justify-center rounded-full border border-(--color-border) bg-(--color-page) px-5 py-2.5 text-sm font-medium transition hover:bg-(--color-surface-strong)"
+          href="/sign-in?redirectTo=/rooms"
+        >
+          Sign in
+        </Link>
+      </div>
+    </section>
+  );
 
   return (
     <main className="min-h-screen bg-(--color-page)">
@@ -76,7 +108,7 @@ export default async function RoomsPage({
             </div>
           </div>
 
-          <CreateRoomForm />
+          {createRoomPanel}
         </div>
 
         <section className="space-y-4">
@@ -105,7 +137,7 @@ export default async function RoomsPage({
 
           <RoomsList
             activeTagSlug={activeTagSlug || null}
-            currentUserId={authenticatedUser.id}
+            currentUserId={authenticatedUser?.id ?? null}
             membershipRoomIds={membershipRoomIds}
             rooms={rooms}
           />
@@ -114,3 +146,13 @@ export default async function RoomsPage({
     </main>
   );
 }
+
+export const metadata: Metadata = {
+  description:
+    "Browse public rooms, discover active topics, and read live conversations before joining.",
+  robots: {
+    follow: true,
+    index: true,
+  },
+  title: "Discover Rooms",
+};

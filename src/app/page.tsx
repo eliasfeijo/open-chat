@@ -31,6 +31,24 @@ const productPillars = [
   },
 ];
 
+const guestHighlights = [
+  {
+    description:
+      "Browse any public room before creating an account. Read first, decide later.",
+    title: "Open doors",
+  },
+  {
+    description:
+      "Search by topic and tags to find people obsessing over the exact thing you came for.",
+    title: "Find your people",
+  },
+  {
+    description:
+      "Join when ready and post with your identity attached, so the conversation stays human.",
+    title: "Speak with context",
+  },
+];
+
 export default async function Home(): Promise<ReactElement> {
   const authenticatedUser = await getAuthenticatedUser();
 
@@ -45,17 +63,19 @@ export default async function Home(): Promise<ReactElement> {
             <span className="inline-flex rounded-full border border-(--color-border) bg-(--color-surface) px-4 py-1 text-sm font-medium text-(--color-muted) shadow-sm">
               {authenticatedUser
                 ? `Signed in as ${authenticatedUser.name}`
-                : "Public-first chat platform"}
+                : "Read first. Join when ready."}
             </span>
 
             <div className="space-y-5">
               <h1 className="max-w-4xl text-5xl font-semibold tracking-[-0.04em] text-(--color-foreground) sm:text-6xl">
-                Public conversations that stay discoverable.
+                {authenticatedUser
+                  ? "Public conversations that stay discoverable."
+                  : "Conversations worth reading, before you even sign in."}
               </h1>
               <p className="max-w-3xl text-lg leading-8 text-(--color-muted) sm:text-xl">
-                OpenChat helps people create, find, and join public rooms
-                without hidden invites. If it matters to a community, it should
-                be easy to find and easy to join.
+                {authenticatedUser
+                  ? "OpenChat helps people create, find, and join public rooms without hidden invites. If it matters to a community, it should be easy to find and easy to join."
+                  : "Explore public rooms like a curious passerby, then join the ones that feel like home. No invite maze, no secret handshake, just discoverable conversations."}
               </p>
             </div>
 
@@ -68,26 +88,29 @@ export default async function Home(): Promise<ReactElement> {
                     : "/sign-up?redirectTo=/profile"
                 }
               >
-                {authenticatedUser
-                  ? "Continue to profile"
-                  : "Create your account"}
+                {authenticatedUser ? "Continue to profile" : "Join OpenChat"}
               </Link>
-              <a
-                className="inline-flex items-center justify-center rounded-full bg-(--color-accent) px-6 py-3 text-sm font-semibold text-(--color-accent-foreground) transition hover:brightness-110"
-                href="#highlights"
-              >
-                Why OpenChat
-              </a>
               <Link
                 className="inline-flex items-center justify-center rounded-full border border-(--color-border) bg-(--color-surface) px-6 py-3 text-sm font-semibold text-(--color-foreground) transition hover:bg-(--color-surface-strong)"
-                href={
-                  authenticatedUser
-                    ? "/profile"
-                    : "/sign-in?redirectTo=/profile"
-                }
+                href="/rooms"
               >
-                {authenticatedUser ? "Edit profile" : "Sign in"}
+                Browse rooms
               </Link>
+              {authenticatedUser ? (
+                <Link
+                  className="inline-flex items-center justify-center rounded-full border border-(--color-border) bg-(--color-surface) px-6 py-3 text-sm font-semibold text-(--color-foreground) transition hover:bg-(--color-surface-strong)"
+                  href="/profile"
+                >
+                  Edit profile
+                </Link>
+              ) : (
+                <a
+                  className="inline-flex items-center justify-center rounded-full border border-(--color-border) bg-(--color-surface) px-6 py-3 text-sm font-semibold text-(--color-foreground) transition hover:bg-(--color-surface-strong)"
+                  href="#how-it-works"
+                >
+                  How it works
+                </a>
+              )}
             </div>
           </div>
 
@@ -103,6 +126,12 @@ export default async function Home(): Promise<ReactElement> {
                 </li>
               ))}
             </ul>
+            {!authenticatedUser ? (
+              <p className="mt-5 rounded-2xl border border-(--color-border) bg-(--color-page) px-4 py-3 text-sm leading-6 text-(--color-muted)">
+                Read as much as you want. Posting unlocks after sign in and
+                joining a room.
+              </p>
+            ) : null}
           </aside>
         </div>
 
@@ -122,34 +151,64 @@ export default async function Home(): Promise<ReactElement> {
           ))}
         </section>
 
-        <section
-          id="modules"
-          className="rounded-4xl border border-(--color-border) bg-(--color-surface-strong) p-8"
-        >
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="max-w-2xl space-y-3">
+        {authenticatedUser ? (
+          <section
+            id="modules"
+            className="rounded-4xl border border-(--color-border) bg-(--color-surface-strong) p-8"
+          >
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+              <div className="max-w-2xl space-y-3">
+                <h2 className="text-2xl font-semibold tracking-[-0.03em] text-(--color-foreground)">
+                  Product scope with clear boundaries
+                </h2>
+                <p className="text-base leading-7 text-(--color-muted)">
+                  OpenChat keeps a focused scope while growing deliberately. The
+                  modules below cover the current product and keep delivery
+                  reliable as new features arrive.
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2 lg:w-120">
+                {appConfig.initialModules.map((moduleName) => (
+                  <div
+                    key={moduleName}
+                    className="rounded-2xl border border-(--color-border) bg-(--color-page) px-4 py-3 text-sm font-medium text-(--color-foreground)"
+                  >
+                    {moduleName}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : (
+          <section id="how-it-works" className="space-y-5">
+            <div className="space-y-2">
               <h2 className="text-2xl font-semibold tracking-[-0.03em] text-(--color-foreground)">
-                Product scope with clear boundaries
+                How OpenChat feels for new visitors
               </h2>
               <p className="text-base leading-7 text-(--color-muted)">
-                OpenChat keeps a focused scope while growing deliberately. The
-                modules below cover the current product and keep delivery
-                reliable as new features arrive.
+                You can browse first, find signal quickly, and only sign in when
+                you are ready to contribute.
               </p>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2 lg:w-120">
-              {appConfig.initialModules.map((moduleName) => (
-                <div
-                  key={moduleName}
-                  className="rounded-2xl border border-(--color-border) bg-(--color-page) px-4 py-3 text-sm font-medium text-(--color-foreground)"
+            <div className="grid gap-4 md:grid-cols-3">
+              {guestHighlights.map((highlight) => (
+                <article
+                  key={highlight.title}
+                  className="rounded-3xl border border-(--color-border) bg-(--color-surface) p-5 shadow-sm"
                 >
-                  {moduleName}
-                </div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.16em] text-(--color-muted)">
+                    {highlight.title}
+                  </p>
+                  <p className="mt-3 text-sm leading-7 text-(--color-foreground)">
+                    {highlight.description}
+                  </p>
+                </article>
               ))}
             </div>
-          </div>
-        </section>
+          </section>
+        )}
       </section>
     </main>
   );

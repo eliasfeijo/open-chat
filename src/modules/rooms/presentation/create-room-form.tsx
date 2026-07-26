@@ -50,6 +50,16 @@ export function CreateRoomForm(): ReactElement {
       className="space-y-6 rounded-4xl border border-(--color-border) bg-(--color-surface) p-6 shadow-sm"
     >
       <div className="space-y-2">
+        <h2 className="text-2xl font-semibold tracking-[-0.03em] text-(--color-foreground)">
+          Create a public room
+        </h2>
+        <p className="text-sm leading-6 text-(--color-muted)">
+          Every room starts as a question. Name it well, and maybe strangers
+          will answer with wisdom, jokes, or both.
+        </p>
+      </div>
+
+      <div className="space-y-2">
         <label className="text-sm font-medium" htmlFor="room-name">
           Room name
         </label>
@@ -60,7 +70,7 @@ export function CreateRoomForm(): ReactElement {
           onChange={(event: ChangeEvent<HTMLInputElement>) =>
             updateField("name", event.target.value)
           }
-          placeholder="OpenChat Builders"
+          placeholder="Midnight Thoughts & Questionable Certainties"
           type="text"
           value={formValues.name}
         />
@@ -82,12 +92,13 @@ export function CreateRoomForm(): ReactElement {
           onChange={(event: ChangeEvent<HTMLInputElement>) =>
             updateField("slug", event.target.value)
           }
-          placeholder="openchat-builders"
+          placeholder="midnight-thoughts-questionable-certainties"
           type="text"
           value={formValues.slug}
         />
         <p className="text-xs text-(--color-muted)">
-          Lowercase letters, numbers, and hyphens only.
+          This becomes the room URL. Keep it simple so future-you can find it at
+          2 AM.
         </p>
         {fieldErrors.slug ? (
           <p className="text-sm text-red-700 dark:text-red-300">
@@ -107,7 +118,7 @@ export function CreateRoomForm(): ReactElement {
           onChange={(event: ChangeEvent<HTMLInputElement>) =>
             updateField("topic", event.target.value)
           }
-          placeholder="Shipping public room creation"
+          placeholder="Do we choose our habits, or do our habits choose us?"
           type="text"
           value={formValues.topic}
         />
@@ -129,12 +140,12 @@ export function CreateRoomForm(): ReactElement {
           onChange={(event: ChangeEvent<HTMLInputElement>) =>
             updateField("tags", event.target.value)
           }
-          placeholder="typescript, architecture, search"
+          placeholder="philosophy, humour, late-night"
           type="text"
           value={formValues.tags}
         />
         <p className="text-xs text-(--color-muted)">
-          Up to 5 tags. Use lowercase words separated by commas.
+          Add up to 5 tags. Think of them as breadcrumbs for curious people.
         </p>
         {fieldErrors.tags ? (
           <p className="text-sm text-red-700 dark:text-red-300">
@@ -154,7 +165,7 @@ export function CreateRoomForm(): ReactElement {
           onChange={(event: ChangeEvent<HTMLTextAreaElement>) =>
             updateField("description", event.target.value)
           }
-          placeholder="A public room for people building the first OpenChat slices."
+          placeholder="A place for honest questions, kind disagreements, and the occasional dramatic overreaction to trivial things."
           value={formValues.description}
         />
         {fieldErrors.description ? (
@@ -181,7 +192,7 @@ export function CreateRoomForm(): ReactElement {
         disabled={isPending}
         type="submit"
       >
-        {isPending ? "Creating room..." : "Create room"}
+        {isPending ? "Creating room..." : "Create public room"}
       </button>
     </form>
   );

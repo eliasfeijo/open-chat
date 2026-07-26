@@ -19,17 +19,20 @@ export type RoomMessagesListMessage = {
 
 type RoomMessagesListProps = Readonly<{
   authorProfilesByUserId: Record<string, RoomMessagesListAuthorProfile | null>;
-  currentUserId: string;
+  currentUserId: string | null;
   messages: RoomMessagesListMessage[];
   ownerUserId: string;
 }>;
 
 function getParticipantName(input: {
   authorProfile: RoomMessagesListAuthorProfile | null | undefined;
-  currentUserId: string;
+  currentUserId: string | null;
   messageAuthorUserId: string;
 }): string {
-  if (input.messageAuthorUserId === input.currentUserId) {
+  if (
+    input.currentUserId &&
+    input.messageAuthorUserId === input.currentUserId
+  ) {
     return "You";
   }
 
@@ -78,26 +81,28 @@ export function RoomMessagesList({
         <div
           key={message.id}
           className={`flex ${
-            message.authorUserId === currentUserId
+            currentUserId && message.authorUserId === currentUserId
               ? "justify-end"
               : "justify-start"
           }`}
         >
           <article
             className={`w-full max-w-3xl rounded-4xl border p-5 shadow-sm backdrop-blur-sm sm:p-6 ${
-              message.authorUserId === currentUserId
+              currentUserId && message.authorUserId === currentUserId
                 ? "border-emerald-500/20 bg-linear-to-br from-emerald-500/14 to-(--color-surface-strong)"
                 : "border-(--color-border) bg-(--color-surface)"
             }`}
           >
             <div
               className={`flex gap-4 ${
-                message.authorUserId === currentUserId ? "flex-row-reverse" : ""
+                currentUserId && message.authorUserId === currentUserId
+                  ? "flex-row-reverse"
+                  : ""
               }`}
             >
               <div
                 className={`flex size-11 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold ${
-                  message.authorUserId === currentUserId
+                  currentUserId && message.authorUserId === currentUserId
                     ? "bg-(--color-accent) text-(--color-accent-foreground)"
                     : "bg-(--color-page) text-(--color-foreground)"
                 }`}
@@ -111,7 +116,7 @@ export function RoomMessagesList({
               <div className="min-w-0 flex-1 space-y-3">
                 <div
                   className={`flex flex-wrap items-center gap-2 text-sm ${
-                    message.authorUserId === currentUserId
+                    currentUserId && message.authorUserId === currentUserId
                       ? "justify-end text-right"
                       : ""
                   }`}
@@ -152,7 +157,9 @@ export function RoomMessagesList({
                 {authorProfilesByUserId[message.authorUserId]?.bio ? (
                   <p
                     className={`text-sm leading-6 text-(--color-muted) ${
-                      message.authorUserId === currentUserId ? "text-right" : ""
+                      currentUserId && message.authorUserId === currentUserId
+                        ? "text-right"
+                        : ""
                     }`}
                   >
                     {authorProfilesByUserId[message.authorUserId]?.bio}

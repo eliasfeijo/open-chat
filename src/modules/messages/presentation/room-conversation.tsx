@@ -12,7 +12,7 @@ import { websocketServerMessageSchema } from "@/websocket/validation";
 
 type RoomConversationProps = Readonly<{
   canPost: boolean;
-  currentUserId: string;
+  currentUserId: string | null;
   initialAuthorProfilesByUserId: Record<
     string,
     RoomMessagesListAuthorProfile | null
@@ -177,6 +177,10 @@ export function RoomConversation({
     body: string;
     optimisticMessageId: string;
   }) {
+    if (!currentUserId) {
+      return;
+    }
+
     setMessages((currentMessages) => [
       ...currentMessages,
       {
@@ -297,7 +301,7 @@ export function RoomConversation({
             return currentMessages;
           }
 
-          if (payload.message.authorUserId === currentUserId) {
+          if (currentUserId && payload.message.authorUserId === currentUserId) {
             const optimisticMessageIndex = currentMessages.findIndex(
               (message) =>
                 message.authorUserId === currentUserId &&
@@ -446,7 +450,7 @@ export function RoomConversation({
   const resolvedActiveUserIds =
     activeUserIds.length > 0
       ? activeUserIds
-      : canPost && (activeUserCount ?? 0) > 0
+      : canPost && currentUserId && (activeUserCount ?? 0) > 0
         ? [currentUserId]
         : [];
   const effectiveActiveUserCount =

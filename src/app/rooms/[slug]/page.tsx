@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import type { ReactElement } from "react";
 
 import { getAuthenticatedUser } from "@/modules/auth";
@@ -19,16 +20,51 @@ type RoomDetailPageProps = Readonly<{
   }>;
 }>;
 
+export async function generateMetadata({
+  params,
+}: RoomDetailPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const room = await getRoomBySlug(slug);
+
+  if (!room) {
+    return {
+      robots: {
+        follow: false,
+        index: false,
+      },
+      title: "Room not found",
+    };
+  }
+
+  const description =
+    room.description ??
+    room.topic ??
+    `Read public conversation in ${room.name}. Join to post when you are ready.`;
+
+  return {
+    description,
+    openGraph: {
+      description,
+      title: room.name,
+      type: "article",
+    },
+    robots: {
+      follow: true,
+      index: true,
+    },
+    title: room.name,
+    twitter: {
+      card: "summary_large_image",
+      description,
+      title: room.name,
+    },
+  };
+}
+
 export default async function RoomDetailPage({
   params,
 }: RoomDetailPageProps): Promise<ReactElement> {
   const authenticatedUser = await getAuthenticatedUser();
-
-  if (!authenticatedUser) {
-    const { slug } = await params;
-
-    redirect(`/sign-in?redirectTo=/rooms/${slug}`);
-  }
 
   const { slug } = await params;
   const room = await getRoomBySlug(slug);
@@ -38,10 +74,12 @@ export default async function RoomDetailPage({
   }
 
   const [currentMembership, messages, roomTags] = await Promise.all([
-    getRoomMembership({
-      roomId: room.id,
-      userId: authenticatedUser.id,
-    }),
+    authenticatedUser
+      ? getRoomMembership({
+          roomId: room.id,
+          userId: authenticatedUser.id,
+        })
+      : Promise.resolve(null),
     listRoomMessages({
       roomId: room.id,
     }),
@@ -74,7 +112,9 @@ export default async function RoomDetailPage({
     ? currentMembership.role === "owner"
       ? "Hosting"
       : "Joined"
-    : "Browsing";
+    : authenticatedUser
+      ? "Browsing"
+      : "Guest";
 
   return (
     <main className="min-h-screen bg-(--color-page)">
@@ -132,21 +172,49 @@ export default async function RoomDetailPage({
         <div className="grid gap-8 lg:grid-cols-[minmax(18rem,22rem)_minmax(0,1fr)] lg:items-start">
           <aside className="space-y-6 lg:sticky lg:top-24">
             <RoomDetails
-              currentUserId={authenticatedUser.id}
+              currentUserId={authenticatedUser?.id ?? ""}
               ownerProfile={ownerProfile}
               room={room}
               tags={roomTags}
             />
 
-            {room.ownerUserId === authenticatedUser.id ? (
+            {authenticatedUser && room.ownerUserId === authenticatedUser.id ? (
               <EditRoomDetailsForm room={room} tags={roomTags} />
             ) : null}
 
-            <RoomMembershipPanel
-              currentMembershipRole={currentMembership?.role ?? null}
-              roomId={room.id}
-              roomSlug={room.slug}
-            />
+            {authenticatedUser ? (
+              <RoomMembershipPanel
+                currentMembershipRole={currentMembership?.role ?? null}
+                roomId={room.id}
+                roomSlug={room.slug}
+              />
+            ) : (
+              <section className="space-y-4 rounded-4xl border border-(--color-border) bg-(--color-surface) p-6 shadow-sm">
+                <div className="space-y-2">
+                  <h2 className="text-lg font-semibold tracking-[-0.03em] text-(--color-foreground)">
+                    Join to post
+                  </h2>
+                  <p className="text-sm leading-7 text-(--color-muted)">
+                    This room is public to read. Sign in to join and unlock
+                    posting.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <Link
+                    className="inline-flex items-center justify-center rounded-full bg-(--color-accent) px-5 py-2.5 text-sm font-semibold text-(--color-accent-foreground) transition hover:brightness-110"
+                    href={`/sign-in?redirectTo=/rooms/${room.slug}`}
+                  >
+                    Sign in to join
+                  </Link>
+                  <Link
+                    className="inline-flex items-center justify-center rounded-full border border-(--color-border) bg-(--color-page) px-5 py-2.5 text-sm font-medium transition hover:bg-(--color-surface-strong)"
+                    href={`/sign-up?redirectTo=/rooms/${room.slug}`}
+                  >
+                    Create account
+                  </Link>
+                </div>
+              </section>
+            )}
           </aside>
 
           <section className="overflow-hidden rounded-4xl border border-(--color-border) bg-linear-to-b from-(--color-surface) to-(--color-surface-strong) shadow-sm">
@@ -169,7 +237,7 @@ export default async function RoomDetailPage({
 
             <RoomConversation
               canPost={currentMembership !== null}
-              currentUserId={authenticatedUser.id}
+              currentUserId={authenticatedUser?.id ?? null}
               initialAuthorProfilesByUserId={messageAuthorProfilesByUserId}
               initialMessages={messages}
               ownerUserId={room.ownerUserId}
