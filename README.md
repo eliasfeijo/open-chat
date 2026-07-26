@@ -33,7 +33,7 @@ Visit RoomSurf: [room.surf](https://room.surf)
 
 Homepage screenshot:
 
-![Screenshot of the RoomSurf homepage](public/roomsurf-homepage.png)
+![Screenshot of the RoomSurf homepage](public/roomsurf-home.png)
 
 Demo of room discovery and live chat:
 
