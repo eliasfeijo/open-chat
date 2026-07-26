@@ -51,6 +51,10 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
+        type: "image/svg+xml",
+        url: "/roomsurf-favicon.svg",
+      },
+      {
         sizes: "32x32",
         type: "image/png",
         url: "/roomsurf-icon-32.png",
@@ -60,12 +64,8 @@ export const metadata: Metadata = {
         type: "image/png",
         url: "/roomsurf-icon-192.png",
       },
-      {
-        type: "image/svg+xml",
-        url: "/roomsurf-icon.svg",
-      },
     ],
-    shortcut: ["/roomsurf-icon-32.png"],
+    shortcut: ["/roomsurf-favicon.svg"],
     apple: [
       {
         sizes: "180x180",

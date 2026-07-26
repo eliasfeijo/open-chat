@@ -12,7 +12,11 @@ export const size = {
 export const contentType = "image/png";
 
 const roomSurfIconDataUrl = `data:image/svg+xml;base64,${readFileSync(
-  join(process.cwd(), "public", "roomsurf-icon.svg"),
+  join(process.cwd(), "public", "roomsurf-logo.svg"),
+).toString("base64")}`;
+
+const roomSurfIconMonochromeDataUrl = `data:image/svg+xml;base64,${readFileSync(
+  join(process.cwd(), "public", "roomsurf-logo-monochrome.svg"),
 ).toString("base64")}`;
 
 type RoomOpenGraphImageProps = Readonly<{
@@ -75,7 +79,7 @@ export default async function RoomOpenGraphImage({
           <img
             alt="RoomSurf icon"
             height={54}
-            src={roomSurfIconDataUrl}
+            src={roomSurfIconMonochromeDataUrl}
             style={{ borderRadius: "12px" }}
             width={54}
           />
@@ -104,7 +108,7 @@ export default async function RoomOpenGraphImage({
           </p>
           <h1
             style={{
-              fontSize: 54,
+              fontSize: 64,
               fontWeight: 700,
               letterSpacing: "-0.035em",
               lineHeight: 1.02,

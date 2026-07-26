@@ -13,7 +13,11 @@ export const size = {
 export const contentType = "image/png";
 
 const roomSurfIconDataUrl = `data:image/svg+xml;base64,${readFileSync(
-  join(process.cwd(), "public", "roomsurf-icon.svg"),
+  join(process.cwd(), "public", "roomsurf-logo.svg"),
+).toString("base64")}`;
+
+const roomSurfIconMonochromeDataUrl = `data:image/svg+xml;base64,${readFileSync(
+  join(process.cwd(), "public", "roomsurf-logo-monochrome.svg"),
 ).toString("base64")}`;
 
 export default function OpenGraphImage() {
@@ -51,7 +55,7 @@ export default function OpenGraphImage() {
           <img
             alt="RoomSurf icon"
             height={54}
-            src={roomSurfIconDataUrl}
+            src={roomSurfIconMonochromeDataUrl}
             style={{ borderRadius: "12px" }}
             width={54}
           />

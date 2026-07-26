@@ -187,7 +187,7 @@ Add basic community management and improve conversation ergonomics after the cor
 Scope:
 
 - moderation primitives
-- mentions
+- user mentions with explicit `@username` targeting in room messages
 - emoji reactions
 - pinned messages
 - clearer room ownership and management flows
@@ -212,7 +212,7 @@ Extend the platform with richer content and user re-engagement once the messagin
 Scope:
 
 - attachments
-- notifications
+- notifications, starting with web push notifications for mention events
 - private rooms
 - mobile experience improvements
 
@@ -226,6 +226,14 @@ Success criteria:
 Architectural note:
 
 This phase is the first likely trigger for object storage and more deliberate notification infrastructure. Both require explicit design and may require new ADRs.
+
+Dependency note:
+
+Mentions and notifications should be delivered as a linked sequence:
+
+- add reliable mention parsing and recipient targeting in the messaging flow first
+- trigger web push notifications from mention events through an application-owned notification use case
+- keep notification delivery as an infrastructure adapter, not as business logic in transport handlers
 
 ---
 
